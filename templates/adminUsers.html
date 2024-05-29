@@ -1,0 +1,123 @@
+<div class="display-view d-none" id="adminUsers">
+   {{ navPanel("adminUsers", "clubAdmin" , "Admin - Users") }}
+
+   <div class="container">
+      <div class="row justify-content-center">
+         <div class="col-auto">
+            Add User: 
+	    <button type="button" class="btn btn-warning btn mt-2" onclick="adminUsers_showAddUser()"><i class="fas fa-plus"></i></button>
+         </div>
+      </div>
+      <div class="row justify-content-center">
+	 <div class="col-auto">
+	    <table class="table">
+               <thead>
+	          <tr>
+		     <th>Delete</th>
+		     <th>User Name</th>
+		     <th>Type</th>
+	          </tr>
+               </thead>
+               <tbody id="adminUsers-userTable">
+               </tbody>
+	    </table>
+	 </div>
+	 
+      </div>
+      <div class="row justify-content-center">
+	 <div class="col-auto">
+	    <button type="submit" id="adminUsers-btn-primary" class="btn btn-primary" onclick="adminUsers_save()">Save</button>
+	 </div>
+      </div>
+   </div>
+</div>
+<script>
+ var adminUsers_index = 0;
+
+ function adminUsers_showAddUser() {
+    overlayShow("adminUsersAdd", {})
+ }
+ 
+ function adminUsers_save() {
+    let deletedUsers = $('.adminUsers-delete:checkbox:checked');
+    let users = $('.adminUsers-delete:checkbox:not(:checked)');
+    let usersDiff = []
+
+    for (let x = 0; x < deletedUsers.length; x++) {
+       usersDiff.push({user: deletedUsers[x].dataset.user,
+                       action: "delete"})
+    }
+
+    for (let x = 0; x < users.length; x++) {
+       let userData = users[x].dataset;
+
+       if (userData.added == "1") {
+          usersDiff.push({user: userData.user,
+                          action: "add",
+                          password: userData.password,
+                          admin: userData.admin})
+       }
+    }
+
+    updateUsers(usersDiff)
+       .done(res => adminUsers_populate())
+ }
+
+ function adminUsers_appendUser(user, password, admin, added) {
+    let index = adminUsers_index++;
+    $('#adminUsers-userTable').append(`
+<tr>
+  <td> 
+    <input type="checkbox" class="adminUsers-delete" id="adminUsers-delete${index}" 
+       data-id="${index}" 
+       data-added="${htmlToText(added)}"
+       data-user="${htmlToText(user)}"
+       data-password="${htmlToText(password)}"
+       data-added="0"
+       data-admin="${htmlToText(admin)}"> 
+  </td>
+  <td>
+    ${user}
+  </td> 
+  <td>
+    ${admin ? "Admin" : "User"}
+  </td>
+</tr>`);
+    
+ }
+ 
+ function adminUsers_showFromOverlay(data) {
+    if (!data) {
+       return;
+    }
+    
+    adminUsers_appendUser(data.user, data.password, data.isAdmin, "1");
+ }
+ 
+ function adminUsers_addUser(e) {
+    let user = $("#adminUsersModal-newUser").val();
+    let password = $("#adminUsersModal-newPassword").val();
+    let isAdmin = $("#adminUsersModal-isadministrator").is(":checked");
+    $('#adminUsers-addNewUserModal').modal('hide');
+
+    adminUsers_appendUser(user, password, isAdmin, "1");
+ }
+
+ function adminUsers_populate() {
+    $("#adminUsers-userTable").empty();
+    getUsers()
+       .done( function(res) {
+          res.users.forEach(function (p) {
+             adminUsers_appendUser(p.name, null, p.admin, "0");
+          })
+       })
+ }
+ 
+ function adminUsers_enter() {
+    adminUsers_populate()
+ }
+ 
+ function adminUsers_exit() {
+    $("#adminUsers-userTable").empty();
+ }
+</script>

@@ -1,0 +1,27 @@
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.bundle.js"></script>
+<link rel="stylesheet" href="/static/css/bootstrap.css">
+<link href="/static/css/solid.css" rel="stylesheet">
+<link href="/static/css/fontawesome.css" rel="stylesheet">
+<link type="text/css" rel="stylesheet" href="/static/css/waitMe.css">
+<script src="/static/js/waitMe.js"></script>
+<script src="/static/js/utilscript.js"></script>
+<link href="/static/css/defaultstyle.css" rel="stylesheet">
+{% include 'data.js' %}
+<style>
+    {% for c in colours %}
+    .bg-{{c[0]}} {
+    background-color: rgb({{c[1].red}},{{c[1].green}},{{c[1].blue}});
+    }
+    .txt-{{c[0]}} {
+    color: rgb({{c[1].red}},{{c[1].green}},{{c[1].blue}});
+    }
+    {% endfor %}
+</style>
+    
+
+

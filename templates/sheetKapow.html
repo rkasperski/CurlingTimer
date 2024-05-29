@@ -1,0 +1,27 @@
+<div id="sheetKapow" class="display-view d-none">
+   {{ navPanel("sheetKapow", "sheet") }}
+   <div class="row justify-content-evenly">
+      {{ actionIcon("Star", "star.svg", "Kapow(sheetKapowIP, 'star')" ) }}
+      {{ actionIcon("Circle", "circle.svg", "Kapow(sheetKapowIP, 'circle')" ) }}
+      <div class="w-100"></div>
+      {{ actionIcon("Square", "square.svg", "Kapow(sheetKapowIP, 'square')" ) }}
+      {{ actionIcon("Rotating Block", "arrow-repeat.svg", "Kapow(sheetKapowIP, 'block')" ) }}
+      <div class="w-100"></div>
+      {{ actionIcon("Rain", "cloud-rain.svg", "Kapow(sheetKapowIP, 'rain')" ) }}
+      {{ actionIcon("Game of Life", "dice-6.svg", "Kapow(sheetKapowIP, 'life')" ) }}
+   </div>
+</div>
+<script>
+ var sheetKapowIP = "";
+ var sheetKapowHandle = $('#sheetKapow');
+ {% for s in sheets %}
+ function sheetKapow{{loop.index0}}_enter() {
+    sheetKapowIP = "{{s.ip}}"
+
+    updateNavPanel(sheetKapowHandle, "sheetKapow{{loop.index0}}", "{{s.name}} - Kapow", "sheet{{loop.index0}}")
+ }
+ 
+ function sheetKapow{{loop.index0}}_exit() {
+ }
+ {% endfor %}
+</script>

@@ -1,0 +1,163 @@
+<div class="display-view d-none" id="clubLogin">
+   <div class="container">
+      <div class="row justify-content-center ">
+         <div class="col-auto">
+            <h1>Login - {{name}}</h1>
+         </div>
+      </div>
+      
+      <div class="row justify-content-center ">
+         <div class="col-auto">
+            <h3><span id="clubLogin-msg"> </span></h3>
+         </div>
+      </div>
+      <div class="row justify-content-center">
+	 <div class="col-auto">
+	    <h2>Login using user name and password</h2>
+	 </div>
+      </div>
+      <div class="row justify-content-center mt-3">
+	 <div class="col-auto">
+	    <label for="clubLogin-user">User:</label>
+	    <input type="text" class="form-control" name="user"  id="clubLogin-user">
+	 </div>
+      </div>      
+      <div class="row justify-content-center mt-3">
+	 <div class="col-auto">
+	    <label for="clubLogin-password">password:</label>
+	    <input type="password" class="form-control" name="password" id="clubLogin-password">
+	 </div>
+      </div>
+      <div class="row justify-content-center mt-3">
+         <div class="col-auto">
+            <button type="submit" class="btn btn-primary" onclick="clubLogin_loginUser()"> Login </button>
+         </div>
+      </div>
+      {% if type == "display" %}      
+         <div class="row justify-content-center mt-3">
+	    <div class="col-3">
+	       <div class="hr-sect">Or</div>
+	    </div>
+         </div>      
+         
+         <div class="row justify-content-center mt-3">
+	    <div class="col-auto">
+	       <h2>Login using PIN</h2>
+	    </div>
+         </div>
+         
+         <div class="row justify-content-center mt-3">
+            <div class="col-auto" id="clubLogin-sheet">
+	       <label for="clubLogin-sheets">Choose Sheet</label>
+               <select id="clubLogin-sheets">
+                  {% for s in sheets %}
+                     <option value="{{s.ip}}|{{loop.index0}}" {% if s.ip =='Unassigned' %} disabled {% endif %}> {{s.name}} </option>
+                     {{ actionIcon(s.name, "distribute-horizontal.svg", "panelNavigate('sheet" ~loop.index0 ~ "')", unassigned=s.ip == "Unassigned") }}
+                  {% endfor %}
+               </select>
+            </div>
+            <div class="row justify-content-center mt-3">
+	       <div class="col-auto">
+	          <label for="clubLogin-pin">PIN:</label>
+	          <input type="text" class="form-control" id="clubLogin-pin">
+	       </div>
+            </div>
+         </div>
+         
+         <div class="row justify-content-center mt-3">
+            <div class="col-auto">
+               <button type="submit" class="btn btn-primary" onclick="clubLogin_loginWithPIN()"> Login With Pin </button>
+            </div>
+         </div>
+      {% endif %}
+      <div class="row justify-content-center mt-3">
+         <div class="col-auto">
+            <h4><span id="clubLogin-attempt-msg"> </span></h4>
+         </div>
+      </div>
+   </div>
+</div>
+<script>
+ var clubLoginHandle = $('#clubLogin');
+ 
+ function clubLogin_clearAttemptMessage() {
+    $("#clubLogin-attempt-msg").text("");
+ }
+
+ function clubLogin_loginUser() {
+    $("#clubLogin-pin-msg").text("");
+    $("#clubLogin-attempt-msg").text("");
+    loginUser($("#clubLogin-user").val(), $("#clubLogin-password").val())
+       .done(function (res) {
+          {% if type == "timer" %}
+          if (!res.admin) {
+             $("#clubLogin-attempt-msg").text("Only admin users can log in");
+             return;
+          }
+          {% endif %}
+          if (res.rc) {
+             loginRecordUser(res.user, res.admin, res.accessToken);
+             $(".nav-up").show();
+             {% if type == "display" %}
+             if (res.admin && setupStage == 1) {
+                panelNavigate("adminSheets");
+             } else {
+                panelNavigate("club");
+             }
+             {% else %}
+             panelNavigate("breaktimerAdmin");
+             {% endif %}
+             
+          } else {
+             $("#clubLogin-attempt-msg").text(res.msg);
+          }
+       })
+       .fail(function() {
+          $("#clubLogin-attempt-msg").text("login failed")
+       })
+ }
+
+ {% if type == "display" %}      
+ function clubLogin_loginWithPIN() {
+    let sheetInfo = $("#clubLogin-sheets").val().split("|")
+    $("#clubLogin-pin-msg").text("");
+    $("#clubLogin-user-msg").text("");
+    
+    loginWithPIN($("#clubLogin-pin").val())
+       .done(function (res) {
+          if (res.rc) {
+             loginRecordPIN(res.accessToken, sheetInfo[1], sheetInfo[0]);
+             $(".nav-up").hide()             
+             panelNavigate("sheet" + res.id)
+          } else {
+             $("#clubLogin-attempt-msg").text(res.msg);
+          }
+       })
+       .fail(function() {
+          $("#clubLogin-attempt-msg").text("login failed")
+       })
+       .always(function() {
+          $("#clubLogin-user").val("");
+          $("#clubLogin-password").val("")
+       })
+ }
+ {% endif %} 
+ function clubLogin_enter() {
+    $("#clubLogin-user").val("");
+    $("#clubLogin-password").val("")
+    $("#clubLogin-pin").val("")
+    if (loginInfo && loginInfo.user) {
+       $("#clubLogin-msg").text(`You are currently logged in as user: ${loginInfo.user}.`);
+    } else if (loginInfo && loginInfo.pin) {
+       $("#clubLogin-msg").text(`You are currently logged with PIN: ${loginInfo.pin}.`);
+    } else {
+       $("#clubLogin-msg").text(`You are not currently logged in.`);
+    }
+    $("#clubLogin-user").on("change", clubLogin_clearAttemptMessage).on('keyup', clubLogin_clearAttemptMessage)
+    $("#clubLogin-password").on("change", clubLogin_clearAttemptMessage).on('keyup', clubLogin_clearAttemptMessage)
+    $("#clubLogin-pin").on("change", clubLogin_clearAttemptMessage).on('keyup', clubLogin_clearAttemptMessage)
+ }
+
+ function clubLogin_exit() {
+ }
+</script>

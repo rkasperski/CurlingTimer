@@ -1,0 +1,16 @@
+<div id="clubDrawsInfo" class="display-view d-none">
+   {{ overlayNav("clubDrawsInfo", "Uploaded Draws") }}
+   <div class="container" id="clubDrawsInfo-body">
+   </div>
+</div>
+</div>    
+
+<script>
+ function clubDrawsInfo_show(msgs) {
+    $("#clubDrawsInfo-body").html("")
+    msgs.forEach(function(m) {
+       $("#clubDrawsInfo-body").append(`<div class="row justify-content-center">${m}</div>`)
+    });
+ }
+ 
+</script>

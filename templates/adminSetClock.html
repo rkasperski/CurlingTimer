@@ -1,0 +1,144 @@
+<div class="display-view d-none" id="adminSetClock">
+   {{ navPanel("adminSetClock", "clubAdmin" , "Set Date Time") }}
+   <div class="container row-gap-3">
+      <div class="row justify-content-md-center">
+	 <div class="col-md-auto">
+	    <h4>Time and date changes are not made permanent until the "Make Permanent" button is clicked. "Make Permanent" causes the server to restart so if you need to change the timezone you should do it first. </h4>
+	 </div>
+      </div>
+      <hr>
+      <div class="row justify-content-md-center">
+         <div class="col-auto">
+            <h3>
+               <span id="adminSetClock-curTime"></span>
+               <span class="ms-3" id="adminSetClock-curDate"></span>
+            </h3>
+            <h3>
+               <span id="adminSetClock-curTimezone"></span>
+            </h3>
+         </div>
+      </div>
+      <hr class="divider">
+   </div>
+   <div class="container row-gap-5 mt-3">
+      <div class="row justify-content-md-center">
+	 <div class="col-6 col-sm-4 col-md-3">
+            <label for="adminSetClock-time"> New Time:</label>
+	    <input type="time" class="form-control adminSetClock-changeable" id="adminSetClock-time" value="00:00:00">
+	 </div>
+         <div class="col-auto align-self-end">
+	    <button type="button" id="adminSetClock-btn-showTimer" class="btn btn-primary submit-target" onclick="adminSetClock_setTime()">Set Time</button>
+         </div>
+      </div>
+
+      <div class="row justify-content-md-center mt-3">
+         <div class="col-6 col-sm-4 col-md-3">
+            <label for="adminSetClock-date"> Date:</label>
+	    <input type="date" class="form-control adminSetClock-changeable"  id="adminSetClock-date" placeholder="yyyy-mm-dd">
+         </div>
+         <div class="col-auto  align-self-end">
+	    <button type="button" id="adminSetClock-btn-showTimer" class="btn btn-primary submit-target" onclick="adminSetClock_setDate()">Set Date</button>
+         </div>
+      </div>
+      <div class="row justify-content-md-center mt-3">
+         <div class="col-6 col-sm-4 col-md-3">
+            <label for="adminSetClock-timeZone"> Timezone:</label>
+	    <select id="adminSetClock-timeZone" class="adminSetClock-changeable form-control">
+	    </select>
+         </div>
+         <div class="col-auto col-auto  align-self-end">
+	    <button type="button" id="adminSetClock-btn-showTimer" class="btn btn-primary submit-target" onclick="adminSetClock_setTimeZone()">Set Time Zone</button>
+         </div>
+      </div>
+      <div class="row justify-content-md-center mt-5">
+         <div class="col-auto">
+	    <button type="button" id="adminSetClock-btn-showTimer" class="btn btn-primary submit-target" onclick="adminSetClock_makePermanent()">Make Permanent</button>
+         </div>
+      </div>
+      <div class="row justify-content-md-center">
+         <div class="col-auto">
+	    <div id="adminSetClock-message"></div>
+         </div>
+      </div>
+   </div>
+</div>
+<script>
+ var adminSetClock_origHMS = "";
+ var adminSetClock_origTimeZone = "";
+ var adminSetClock_origDate = "";
+ var adminSetClock_timeUpdateID = 0;
+ 
+ function adminSetClock_setTimeDate(time, date, timezone, permanent) {
+    SetTimeDate("{{clockServer}}", time, date, timezone, permanent)
+       .done(function (res, textStatus, jqXHR){
+          let s = htmlToText(res.msg)
+          let s2 = s.replaceAll("\n", "<br>")
+          $("#adminSetClock-message").html(s2)
+       })
+       .fail(function(jqXHR, textStatus, errorThrown) {
+          $("#adminSetClock-message").text(textStatus)
+       })
+ }
+ 
+ function adminSetClock_makePermanent() {
+    adminSetClock_setTimeDate(null, null, null, true)
+ }
+
+ function adminSetClock_setTime() {
+    let time = $("#adminSetClock-time").val();
+    adminSetClock_setTimeDate(time, null, null, false);
+ }
+
+ function adminSetClock_setDate() {
+    let date = $("#adminSetClock-date").val();
+    adminSetClock_setTimeDate(null, date, null, false);
+ }
+
+ function adminSetClock_setTimeZone() {
+    let timeZone = $( "#adminSetClock-timeZone option:selected" ).text();
+    adminSetClock_setTimeDate(null, null, timeZone, false);
+ }
+
+ function  adminSetClock_populateTimeZones() {
+    if ($("#adminSetClock-timeZone option").length == 0) {
+       let timezones = Intl.supportedValuesOf('timeZone');
+
+       let tzObj = $("#adminSetClock-timeZone");
+
+       for (let i = 0; i < timezones.length; i++) {
+          let tz = timezones[i];
+
+          tzObj.append(`<option> ${tz} </option>`);
+       }
+    }
+ }
+
+ function adminSetClock_updateTime() {
+    getTime("{{clockServer}}")
+       .done(function(res) {
+          $("#adminSetClock-curTime").text(res.time);
+          $("#adminSetClock-curTimezone").text(res.timezone);
+          $("#adminSetClock-curDate").text(res.date);
+       })
+ }
+
+ function adminSetClock_enter() {
+    $(".adminSetClock-changeable").on("change", function() {
+       $("#adminSetClock-message").text("")
+    })
+    $("#adminSetClock-message").text("")
+
+    adminSetClock_timeUpdateID = setInterval(adminSetClock_updateTime, 250);
+    adminSetClock_populateTimeZones()
+    getTime("{{clockServer}}")
+       .done(function(res) {
+          $("#adminSetClock-date").val(res.date);
+          $("#adminSetClock-time").val(res.time);
+          $("#adminSetClock-timeZone").val(res.timezone)
+ })
+ }
+
+ function adminSetClock_exit() {
+    clearInterval(adminSetClock_timeUpdateID)
+ }
+</script>

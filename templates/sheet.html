@@ -1,0 +1,70 @@
+{% for s in sheets %}
+   <div id="sheet{{loop.index0}}" class="display-view d-none">
+      {{ navPanel("sheet" ~ loop.index0, "sheets", s.name, idBack="sheet-back", idUp="sheet-up" ) }}   
+      <div class="row justify-content-evenly">
+         {{ actionIcon("Training", "trophy.svg", "panelNavigate('sheetTrainingSetup" ~loop.index0 + "')" ) }}
+         {{ actionIcon("Message", "chat-text.svg", "panelNavigate('sheetMessage" ~loop.index0 + "')" ) }}
+         <div class="w-100"></div>
+         {{ actionIcon("Count Down", "hourglass-top.svg", "panelNavigate('sheetCountdown" ~loop.index0 + "')" ) }}
+         {{ actionIcon("Competition", "stopwatch.svg", "panelNavigate('sheetCompetitionSetup" ~loop.index0 + "')" ) }}
+         <div class="w-100"></div>
+         {{ actionIcon("Elapsed", "clock-history.svg", "panelNavigate('sheetElapsed" ~loop.index0 + "')") }}
+         {{ actionIcon("Blank", "toggle-off.svg", "sheet_toggleIdleState()", idIcon="sheetIdleToggle" ~ loop.index0 , idTitle="sheetBlankTitle" ~ loop.index0 ) }}
+         <div class="w-100"></div>
+         {{ actionIcon("Clock", "clock.svg", "ClockShow('" ~ s.ip ~ "')" ) }}
+         {{ actionIcon("Kapow", "star.svg", "panelNavigate('sheetKapow" ~ loop.index0 ~ "')" ) }}
+         <div class="w-100"></div>
+         {{ actionIcon("Logout", "shield-slash.svg", "panelNavigate('clubLogout')" ,idActionIcon="sheet-action-icon" ) }}
+         
+      </div>   
+   </div>
+{% endfor %}
+<script>
+ var sheetIP = "{{ip}}";
+ var sheet_idleCheckTimerID = 0;
+ var sheet_toggle = "";
+ var sheet_blankTitle = "";
+ var sheet_idleState = true;
+ 
+ function sheet_checkActive() {
+    Status(sheetIp, "status")
+       .done(function(res) {
+          sheet_idleState = res.idle;
+          $(sheet_toggle).attr("src", res.idle ? "/static/images/toggle-off.svg" : "/static/images/toggle-on.svg")
+          $(sheet_blankTitle).text(res.idle ? "Display - is off" : "Display - is on")
+       })
+ }
+
+ function sheet_toggleIdleState() {
+    DisplayBlank(sheetIp, !sheet_idleState)
+       .always(sheet_checkActive)
+ }
+
+ {% for s in sheets %}
+ function sheet{{loop.index0}}_enter() {
+    let userLoggedIn = loginInfo.user !== null;
+    if (userLoggedIn) {
+       $("#sheet-back").show()
+       $("#sheet-up").show()
+       $("#sheet-action-icon").hide()
+       $(".nav-up").show()
+    } else {
+       $("#sheet-back").hide()
+       $("#sheet-up").hide()
+       $("#sheet-action-icon").show()
+       $(".nav-up").hide()
+    }
+    
+    sheetIp = "{{s.ip}}";
+    sheet_toggle = "#sheetIdleToggle{{loop.index0}}"
+    sheet_blankTitle = "#sheetBlankTitle{{loop.index0}}"
+    sheet_checkActive();
+    sheet_idleCheckTimerID = setInterval(sheet_checkActive, 1000);
+ }
+ 
+ function sheet{{loop.index0}}_exit() {
+    clearInterval(sheet_idleCheckTimerID);
+    sheet_idleCheckTimerID = 0;
+ }
+ {% endfor %}
+</script>

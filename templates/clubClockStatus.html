@@ -1,0 +1,42 @@
+<div class="display-view d-none" id="clubClockStatus">
+   {{ navPanel("clubClockStatus", "club" , "Club - Clock Status") }}
+   <div class="row justify-content-center">
+      <div class="col-12 col-md-11 display-table">
+	 <table class="table table-striped no-more-tables" id="clubClockStatus-table"  style="overflow-x: auto">
+	    <thead class="thead-light">
+	       <tr>
+                  <td>Name</td>
+                  <td>IP</td>
+                  <td>Secret</td>
+                  <td>Config</td>
+                  <td>Build</td>
+                  <td>Offset</td>
+                  <td>Correction</td>
+	       </tr>
+	    </thead>
+            <tbody>
+            </tbody>
+	 </table>
+      </div>
+   </div>
+</div>
+<script>
+ function clubClockStatus_refresh() {
+    emptyTable("clubClockStatus-table")
+    jsonCall('ClubClockStatus',
+             '{{scheme}}://{{ip}}:{{port}}/ajax/clock/state',
+             {},
+             {method:"GET",
+              animation:"spinner",
+              animationTarget:"#clubClockStatus"})
+       .done(function(response) {	     
+          renderTableData("clubClockStatus-table", response.headers, response.data);
+       })
+ }
+ function clubClockStatus_enter() {
+    clubClockStatus_refresh()
+ }
+
+ function clubClockStatus_exit() {
+ }
+</script>

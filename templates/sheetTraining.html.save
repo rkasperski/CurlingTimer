@@ -1,0 +1,246 @@
+<div class="display-view d-none" id="sheetTraining">
+   {{ navPanel("sheetTraining", "club" , "Sheet - Training ") }}
+   <div class="row justify-content-center">
+      <div class="col-auto mb-3">
+         <div class="row justify-content-center justify-content-md-start">
+	    <div class="col-auto">
+	       <label for="sheetTraining-filterTime" class="col-form-label">Filter Time:</label>
+            </div>
+	    <div class="col-3">
+	       <input type="text" class="form-control check-number" id="sheetTraining-filterTime" value="{{breakFilterTime}}">
+	    </div>
+	    <div class="col-auto">
+	       <button type="button" id="btn_reset" class="btn btn-success submit-target" onclick="sheetTraining_resetBreakTimes();">Reset</button>
+            </div>
+         </div>
+      </div>
+      <div class="col-auto mb-3">
+	 <button type="button" class="btn btn-primary" id="sheetTraining-downloadTimes" onclick="sheetTraining_saveTimes();">
+	    Save Times
+	 </button>
+      </div>
+   </div>
+   <div class="row justify-content-center mb-3">
+      <div class="col-auto" id="sheetTraining-activeSensors">
+      </div>
+   </div>
+   <div class="row justify-content-center">
+      <div class="col-12 ps-3 col-md-auto ps-md-0 display-table">
+	 <table class="table table-striped no-more-tables" id="sheetTraining-breakTimeTable" >
+	    <thead class="thead-light">
+	       <tr>
+		  <th>Timer</th>
+		  <th class="text-right">Rock</th>
+		  <th class="text-right">Diff</th>
+		  <th class="text-right">When</th>
+		  <th class="text-left">Comment</th>
+	       </tr>
+	    </thead>
+	    <tbody>
+	    </tbody>
+	 </table>
+      </div>
+   </div>
+</div>
+<script>
+ var sheetTrainingIP = ""
+ var sheetTrainingHandle = $('#sheetTraining');
+
+ var sheetTraining_minTime = Number.MAX_VALUE;
+ var sheetTraining_index = 0;
+ var sheetTraining_marker = -1;
+ var sheetTraining_sensorToColour = new Map();
+ var sheetTraining_savedComments = [];
+ var sheetTraining_valueMap = new Map()
+ var sheetTraining_getBreakTimesTimerID = 0;
+ 
+ function sheetTraining_clockTime(s) {
+    let strTime = s.toLocaleTimeString('en-US', { hour12: false });
+    return strTime;
+ }
+
+ function sheetTraining_rebaseStartTimes() {
+    let table = document.getElementById('sheetTraining-breakTimeTable');
+    let rows = table.rows;
+    let nRows = rows.length;
+
+    for(let i = 1; i < nRows; i++) {
+       let r = rows[i];
+       let curTime = parseFloat(r.cells[5].innerHTML);
+
+       r.cells[3].innerHTML = (curTime - sheetTraining_minTime).toFixed(4);
+
+       let nextTime = curTime;
+       if (i + 1 < nRows) {
+	  nextTime = parseFloat(rows[i + 1].cells[5].innerHTML);
+       }
+
+       r.cells[2].innerHTML = (curTime - nextTime).toFixed(4);
+    }
+ }
+ 
+ function sheetTraining_setBreakTimes(newMarker, breakTimes, newIndex) {
+    let rebase = false;
+    
+    if (newMarker != sheetTraining_marker) {
+       $('#sheetTraining-breakTimeTable tbody').empty();
+       sheetTraining_marker = newMarker;
+       sheetTraining_index = 0;
+       sheetTraining_minTime = Number.MAX_VALUE; 
+    }
+    
+    for(let d in breakTimes) {
+       let e =  breakTimes[d];
+       if (e[1] < sheetTraining_minTime) {
+	  sheetTraining_minTime = e[1];
+	  rebase = true;
+       }
+       let name = e[0]
+       let colour = sheetTraining_sensorToColour.get(e[0]);
+       if (colour == 'white') {
+	  colour = 'black';
+       }
+       
+       let rowId = e[1] + ":" + e[2];
+       let value = sheetTraining_valueMap.get(rowId);
+       if (!value) {
+	  value = "";
+       }
+
+       let markup = `
+<tr> 
+  <td class="text${colour}" data-title="Timer">
+    ${e[0]}
+  </td>
+  <td class="text-right" data-title="Rock">
+    ${e[3].toFixed(4)}
+  </td>
+  <td class="text-right" data-title="Diff"></td>
+  <td class="text-right" data-title="When">
+    ${(e[1] - sheetTraining_minTime).toFixed(4)}
+  </td>
+  <td data-title="Comment">
+    <div class="col-auto">
+      <input type="text" class="w-100" value="${value}" onchange="sheetTraining_textChange(this, '${rowId}')" onkeyup="sheetTraining_textChange(this, '${rowId}')">
+    </div>
+  </td>
+  <td class="hide-cell">
+    ${e[1]}
+  </td>
+  <td class="hide-cell">
+    ${e[2]}
+  </td>
+</tr>`;
+       
+       $('#sheetTraining-breakTimeTable > tbody').prepend(markup);
+    }
+    sheetTraining_index += breakTimes.length;
+    sortTable('#sheetTraining-breakTimeTable', 4, -1);
+    sheetTraining_rebaseStartTimes();
+
+    sheetTraining_marker = newMarker;
+ }
+
+ function csvQuote(s) {
+    if (s.replace(/ /g, '').match(/[\s,"]/)) {
+       return '"' + s.replace(/"/g, '""') + '"';
+    }
+
+    return s
+ }
+
+ function sheetTraining_saveTimes() {
+    let data = []
+    let table = document.getElementById('sheetTraining-breakTimeTable');
+    let rows = table.rows;
+    let nRows = rows.length;
+    data.push("Sensor,Break,Interval,Time,Start,End,Comments"); 
+    
+    for(let i = 1; i < nRows; i++) {
+       let r = rows[i];
+       data.push(`${r.cells[0].innerText.trim()},${r.cells[1].innerText.trim()},${r.cells[2].innerText.trim()},${r.cells[3].innerText.trim()},${r.cells[5].innerText.trim()},${r.cells[6].innerText.trim()},${csvQuote(r.cells[4].childNodes[1].value)}`);
+    }
+    let d = new Date();
+    let td = d.toLocaleDateString() + ' ' + d.toLocaleTimeString('en-US', { hour12: false, hour: 'numeric',minute: 'numeric'});
+    td = td.replace(/\//g, '-');
+    let file = new File([data.join('\n')], `timerdata-${td}.csv`, {type: 'text/csv;charset=utf-8'});	     
+    saveAs(file);
+ }
+ 
+ function sheetTraining_resetBreakTimes() {
+    $('#sheetTraining-breakTimeTable tbody').empty()
+    sheetTraining_marker = -1;
+    BreakTimerDisplayTimes(sheetTrainingIP);
+    BreakTimerResetTimes(sheetTrainingIP, $('#sheetTraining-filterTime').val());
+    sheetTraining_valueMap.clear();
+ }
+ 
+ function sheetTraining_getBreakTimes() {
+    BreakTimerGetTimes(sheetTrainingIP, sheetTraining_index, sheetTraining_marker)
+       .done(function (response) {
+	  if (response.marker != sheetTraining_marker || response.index != sheetTraining_index) {
+	     sheetTraining_setBreakTimes(response.marker, response.breaktimes, response.index);
+	  }
+       });
+ }
+
+ function sheetTraining_textChange(inField, id) {
+    sheetTraining_valueMap.set(id, inField.value);
+ }
+
+ function sheetTraining_changeSensors() {
+    let sensorState = [];
+    for (let i = 0; i < $("#sheetTraining-activeSensors .sheetTraining-sensor").length; i++) {
+       let sensor = $('#sheetTraining-breakTimer' + i);
+       sensorState.push([sensor.attr("data-name"), sensor.prop('checked')]);
+    }
+    
+    BreakTimerSetActive(sheetTrainingIP, sensorState, $('#sheetTraining-filterTime').val());
+    sheetTraining_marker = -1;
+ }
+
+ function sheetTraining_populateActiveSensors() {
+    $("#sheetTraining-activeSensors").empty();
+    
+    getActiveBreakTimers(sheetTrainingIP)
+       .done(function(res){
+          $("#sheetTraining-filterTime").val(res.breakFilterTime);
+	  for (let i=0; i < res.activeSensors.length; i++) {
+             let bt = res.activeSensors[i];
+             $("#sheetTraining-activeSensors").append(`  
+	       <div class="form-check">
+	       <label class="form-check-label">
+	       <input class="sheetTraining-sensor" type="checkbox" id="sheetTraining-breakTimer${i}" data-name="${bt.name}" checked onclick="sheetTraining_changeSensors();"> ${bt.externalName}
+	        <div class="dot my-auto bg-${bt.colour}"></div>
+	        </label>
+	        </div>`)
+          }
+          BreakTimerSetFilter(sheetTrainingIP, $('#filterTime').val());
+          sheetTraining_getBreakTimes(sheetTrainingIP);
+          sheetTraining_changeSensors();sheetTraining_changeSensors();
+       })
+ }
+ 
+ function sheetTraining() {
+    sheetTraining_populateActiveSensors();
+    sheetTraining_getBreakTimesTimerID = setInterval(sheetTraining_getBreakTimes, 1000);
+ }
+ 
+ {% for s in sheets %}
+ function sheetTraining{{loop.index0}}_enter() {
+    sheetTrainingIP = "{{s.ip}}"    
+    if (loginInfo && loginInfo.pinSheetID) {
+       updateNavPanel(sheetTrainingHandle, "sheetTraining{{loop.index0}}", "{{s.name}} - Training", null, "sheet" + loginInfo.pinSheetID);
+    } else {
+       updateNavPanel(sheetTrainingHandle, "sheetTraining{{loop.index0}}", "{{s.name}} - Training", null, "club");
+    }
+    sheetTraining()
+    $(`#sheetTraining{{loop.index0}} .nav-up`).show()
+    
+ }
+ 
+ function sheetTraining{{loop.index0}}_exit() {
+    clearInterval(sheetTraining_getBreakTimesTimerID);
+ }
+ {% endfor %}
+</script>

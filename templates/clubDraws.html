@@ -1,0 +1,289 @@
+<div id="clubDraws"  class="display-view d-none">
+   {{ navPanel("clubDraws", "club" , "Club - Draws") }}
+   <div class="row justify-content-center">
+      <div class="col-auto pe-0 mb-2">
+	 <button class="btn btn-primary" role="button" onclick="clubDraws_download()";>
+	    <span class="me-1">Download Schedule</span>
+            <i class="fas fa-file-download"></i>
+	 </button>
+      </div>
+      <div class="col-auto pe-0" >
+         <button class="btn btn-primary" role="button" onclick="clubDraws_uploadDraws()">
+            <span class="me-1">Upload Draw</span>
+            <i class="ml-2 fas fa-file-upload"></i>
+         </button>
+      </div>
+      <div class="col-auto row">
+         <div class="col-auto" >
+            <button type="button" class="mx-auto btn btn-warning px-3" role="button" onclick="clubDraws_addDraw()">
+               <i class="fas fa-plus"></i>
+            </button>
+         </div>
+         <div class="col-auto d-sm-none">
+            <button type="button" class="mx-auto btn btn-warning px-3 " onclick="clubDraws_deleteDraws();">
+               <i class="fas fa-trash-alt"></i>
+            </button>
+         </div>
+      </div>
+   </div>
+   <div class="row mt-3">
+      <div class="col-12">
+	 <table class="table table-striped table-caption-top no-more-tables" id="clubDraws-draw-table">
+	    <thead class="thead-light">
+	       <tr>
+		  <th></th>
+		  <th>Date</th>
+		  <th class="text-right">Time</th>
+		  <th>Name</th>
+		  <th>Before</th>
+		  <th>Start</th>
+		  <th class="text-center">
+                     <button type="button" id="clubDraws-delete-draws" class="mx-auto btn btn-warning px-3 " onclick="clubDraws_deleteDraws();">
+                        <i class="fas fa-trash-alt"></i>
+                     </button>
+                  </th>
+	       </tr>
+	    </thead>
+	    <tbody id="clubDraws-draw-table-body">
+	    </tbody>
+         </table>
+      </div>
+   </div>
+</div>
+<script>
+ var clubDraws_dataValid = false;
+ var clubDraws_dbHash = "";
+
+ function clubDraws_showCountdown(id) {
+    jsonCall('GetDraw',
+	     '{{scheme}}://{{drawServer}}:{{port}}/draw/get',
+	     {id: id},
+             {async:false})
+       .done(res =>
+          panelNavigate("clubCountdown", res.draw))
+       .fail(res =>
+          panelNavigate("clubCountdown"))
+ }
+
+ function clubDraws_showCompetition(id) {
+    jsonCall('GetDraw',
+	     '{{scheme}}://{{drawServer}}:{{port}}/draw/get',
+	     {id: id},
+             {async:false})
+       .done(res =>
+          panelNavigate("clubCompetition", res.draw))
+       .fail(res =>
+          panelNavigate("clubCompetition"))
+ }
+
+ function clubDraws_download() {
+    jsonCall("getDrawSchedule", '/draw/schedule.csv', {}, {method: "GET", async:false})
+       .done(function(res) {
+          let file = new File([res], `schedule.csv`, {type: 'text/csv'});	     
+          saveAs(file);          
+       })
+ }
+
+ function clubDraws_addDrawDescription(draw) {
+    $('#clubDraws-draw-table-body').append(`
+<tr class="text-center align-middle" id="clubDraws-row${draw.id}">
+  <td data-title="Actions">
+<div class="col-auto col-sm-1 col-md-auto">
+    <button type="button" class="icon-button btn btn-warning my-1" onclick="clubDraws_showCountdown(${draw.id});">
+      <img src="/static/images/hourglass-top.svg">
+    </button>
+    <button type="button" class="icon-button btn btn-warning my-1" onclick="clubDraws_showCompetition(${draw.id});">
+      <img src="/static/images/stopwatch.svg">
+    </button>
+    <button type="button" id="clubDraws-row-edit" class="icon-button btn btn-warning my-1" onclick="clubDraws_editDraw(${draw.id});">
+      <i class="fas fa-edit"></i>
+    </button>
+</div>
+  </td>
+  <td id="clubDraws-draw-date${draw.id}" data-title="Date">${draw.date}</td>
+  <td class="text-right" id="clubDraws-draw-time${draw.id}"data-title="Time" >${draw.time}</td>
+  <td id="clubDraws-draw-name${draw.id}"data-title="Name" >${draw.name}</td>
+  <td data-title="Before">${normTime(draw.show, "Teams")}</td>
+  <td data-title="At Start" >${normTime(draw.atStart, "Teams")}</td>
+  <td data-title="Delete"><input type="checkbox" class="form-check-input mx-auto" data-drawid="${draw.id}"></td>
+</tr>`);
+ }
+
+ function clubDraws_populateDraws() {
+    $('#clubDraws-draw-table tbody').empty();
+    jsonCall('GetDrawList',
+	     '{{scheme}}://{{drawServer}}:{{port}}/draw/getlist',
+	     {},
+	     {timeout:2000})
+       .done(function(response) {
+	  dbHash = response.hash;
+	  response.draws.forEach(clubDraws_addDrawDescription);
+	  sortTable("#clubDraws-draw-table", [[1, 1],[2,1]]);
+          $("#clubDraws").waitMe("hide");               
+       });
+ }
+
+ function clubDraws_deleteDraws() {
+    let deletedDraws = new Array();
+    $('#clubDraws-draw-table input[type="checkbox"]:checked').each(function() {
+       let deleteId = $(this).data('drawid');
+       deletedDraws.push({date: $(`#clubDraws-draw-date${deleteId}`).text(),
+                          time:$(`#clubDraws-draw-time${deleteId}`).text(),
+                          name: $(`#clubDraws-draw-name${deleteId}`).text()});
+    });
+
+    overlayShow("clubDrawsYesNo", deletedDraws);
+ }
+
+ function clubDraws_showFromOverlay_clubDrawsYesNo(doDelete) {
+    if (doDelete) {
+       let deletedDraws = new Array();
+       $('#clubDraws-draw-table input[type="checkbox"]:checked').each(function() {
+          deletedDraws.push($(this).data('drawid'));
+       });
+       
+       jsonCall('DeleteDraw',
+		'{{scheme}}://{{drawServer}}:{{port}}/draw/delete',
+		{draws: deletedDraws},
+                {async: false})
+	  .done(clubDraws_populateDraws);	     
+    }
+ }
+
+ function clubDraws_editDraw(drawId) {
+    dataValid = false
+    jsonCall('GetDraw',
+	     '{{scheme}}://{{drawServer}}:{{port}}/draw/get',
+	     {id: drawId},
+             {})
+       .done(function(response) {
+          response.draw.type = "edit";
+          response.draw.id = drawId;
+          overlayShow("clubDrawsAdd", response.draw);
+	  dataValid = true;
+       });
+ }
+ 
+ function clubDraws_editDrawSave() {
+    if (! clubDraws_dataValid) {
+       alert("not saved - some random problem");
+       return;
+    }
+    
+    jsonCall('SetDraw',
+	     '{{scheme}}://{{drawServer}}:{{port}}/draw/set',
+	     {id: clubDraws_activeDrawId,
+	      draw: {
+                 type: "add",
+		 name: $('#clubDraws-addModal-draw-name').val(),
+		 date: $('#clubDraws-addModal-draw-date').val(),
+		 time: $('#clubDraws-addModal-draw-time').val(),
+		 colour: $('#clubDraws-addModal-team-colour').val(),
+		 show: $('#clubDraws-addModal-draw-show').val(),
+		 autoDelete: $('#clubDraws-addModal-auto-delete').val(),
+		 atStart: $('#clubDraws-addModal-at-start').val(),
+		 sheets: [
+		    {% for s in sheets %}
+		    {
+		       team1: $('#clubDraws-addModal-team-top{{s.ordinal}}').val(),
+		       team2: $('#clubDraws-addModal-team-bottom{{s.ordinal}}').val(),
+		    },
+		    {% endfor %}
+		 ]
+	      }
+	     }
+            ,{})
+       .done(function(response) {
+	  clubDraws_dbHash = response.hash;
+	  
+	  $('#clubDraws-row_' + response.id).remove();
+	  clubDraws_addDrawDescription(response);
+	  sortTable("#clubDraws-draw-table", [[1, 1],[2,1]]);
+       });	     
+ }
+
+ function clubDraws_addDraw(drawId) {
+    overlayShow("clubDrawsAdd", {type: "add"});
+ }	 
+
+ function clubDraws_addDrawSave() {
+    jsonCall('AddDraw',
+	     '{{scheme}}://{{drawServer}}:{{port}}/draw/add',
+	     { name: $('#clubDraws-addModal-draw-name').val(),
+	       date: $('#clubDraws-addModal-draw-date').val(),
+	       time: $('#clubDraws-addModal-draw-time').val(),
+	       colour: $('#clubDraws-addModal-team-colour').val(),
+	       show: $('#clubDraws-addModal-draw-show').val(),
+	       autoDelete: $('#clubDraws-addModal-auto-delete').val(),
+	       atStart: $('#clubDraws-addModal-at-start').val(),
+	       sheets: [
+		  {% for s in sheets %}
+		  {
+		     team1: $('#clubDraws-addModal-team-top{{s.ordinal}}').val(),
+		     team2: $('#clubDraws-addModal-team-bottom{{s.ordinal}}').val(),
+		  },
+		  {% endfor %}
+	       ]
+	     },
+             {})
+ }
+
+ function clubDraws_addModal_add(e) {
+    clubDraws_addDrawSave();
+    $('#clubDraws-addModal').modal('hide');
+ }
+
+ function clubDraws_uploadDraws() {
+    overlayShow("clubDrawsUpload")
+ }
+ 
+ function clubDraws_checkHashValue() {
+    jsonCall('HashDraw',
+	     '{{scheme}}://{{drawServer}}:{{port}}/draw/hash',
+	     {},
+             {})
+       .done(function(response) {
+	  if (dbHash != response.hash) {
+	     clubDraws_populateDraws();
+	  }
+       });
+ }
+
+ function clubDraws_updateRow(draw) {
+    $(`#clubDraws-row_${draw.id}`).remove();
+    clubDraws_addDrawDescription(draw);
+    sortTable("#clubDraws-draw-table", [[1, 1],[2,1]]);
+ }
+
+ function clubDraws_showFromOverlay_clubDrawsUpload(added) {
+    if (added) {
+       overlayShow("clubDrawsInfo", added)
+    }
+    clubDraws_populateDraws();
+ }
+
+ function clubDraws_showFromOverlay_clubDrawsAdd(data) {
+    if (data.type == "edit") {
+       jsonCall('SetDraw',
+	        '{{scheme}}://{{drawServer}}:{{port}}/draw/set',
+	        {id: data.id,
+	         draw: data.draw},
+                {asynce: false})
+          .done(clubDraws_updateRow);	     
+    } else {
+       jsonCall('AddDraw',
+	        '{{scheme}}://{{drawServer}}:{{port}}/draw/add',
+                data.draw,
+                {async: false})
+          .done(clubDraws_updateRow);	     
+    }
+ }
+
+ function clubDraws_enter() {
+    clubDraws_populateDraws();
+ }
+ 
+ function clubDraws_exit() {
+ }
+</script>
+

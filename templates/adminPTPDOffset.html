@@ -1,0 +1,35 @@
+<div class="display-view d-none" id="adminPTPDOffset">
+   {{ navPanel("adminPTPDOffset", "adminDebug" , "PTPD Time Offsets") }}
+   <div class="container">
+      <div class="row justify-content-center">
+      	 <div class="col-12 col-md-10 display-table no-more-tables">
+	    <table class="table table-striped" id="adminPTPDOffset-table" >
+	       <thead class="thead-light">
+	       </thead>
+	       <tbody>
+	       </tbody>
+	    </table>
+	 </div>
+      </div>
+   </div>
+</div>
+<script>
+ function adminPTPDOffset_refresh() {
+    emptyTable("adminPTPDOffset-table")
+    jsonCall('adminPTPDOffset',
+             '{{scheme}}://{{ip}}:{{port}}/adminptpdoffset',
+             {},
+             {method:"GET",
+              animation:"spinner",
+              animationTarget:"#adminPTPDOffset"})
+       .done(function(response) {	     
+          renderTableData("adminPTPDOffset-table", response.headers, response.data);
+       })
+ }
+ function adminPTPDOffset_enter() {
+    adminPTPDOffset_refresh()
+ }
+
+ function adminPTPDOffset_exit() {
+ }
+</script>

@@ -1,0 +1,165 @@
+<div class="display-view d-none" id="clubCompetition">
+   {{ navPanel("clubCompetition", "club" , "Club - Competition") }}
+   <div class="container mb-3 mt-3">
+      <div class="row">
+	 <div class="col-auto">
+	    <label for="clubCompetition-welcomeMessage">Message:</label>
+	 </div>
+      </div>				
+      <div class="row mb-1"">
+	 <div class="col-6">
+	    <input type="text" class="form-control mr-sm-4" id="clubCompetition-welcomeMessage" value="">
+	 </div>
+	 <div class="col-3 col-md-2">
+	    {{macros.colorSelector(colours, "clubCompetition-welcomeMessageColour", "clubCompetition-welcomeMessageColour")}}
+         </div>
+	 <div class="col-auto">
+	    <button type="button" id="clubCompetition-btn-msg" class="btn btn-primary icon-button ml-2" onclick='MessageAll($("#clubCompetition-welcomeMessage").val(),$("#clubCompetition-welcomeMessageColour").val())'><i class="fas fa-comments"></i></button>
+	 </div>
+      </div>
+      <div class="row mb-1">
+	 <div class="col-5 col-md-2">
+	    <label for="clubCompetition-teamTime" class="col-form-label">Per Team Time:</label>
+	    <input type="text" class="form-control check-time" id="clubCompetition-teamTime" value="">
+	 </div>
+	 <div class="col-auto offset-1 col-md-2  ml-2">
+	    <label for="clubCompetition-teamColour" class="col-form-label" >Team Colour:</label>
+	    {{macros.colorSelector(colours, "clubCompetition-teamColour", "clubCompetition-teamColour", extra="board", default="white")}}
+	 </div>
+      </div>
+      <div class="row">
+	 <div class="col-auto">
+	    <label for="clubCompetition-intermissionLength" class="col-form-label">Intermission:</label>
+         </div>
+      </div>
+      <div class="row mb-1">
+	 <div class="col-auto col-md-2">
+	    <input type="text" class="form-control check-time" id="clubCompetition-intermissionLength" value="{{intermissionLength}}">
+	 </div>
+	 <div class="col-auto ml-1">
+	    <div class="form-control unpadded-btn-group">
+	       <button type="button" id="clubCompetition-btn-clearAll" class="icon-button btn btn-warning submit-target" onclick='clubCompetition_clearAll();'><i class="fas fa-backspace"></i></button>
+	       <button type="button" id="clubCompetition-btn-setAll" class="disabled icon-button btn btn-primary submit-target" onclick="clubCompetition_setAll()"><i class="fas fa-external-link-alt"></i></button>
+	    </div>
+	 </div>
+      </div>
+      {% for s in sheets %}
+	 {% if loop.first %}
+	    <hr class="divider">
+	 {% else  %}
+	    <hr>
+	 {% endif %}
+	 {% if s.ip == "Unassigned" %}
+	    <div class="row">
+               <div class="col-auto ms-4 disabled xd-out">
+	          {{s.name}}
+	          <br>
+	          Not configured
+	       </div>
+	    </div>
+	 {% else %}			
+	    <div class="row">
+	       <div class="col-auto">
+		  <a href="javascript:panelNavigate('sheetCompetitionTimer{{loop.index0}}')">{{s.name}}</a>
+	       </div>
+	    </div>
+	    
+	    <div class="row">
+	       <div class="col-auto my-auto">
+                  <img class="sm-rock-img" alt="{{s.topColour}} rock" src="/static/images/Curling-Rock-{{s.topColour}}-sm.png">
+	       </div>
+	       <div class="col-8 col-md-4">
+                  <div class="input-group">
+                     <input type="text" class="form-control border-right-0 border clubCompetition-team" placeholder="top team ..." id="clubCompetition-team-top{{loop.index0}}">
+                     <span class="input-group-text" onclick='$("#team_top_{{loop.index0}}").val("")'><i class="fa fa-times"></i></span>
+                  </div>
+               </div>
+               <div class="col-auto ml-1">
+		  <button type="button" id="btn_countdown_flip_{{loop.index0}}" class="icon-button btn btn-warning submit-target" onclick='flip("clubCompetition-team-top{{loop.index0}}","clubCompetition-team-bottom{{loop.index0}}");'><i class="fas fa-retweet"></i></button>
+               </div>
+	    </div>
+	    
+	    <div class="row mt-1">
+	       <div class="col-auto my-auto">
+                  <img class="sm-rock-img" alt="{{s.bottomColour}} rock" src="/static/images/Curling-Rock-{{s.bottomColour}}-sm.png">
+	       </div>
+               <div class="col-8 col-md-4">
+                  <div class="input-group">
+                     <input type="text" class="form-control border-right-0 border clubCompetition-team" placeholder="bottom team ..." id="clubCompetition-team-bottom{{loop.index0}}">
+                     <span class="input-group-text" onclick='$("#clubCompetition-team-bottom{{loop.index0}}").val("")'><i class="fa fa-times"></i></span>
+                  </div>
+               </div>
+	       
+	       <div class="col-auto ml-1">
+		  <button type="button" id="clubCompetition-btn-competition{{loop.index0}}" class="disabled icon-button btn btn-primary submit-target" onclick="clubCompetition_setup('{{s.ip}}', {{loop.index0}})"><i class="fas fa-external-link-alt"></i></button>
+	       </div>
+	    </div>
+	 {% endif %}
+      {%endfor %}
+   </div>
+</div>
+<script>
+ function clubCompetition_setup(ip, i) {
+    CompetitionSetup(ip, 
+                     $("#clubCompetition-welcomeMessage").val(), 
+                     $("#clubCompetition-teamTime").val(), 
+                     $("#clubCompetition-intermissionLength").val(), 
+                     $("#clubCompetition-teamColour").val(), 
+                     $(`#clubCompetition-team-top${i}`).val(), 
+                     $(`#clubCompetition-team-bottom${i}`).val())
+ }
+ function clubCompetition_clearAll() {
+    $(".clubCompetition-team" + p).val("");
+ }
+
+ function clubCompetition_checkActiveCallback(clubStatus, i, sheetStatus) {
+    enableField(!sheetStatus.active, `#clubCompetition-btn-competition${i}`);
+
+    enableField(clubStatus.active == -1, "#clubCompetition-btn-setAll");             
+ }
+ 
+ function clubCompetition_setAll() {
+    for (p in peers) {
+       peer = peers[p][0];
+       if (peer != "Unassigned") {
+	  CompetitionSetup(peer,
+			   $("#clubCompetition-welcomeMessage").val(),
+			   $("#clubCompetition-teamTime").val(),
+			   $("#clubCompetition-intermissionLength").val(),
+                           $("#clubCompetition-teamColour").val(),
+			   $("#clubCompetition-team-top" + peers[p][1]).val(),
+			   $("#clubCompetition-team-bottom" + peers[p][1]).val());
+       }
+    }	     
+ }	 
+ 
+ function clubCompetition_enter(draw) {
+    startActivityCheckTimer(clubCompetition_checkActiveCallback) 
+    getDefaultsAjax(ip, false)
+       .done(function(response) {
+          $("#clubCompetition-welcomeMessage").val(response.welcomeMessage);
+          setColour("#clubCompetition-welcomeMessageColour", "white");
+
+          $("#clubCompetition-intermissionLength").val(response.intermissionLength);
+
+          $("#clubCompetition-teamTime").val(response.teamTime);
+          setColour("#clubCompetition-teamColour", "white");
+       })
+
+    if (draw) {
+       $('#clubCompetition-teamColour').val(draw.colour);
+
+       for (p in draw.sheets) {
+	  $(`#clubCompetition-team-top${p}`).val(draw.sheets[p].team1);
+	  $(`#clubCompetition-team-bottom${p}`).val(draw.sheets[p].team2);
+       }
+
+    } else {
+       grabNamesFromPeers("#clubCompetition-team-top", "#clubCompetition-team-bottom");
+    }
+ }
+
+ function clubCompetition_exit() {
+    stopActivityCheckTimer();
+ }
+</script>

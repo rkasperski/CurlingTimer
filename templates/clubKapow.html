@@ -1,0 +1,72 @@
+<div class="display-view d-none" id="clubKapow">
+   {{ navPanel("clubKapow", "club" , "Club - Kapow") }}
+   <div class="container mb-3">
+      <div class="row justify-content-evenly">
+         {{ actionIcon("Star", "star.svg", "clubKapow_kapow('star')" ) }}
+         {{ actionIcon("Circle", "circle.svg", "clubKapow_kapow('circle')" ) }}
+         {{ actionIcon("Square", "square.svg", "clubKapow_kapow('square')" ) }}
+         <div class="w-100"></div>
+         {{ actionIcon("Rotating Block", "arrow-repeat.svg", "clubKapow_kapow('block')" ) }}
+         {{ actionIcon("Rain", "cloud-rain.svg", "clubKapow_kapow('rain')" ) }}
+         {{ actionIcon("Game of Life", "dice-6.svg", "clubKapow_kapow('life')" ) }}
+      </div>
+      <div class="d-flex justify-content-evenly align-items-center mt-2">
+         <hr class="flex-grow-1 mt-1 divider" />
+         <div class="col-auto px-3" onclick="clubKapow_selectAll()" >
+            <h3>Select All</h3>
+         </div>
+         <hr class="flex-grow-1 mt-1 divider" />
+         <div class="col-auto px-3"  onclick="clubKapow_unselectAll()">
+            <h3>Unselect All</h3>
+         </div>
+         <hr class="flex-grow-1 mt-1 divider" />
+      </div>
+      <div class="row justify-content-evenly mt-3" id="clubKapow-selectableIcons">
+	 {% for s in sheets %}
+            {% if loop.index0 % 2 == 0 and not first %}
+               <div class="w-100"></div>
+            {% endif %}
+
+            {{ selectableIcon("clubKapow_sheet" ~ loop.index0,
+               "clubKapow-sheetCheckBoxes",
+               s.name,
+               "display.svg",
+               {"ip": s.ip},
+	       unassigned=s.ip == "Unassigned" ) }}
+         {% endfor %}
+      </div>
+      </form>
+   </div>
+</div>
+<script>
+ function clubKapow_selectAll() {
+    $(".clubKapow-sheetCheckBoxes:enabled").prop("checked", true);
+ }
+ 
+ function clubKapow_unselectAll() {
+    $(".clubKapow-sheetCheckBoxes").prop("checked", false);
+ }
+
+ function clubKapow_kapow(kapow) {
+    getSelectedIconList("clubKapow-sheetCheckBoxes")
+       .each(function(i, displayCheck) {
+          Kapow(displayCheck.dataset.ip, kapow)
+       })
+ }
+ 
+ function clubKapow_activeCallback(somethingActive, activityStatus) {
+    for ( let i=0; i < activityStatus.length; i++) {
+       enableField(!activityStatus[i], `#clubKapow-btn-kapow${i}`);
+    }
+    enableField(!somethingActive, "#clubKapow-btn-kapow-all");             
+ }
+ 
+ function clubKapow_enter() {
+    startActivityCheckTimer(clubKapow_activeCallback);
+    clubKapow_selectAll();
+ }
+ 
+ function clubKapow_exit() {
+    stopActivityCheckTimer();
+ }
+</script>

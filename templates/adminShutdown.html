@@ -1,0 +1,75 @@
+<div class="display-view d-none" id="adminShutdown">
+   {{ navPanel("adminShutdown", "admin" , "Shutdown / Restart / Reboot") }}
+   <div class="container mb-3">
+      <div class="row justify-content-around">
+         {{ actionIcon("Halt", "sign-stop.svg", "adminShutdown_halt()", colAuto=true) }}
+         {{ actionIcon("Restart", "arrow-clockwise.svg", "adminShutdown_restart()", colAuto=true) }}
+         {{ actionIcon("Reboot", "bootstrap-reboot.svg", "adminShutdown_reboot()", colAuto=true) }}
+      </div>
+      <div class="d-flex justify-content-evenly align-items-center mt-2">
+         <hr class="flex-grow-1 mt-1 divider" />
+         <div class="col-auto px-3" onclick="adminShutdown_selectAll()" >
+            <h3>Select All</h3>
+         </div>
+         <hr class="flex-grow-1 mt-1 divider" />
+         <div class="col-auto px-3"  onclick="adminShutdown_unselectAll()">
+            <h3>Unselect All</h3>
+         </div>
+         <hr class="flex-grow-1 mt-1 divider" />
+      </div>
+      <div class="row justify-content-evenly mt-3" id="adminShutdown-selectableIcons">
+      </div>
+   </div>
+</div>
+<script>
+ function adminShutdown_selectAll() {
+    $(".adminShutdown-iconChecked").prop("checked", true);
+ }
+
+ function adminShutdown_unselectAll() {
+    $(".adminShutdown-iconChecked").prop("checked", false);
+ }
+
+ function adminShutdown_halt() {
+    getSelectedIconList("adminShutdown-iconChecked")
+       .each(function(i) {
+          Shutdown(this.dataset.icondataip)
+       })
+ }
+ 
+ function adminShutdown_restart() {
+    getSelectedIconList("adminShutdown-iconChecked")
+       .each(function(i) {
+          Restart(this.dataset.icondataip)
+       })
+ }
+ 
+ function adminShutdown_reboot() {
+    getSelectedIconList("adminShutdown-iconChecked")
+       .each(function (i) {
+          Reboot(this.dataset.icondataip)
+       })
+ }
+ 
+ function adminShutdown_addDevice(p, i) {
+    addSelectableIcon("#adminShutdown-selectableIcons",
+                      `adminShutdown-selectableIcons${i}`,
+                      "adminShutdown-iconChecked",
+                      p.name,
+                      p.type == "display" ? "display.svg" : "stopwatch.svg",
+                      p,
+                      i > 0 && (i % 2 == 0))
+ }
+ 
+
+ function adminShutdown_enter() {
+    $('#adminShutdown-selectableIcons').empty();
+    getDevicesAjax()
+       .done(function(response) {
+          response.displays.concat(response.sensors).forEach(adminShutdown_addDevice)
+       })
+ }
+ 
+ function adminShutdown_exit() {
+ }
+</script>

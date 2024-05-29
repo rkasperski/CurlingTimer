@@ -1,0 +1,60 @@
+<div class="display-view d-none" id="adminShowVersions">
+   {{ navPanel("adminShowVersions", "adminDebug" , "Show Versions" ) }}
+   <div class="container">
+      <div class="row justify-content-center">
+      	 <div class="col-auto display-table" id="adminShowVersions-display">
+	    <table class="table table-striped" id="adminShowVersions-table" >
+	       <thead class="thead-light">
+	       </thead>
+	       <tbody>
+	       </tbody>
+	    </table>
+	 </div>
+      </div>
+   </div>
+</div>
+
+<script>
+ function adminShowVersions_refresh() {
+    $('#adminShowVersions-display').empty();
+    jsonCall("adminShowVersions",
+             "{{scheme}}://{{ip}}:{{port}}/adminversion",
+             {},
+             {method:"GET",
+              animation:"spinner",
+              animationTarget:"#adminShowVersions"})
+       .done(function(response) {
+          let idx = 0;
+          for (let i = 0; i < response.sheets.length; i++) {
+             let sd = response.sheets[i];
+             renderDynamicTableData("adminShowVersions-display",
+                                    "adminShowVersions-table" + idx,
+                                    sd["name"],
+                                    ["Name", "Value"],
+                                    sd["data"],
+                                    idx != 0,
+                                    "");
+             idx += 1;
+          }
+          for (i = 0; i < response.sensors.length; i++) {
+             let sd = response.sensors[i];
+             renderDynamicTableData("adminShowVersions-display",
+                                    "adminShowVersions-table" + idx,
+                                    sd["name"],
+                                    ["Name", "Value"],
+                                    sd["data"],
+                                    idx != 0,
+                                    "");
+             idx += 1;
+          }
+          
+       })
+ }
+ 
+ function adminShowVersions_enter() {
+    adminShowVersions_refresh()
+ }
+ 
+ function adminShowVersions_exit() {
+ }
+</script>

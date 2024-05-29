@@ -1,0 +1,122 @@
+<div class="display-view d-none" id="adminSSL">
+   {% if type == "display" %}
+      {{ navPanel("adminSSL", "admin" , "SSL - Setup") }}
+   {% else %}
+      {{ navPanel("adminSSL", "admin" , "SSL - Setup - " ~ name, upTop="breaktimerAdmin") }}
+   {% endif %}
+   <div class="container" >
+      <div class="row mt-2">
+	 <div class="col-auto">
+	    <h4>Generate Local SSL Certificate</h4>
+	    Have you set your organization details? If not do so here <a href="javascript:panelNavigate('adminOrganization')">Organization</a>
+	    <br>
+	    <br>
+	    <button class="btn btn-primary" id="adminSSL-btn-sslKey" type="button" onclick="adminSSL_generateSSLConfig();">Generate</button>
+	 </div>
+      </div>
+   </div>
+   <hr class="divider">
+   <div class="container" >
+      <div class="row mt-2">
+	 <div class="col-auto">
+	    <h4>Upload SSL key</h4>
+         </div>
+      </div>
+      <div class="row">
+         <div class="input-group mb-3">
+            <input type="file" class="form-control" placeholder="SSL Key File" aria-label="sslKeyFile" id="adminSSL-sslKey">
+	    <button class="btn btn-primary" id="btn_sslKey" type="button" onclick="adminSSL-uploadFile('adminSSL-key', 'adminSSL-sslKey');">Upload Key</button>
+         </div>                       
+      </div>
+      <div class="row mt-4">
+	 <h4>Upload SSL certificate</h4>
+      </div>
+      <div class="row">
+	 <div class="input-group mb-3">
+            <input class="form-control" type="file" id="sslCertificate" name="sslCertificate">
+	    <button class="btn btn-primary" id="adminSSL-btn-sslCertificate" type="button" onclick="adminSSL_uploadFile('adminSSL-certificate', 'adminSSL-sslCertificate');">Upload Certificate</button>
+         </div>
+      </div>
+      <hr class="divider mt-2">
+      <div class="row">
+	 <div class="col-auto">
+	    <h4>SSL Info </h4>
+	    <button class="btn btn-primary" id="adminSSL-btn=-" showInfo" type="button" onclick="adminSSL-infoSSLConfig();">Show Info</button>
+	 </div>
+      </div>
+      <hr class="divider mt-2">
+      <div class="row mt-2" id="adminSSL-certDetails" style="visibility: hidden">
+	 <div class="col-auto">
+	    <h4>Certificate Details - <span id="adminSSL-certType"> </span></h4>
+	    <div id="certInfo">
+	    </div>
+	 </div>
+      </div>
+   </div>
+
+</div>
+<script>
+
+ function adminSSL_populateCertDetails(type, info) {
+    $('#adminSSL-certType').text(type);
+    function formatItem(item) {
+       return `<div class="hanging-indent mt-1"><b>${htmlToText(item[0])}:</b> ${htmlToText(item[1])}</div>`;
+    }
+    
+    $('#adminSSL-certInfo').html(info.map(formatItem).join(''));
+    $('#adminSSL-certDetails').css('visibility', 'visible')
+ }
+ 
+ function uploadFile(name, fileSrc) {
+    function transferFailed(evt) {
+       alert(`upload failed of ${name}; please try again`);
+    }
+    
+    function transferComplete(evt) {
+       alert("upload complete ${name}");
+    }
+    
+    let fileInput = $('#adminSSL-fileUploadForm')[0];
+    let file = $(`#${fileSrc}`).get(0).files[0];
+    let formData = new FormData();
+    formData.append(name, file);
+
+    // let formData = new FormData();
+
+    let xhr = new XMLHttpRequest();
+    // Add any event handlers here...
+    xhr.open('POST', '{{scheme}}://{{ip}}:{{port}}/sslconfig/upload', true);
+    //xhr.addEventListener("load", "checkForBoth");
+    //xhr.addEventListener("error", "displayUploadError");
+    oReq.addEventListener("load", transferComplete);
+    oReq.addEventListener("error", transferFailed);
+    oReq.addEventListener("abort", transferFailed);	     
+    xhr.send(formData);
+ }
+
+ function infoSSLConfig() {
+    return jsonCall('GenerateSSL','{{scheme}}://{{ip}}:{{port}}/sslconfig/info', {}, {}, "POST", "application/json", "json", {}, 30000)
+       .done(function(response) {
+	  adminSSL-populateCertDetails(response.type, response.info)
+       })
+       .fail(function(response) {
+	  alert("generation of local SSL configuration failed; Retry");
+       });
+ }
+ 
+ function generateSSLConfig() {
+    return jsonCall('GenerateSSL','{{scheme}}://{{ip}}:{{port}}/sslconfig/generate', {}, {}, "POST", "application/json", "json", {}, 30000)
+       .done(function(response) {
+	  adminSSL-populateCertDetails(response.type, response.info)
+       })
+       .fail(function(response) {
+	  alert("generation of local SSL configuration failed; Retry");
+       });
+ }
+
+ function adminSSL_enter() {
+ }
+
+ function adminSSL_exit() {
+ }
+</script>

@@ -1,0 +1,18 @@
+<div id="sheets" class="display-view d-none">
+   {{ navPanel("sheets", "club", "Sheets") }}
+   <div class="row justify-content-evenly">
+      {% for s in sheets %}
+         {% if loop.index0 % 2 == 0 and not first %}
+            <div class="w-100"></div>
+         {% endif %}
+         {{ actionIcon(s.name, "distribute-horizontal.svg", "panelNavigate('sheet" ~loop.index0 ~ "')", unassigned=s.ip == "Unassigned") }}
+      {% endfor %}
+   </div>
+</div>
+<script>
+ function sheets_enter() {
+ }
+
+ function sheets_exit() {
+ }
+</script>

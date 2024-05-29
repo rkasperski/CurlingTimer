@@ -1,0 +1,164 @@
+{% include 'multilevel.html' %}
+{% if userlogin %}
+<nav class="navbar navbar-expand-sm navbar-light border-bottom pt-1 {% if showsheetmenu %} pb-0 {% else %} pb-2 {% endif %}">
+   <ul class="navbar-nav mr-auto">
+      <li class="nav-item font-weight-bold">
+         <a class="nav-link" href="/">
+            <img class="sm-rock-img" alt="curling logo"  src="/static/images/Curling-Rock-red-sm.png">
+         </a>
+      </li>
+      <li class="nav-item dropdown">
+	 <a class="nav-link dropdown-toggle font-weight-bold" href="#" data-toggle="dropdown">Sheets</a>
+	 <ul class="dropdown-menu">
+	    {% for s in sheets %}
+	       <li> 
+		  {% if s.ip != "Unassigned" %}
+		     <a class="dropdown-item" href="{{scheme}}://{{s.ip}}:{{port}}/message?sheet={{s.name|urlencode}}&ip={{s.ip|urlencode}}&tkn={{accessToken|urlencode}}">{{s.name}}</a>
+		  {% else %}
+		     <a class="dropdown-item disabled" href="{{scheme}}://{{s.ip}}:{{port}}/message?sheet={{s.name|urlencode}}&ip={{s.ip|urlencode}}&tkn={{accessToken|urlencode}}">{{s.name}}</a>
+		  {% endif %}
+	       </li>
+	    {% endfor %}
+	 </ul>        
+      </li>
+      <li class="nav-item">
+	 <a class="nav-link font-weight-bold" href="/message/all">Msg</a>
+      </li>
+      <li class="nav-item">
+	 <a class="nav-link font-weight-bold" href="/countdown/all">CntDn</a>
+      </li>
+      <li class="nav-item">
+	 <a class="nav-link font-weight-bold" href="/competition/all">Cmptn</a>
+      </li>
+      <li class="nav-item">
+	 <a class="nav-link font-weight-bold" href="/elapsed/all">Elpsd</a>
+      </li>
+      <li class="nav-item dropdown">
+	 <a class="nav-link dropdown-toggle font-weight-bold" href="#" data-toggle="dropdown">
+	    More
+	 </a>
+	 <ul class="dropdown-menu">
+	    <li><a class="dropdown-item" href="/clock/all">Clock</a></li>
+	    <li><a class="dropdown-item" href="/blank/all">Blank</a></li>
+	    <li><a class="dropdown-item" href="/kapow/all">Kapow</a></li>
+	    <li><a class="dropdown-item" href="/draw/list">Draws</a></li>
+	    <li><a class="dropdown-item" href="/pin/manage">PINs</a></li>
+	    <li><a class="dropdown-item" href="/colours">Colours</a></li>               
+	    <li><a class="dropdown-item" href="/defaults">Defaults</a></li>
+	    <li><a class="dropdown-item" href="/password">Change Password</a></li>
+	    <li><a class="dropdown-item" href="/state">Clock State</a></li>
+	    <li><a class="dropdown-item" href="/logout">Logout</a></li>
+            {% if isadmin %}
+	       <li><a class="dropdown-item" href="/admin">Admin</a></li>
+            {% endif %}
+	    <li><a class="dropdown-item" href="/about">About</a></li>
+	 </ul>
+      </li>
+      {% if batteryAlert %}
+	 <li class="nav-item font-weight-bold">
+            <a class="nav-link" href="/help/battery">
+               <i class="fas fa-battery-empty"></i>
+            </a>
+         </li>
+      {% endif %}
+   </ul>
+</nav>
+{% endif %}
+{% if showsheetmenu %}
+   <nav class="navbar navbar-expand-sm navbar-light border-bottom pt-1 pb-2">
+      <ul class="navbar-nav mr-auto">
+	 <li class="nav-item">
+	    <a class="nav-link font-weight-bold" href="{{scheme}}://{{ip}}:{{port}}/message?sheet={{sheet|urlencode}}&ip={{ip|urlencode}}&tkn={{accessToken|urlencode}}">Msg</a>
+	 </li>
+	 <li class="nav-item">
+	    <a class="nav-link font-weight-bold" href="{{scheme}}://{{ip}}:{{port}}/countdown?sheet={{sheet|urlencode}}&ip={{ip|urlencode}}&tkn={{accessToken|urlencode}}">CntDn</a>
+	 </li>
+	 <li class="nav-item dropdown">
+	    <a class="nav-link dropdown-toggle font-weight-bold" href="#"  data-toggle="dropdown">Cmptn</a>
+	    <ul class="dropdown-menu">
+	       <li> <a class="dropdown-item" href="{{scheme}}://{{ip}}:{{port}}/competition?sheet={{sheet|urlencode}}&ip={{ip|urlencode}}&tkn={{accessToken|urlencode}}">Timer</a></li>
+	       <li> <a class="dropdown-item" href="{{scheme}}://{{ip}}:{{port}}/competition/game/setup?sheet={{sheet|urlencode}}&ip={{ip|urlencode}}&tkn={{accessToken|urlencode}}">Setup</a></li>
+	    </ul>
+	 </li>
+	 <li class="nav-item">
+	    <a class="nav-link font-weight-bold" href="{{scheme}}://{{ip}}:{{port}}/elapsed?sheet={{sheet|urlencode}}&ip={{ip|urlencode}}&tkn={{accessToken|urlencode}}">Elpsd</a>
+	 </li>
+	 <li class="nav-item dropdown">
+	    <a class="nav-link dropdown-toggle font-weight-bold" href="#" data-toggle="dropdown"> Rck </a>
+	    <ul class="dropdown-menu">
+	       <li> <a class="dropdown-item" href="/breaktimer/setup">Setup</a></li>
+	       <li> <a class="dropdown-item" href="/breaktimer/times">Times</a></li>
+	    </ul>
+	 </li>
+	 <li class="nav-item dropdown">
+	    <a class="nav-link dropdown-toggle font-weight-bold" href="#" data-toggle="dropdown"> More </a>
+	    <ul class="dropdown-menu">
+	       <li> <a class="dropdown-item" href="{{scheme}}://{{ip}}:{{port}}/clock?sheet={{sheet|urlencode}}&ip={{ip|urlencode}}&tkn={{accessToken|urlencode}}">Clock</a></li>
+	       <li> <a class="dropdown-item" onclick='DisplayBlank("{{ip}}")'>Blank</a></li>
+	       
+	       <li> <a class="dropdown-item" href="{{scheme}}://{{ip}}:{{port}}/logout?sheet={{sheet|urlencode}}&ip={{ip|urlencode}}&tkn={{accessToken|urlencode}}">Logout</a></li>
+	    </ul>
+	 </li>
+	 <li class="nav-item dropdown">
+	    <a class="nav-link dropdown-toggle font-weight-bold" href="#" data-toggle="dropdown"> Kpw </a>
+	    <ul class="dropdown-menu kapow-item">
+	       {% for kpw in kapow %}
+		  <li> <a class="dropdown-item" data-toggle="collapse" data-target=".kapow-item.show" onclick="Kapow('{{ip}}', '{{kpw}}')">{{kpw}}</a></li>
+	       {% endfor %}		    
+	    </ul>
+	 </li>
+      </ul>
+   </nav>
+   <div class="container mt-3">
+      <div class="form-row">
+	 <div cl
+              ass="col-auto center"> 
+	    <h3 class="font-weight-bold center">{{sheet}} - {{what}}</h3>
+	 </div>
+      </div>
+   </div>
+{% endif %}
+{% if isadmin and showdisplayadmin %}
+   <nav class="navbar navbar-expand-sm navbar-light border-bottom pt-1 pb-2">
+      <b>Admin:&nbsp;</b>
+      <ul class="navbar-nav mr-auto">
+	 <li class="nav-item dropdown">
+	    <a class="nav-link dropdown-toggle font-weight-bold" href="#" data-toggle="dropdown">Settings</a>
+	    <ul class="dropdown-menu">
+	       <li><a class="dropdown-item" href="/defaults">Defaults</a></li>
+	       <li><a class="dropdown-item" href="/colours">Colours</a></li>               
+	       <li><a class="dropdown-item" href="/users">Users</a></li>
+	       <li><a class="dropdown-item" href="/password">Change Password</a></li>
+	       <li><a class="dropdown-item" href="/pin/manage">PINs</a></li>
+	    </ul>
+	 </li>
+	 <li class="nav-item dropdown">
+	    <a class="nav-link dropdown-toggle font-weight-bold" href="#" data-toggle="dropdown">Other</a>
+	    <ul class="dropdown-menu">
+	       <li><a class="dropdown-item" href="/extras">Extras</a></li>
+	       <li><a class="dropdown-item" href="/shutdown/all">Shutdown</a></li>
+	       <li><a class="dropdown-item" href="/restart/all">Restart</a></li>
+	       <li><a class="dropdown-item" href="/reboot/all">Reboot</a></li>
+	    </ul>
+	 </li>
+	 <li class="nav-item">
+	    <a class="nav-link font-weight-bold" href="/clock/set">Set Clock</a>
+	 </li>
+	 <li class="nav-item dropdown">
+	    <a class="nav-link dropdown-toggle font-weight-bold" href="#" data-toggle="dropdown">Setup</a>
+	    <ul class="dropdown-menu">
+	       <li><a class="dropdown-item" href="/organization">Organization</a></li>
+	       <li><a class="dropdown-item" href="/sslconfig">SSL Config</a></li>
+	       <li><a class="dropdown-item" href="/setup">Sheets</a></li>
+	       <li><a class="dropdown-item" href="/hardware">Hardware</a></li>
+	       <li><a class="dropdown-item" href="/secret/set">Secret Key</a></li>
+	    </ul>
+	 </li>
+      </ul>
+   </nav>
+         
+{% endif %}
+   <script>
+    var pageName = $("#pageName").val();
+    $("#navbarPageName").html("<b>" + pageName +"</b>");
+   </script>	

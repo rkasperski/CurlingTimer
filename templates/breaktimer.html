@@ -1,0 +1,87 @@
+<!doctype html>
+{% import 'macros.html' as macros %}
+{% from "macros.html" import navPanel, selectableIcon, actionIcon %}
+{% include 'helpers.css' %}
+<html lang="en">
+   <head>
+      {% include 'head.html' %}
+      <script src="/static/js/fileSaver.js"></script>
+      <title>{{organization}}</title>
+   </head>
+   <body class="vh-100">
+      <script>
+       var setupStage = {{setup}};
+       {% include "clockAPI.js" %}
+       {% include 'timer.js' %}
+       {% include 'helpers.js' %}
+       {% include 'login.js' %}
+       {% include 'navigation.js' %}
+       {% include 'websocket.js' %}
+       {% include 'breaktimer.js' %}
+       {% include 'breaktimerdisplay.js' %}
+       {% include 'rockthrow.js' %}
+      </script>
+      {% include "clubAbout.html" %}
+      {% include "clubLogout.html" %}
+      {% include "clubLogin.html" %}
+      {% include "clubPassword.html" %}
+      {% include "adminSecret.html" %}
+      {% include "adminShutdown.html" %}
+      {% include "adminHardwareSettings.html" %}
+      {% include "adminOrganization.html" %}
+      {% include "adminSSL.html" %}
+      {% include "adminLogsDisplay.html" %}
+      {% include "breaktimerAdmin.html" %}
+      {% include "deviceTrainingList.html" %}
+      {% include "sheetTrainingSetup.html" %}
+      {% include "sheetTraining.html" %}
+   </body>
+</html>
+<script>
+ 
+ function getSensorStatus(id, async) {
+    return jsonCall("getSensorState",
+                    `${scheme}://${ip}:${port}/status`,
+                    {id:id},
+                    {method: "POST",
+                     async: async});
+ }
+ 
+ function verifyLoggedIn() {
+    let result = null;
+    getSensorStatus(null, false)
+       .fail(function () {
+          logoutRecord()
+          result = "clubLogin"
+       })
+
+    return result;
+ }
+
+ loginInfo = null;
+ $(document).ready(function() {
+    if (typeof(Storage) !== "undefined") {
+       let s = localStorage.getItem("logininfo")
+       if (s) {
+          loginInfo = JSON.parse(s)
+       }
+    }
+
+    if (setupStage == 0) {
+       adminSecret_directShow(name, ip)
+    } else if (loginInfo && loginInfo.user && loginInfo.isAdmin) {
+       accessToken = loginInfo.accessToken;
+       getSensorStatus(null, false)
+          .done(() => panelNavigate("breaktimerAdmin"))
+          .fail(function () {
+             logoutRecord()
+             panelNavigate("clubLogin") ;
+          })
+    } else {
+       logoutRecord()
+       panelNavigate("clubLogin") ;
+    }
+ })
+</script> 
+</html>
+

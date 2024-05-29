@@ -1,0 +1,29 @@
+<div class="display-view d-none" id="adminMemory">
+   {{ navPanel("adminMemory", "adminDebug" , "Debugging - Memory") }}
+   <div class="row justify-content-evenly" id="adminMemory-actionIcons">
+   </div>
+</div>
+
+<script>
+ function adminMemory_addDevice(p, i) {
+    addActionIcon("#adminMemory-actionIcons",
+                  `adminMemory-actionIcons${i}`,
+                  p.name,
+                  p.type == "display" ? "display.svg" : "stopwatch.svg",
+                  `panelNavigate('adminMemoryDisplay', this)`,
+                  p,
+                  i > 0 && (i % 2 == 0))
+ }
+ 
+ function adminMemory_enter() {
+    $(".iconClass-adminMemory-actionIcons").remove();
+    getDevicesAjax()
+       .done(function(response) {
+          response.displays.concat(response.sensors).forEach(adminMemory_addDevice)
+       })
+ }
+
+ function adminMemory_exit() {
+ }
+
+</script>

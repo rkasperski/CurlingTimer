@@ -1,0 +1,135 @@
+<div id="clubDrawsUpload" class="display-view d-none">
+   {{ overlayNav("clubDrawsUpload", "Upload Draw") }}
+   <form class="row col-12 justify-content-center"
+         id="clubDrawsUpload-file-form"
+         action="{{scheme}}://{{drawServer}}:{{port}}/draw/upload"
+         enctype="multipart/form-data"
+         method="post"
+         name="fileinfo">
+      <div class="row">
+	 <div class="col-auto">
+	    <input type="file" class="form-control" required id="clubDrawsUpload-excel-file" name="excelFileUpload">
+         </div>
+      </div>
+      <div class="row mt-4">
+	 <div class="col-4">
+	    <label for="clubDrawsUpload-draw-name">League/Draw:</label>
+         </div>
+	 <div class="col-auto">
+	    <input type="text" class="form-control" name="drawName" id="clubDrawsUpload-draw-name" value="">
+	 </div>
+      </div>
+      <div class="row mt-4">
+	 <div class="col-4">
+	    <label for="clubDrawsUpload-default-time">Start Time(default):</label>
+         </div>
+	 <div class="col-auto">
+	    <input type="time" class="form-control verify-draw" name="defaultTime" id="clubDrawsUpload-default-time" value="19:00">
+	 </div>
+      </div>
+      <div class="row mt-4">
+ 	 <div class="col-4">
+	    <label for="clubDrawsUpload-default-auto-delete">Auto Delete(default):</label>
+         </div>
+	 <div class="col-auto">
+	    <select class="form-control" name="defaultAutoDelete" id="clubDrawsUpload-default-auto-delete">
+	       <option value="No">Don't Delete</option>
+	       <option value="1">after a day</option>
+	       <option selected="selected" value="2">after 2 days</option>
+	       <option value="3">after 3 days</option>
+	       <option value="4">after 4 days</option>
+	       <option value="5">after 5 days</option>
+	       <option value="6">after 6 days</option>
+	       <option value="7">after 1 week</option>
+	       <option value="14">after 2 weeks</option>
+	    </select>
+	 </div>
+      </div>
+      <div class="row mt-4">
+ 	 <div class="col-4">
+            <label for="clubDrawsUpload-default-colour">Team Colour(default):</label>
+         </div>
+	 <div class="col-auto">
+	    {{macros.colorSelector(colours, "clubDrawsUpload-defaultColour", "clubDrawsUpload-default-colour", "board", default="white")}}
+	 </div>
+      </div>
+      <div class="row mt-4">
+         <div class="col-4">
+	    <label for="clubDrawsUpload-default-show-draw">Before Draws Show(default):</label>
+         </div>
+	 <div class="col-auto">
+	    <select class="form-control" name="defaultShowDraw" id="clubDrawsUpload-default-show-draw">
+	       <option value="blank">Blank</option>
+	       <option value="5">Teams 5m</option>
+	       <option value="10">Teams 10m</option>
+	       <option selected="selected" value="15">Teams 15m</option>
+	       <option value="30">Teams 30m</option>
+	    </select>
+	 </div>
+      </div>
+      <div class="row mt-4">
+	 <div class="col-4">
+	    <label for="clubDrawsUpload-default-at-start">At Draw Start(default):</label>
+         </div>
+	 <div class="col-auto">
+	    <select class="form-control" name="defaultAtStart" id="clubDrawsUpload-default-at-start">
+	       <option value="blank">Blank</option>
+	       <option value="countdown">Start CountDown</option>
+	       <option value="5">Show Teams 5m</option>
+	       <option value="10">Show Teams 10m</option>
+	       <option value="30">Show Teams 30m</option>
+	       <option value="60">Show Teams 1h</option>
+	       <option selected="selected" value="120">Show Teams 2h</option>
+	    </select>
+	 </div>
+      </div>
+      <div class="row mt-4">
+         <div class="col-auto">
+	    <button class="btn btn-primary" id="clubDrawsUpload-btn-upload" type="button" onclick="clubDrawsUpload_uploadFile();">Upload</button>
+         </div>
+      </div>
+   </form>
+</div>
+
+<script>
+ function clubDrawsUpload_uploadDone(data) {
+    $('#clubDrawsUpload').waitMe("hide");
+    overlayHide("clubDrawsUpload", data);
+ }
+ 
+ function clubDrawsUpload_uploadFile() {
+    let fileUploadForm = $('#clubDrawsUpload-file-form')[0];
+    let formData = new FormData(fileUploadForm);
+
+    $('#clubDrawsUpload').waitMe({
+       effect : 'bounce',
+       text : '',
+       bg : "rgba(255,255,255,0.7)",
+       color : "#000",
+    });
+
+    let xhr = new XMLHttpRequest();
+    // Add any event handlers here...
+    xhr.open('POST', '{{scheme}}://{{drawServer}}:{{port}}/draw/upload', true);
+    xhr.setRequestHeader("CC-Clock", accessToken);
+    xhr.responseType = 'json';
+    xhr.timeout = 180000;
+    xhr.onload = ev => clubDrawsUpload_uploadDone(ev.currentTarget.response.msg);
+    xhr.onerror = () => clubDrawsUpload_uploadDone();
+
+    xhr.send(formData);
+ }
+
+ function clubDrawsUpload_verifyFileField(input, target, allowEmpty) {
+    verifyField(/^.*\.(xlsx|csv|xls|pdf)$/, input, target, allowEmpty);
+ }
+
+ function clubDrawsUpload_show() {
+    $('#clubDraws-excelFileupload').on('change',function() {
+       clubDrawsUpload_verifyFileField('#clubDrawsUpload-excel-file', '#clubDrawsUpload-btn-upload');
+    });
+
+    clubDrawsUpload_verifyFileField('#clubDrawsUpload-excel-file', '#clubDrawUpload-btn-upload');
+ }
+ 
+</script>

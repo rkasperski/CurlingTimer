@@ -1,0 +1,56 @@
+<div class="display-view d-none" id="adminHardwareSettings">
+   {% if type == "display" %}
+      {{ navPanel("adminHardwareSettings", "adminHardware" , "Hardware - Setup", idTitle="adminHardwareSettings-title" ) }}
+   {% else %}
+      {{ navPanel("adminHardwareSettings", "adminHardware" , "Hardware - Setup", idTitle="adminHardwareSettings-title", upTop="breaktimerAdmin") }}
+   {% endif %}
+   <div class="container mt-3 mb-3">
+      <div class="row my-1">
+         Needless to say you are about to change the hardware configuration and things may not go well so be careful. You should be able to change it back if something goes wrong. If the worst happens you will need to log into the device, find and delete the file display.ini not belonging to the installation and then restart the device so that the file is replaced. It might be in "/media/pi/curling-timer/curling-timer/config/display.ini" or "~pi/curling-timer/config/display.ini". Better to not have to do this so be careful.
+      </div>
+      
+      <div class="row my-1" id="adminHardware-items">
+      </div>
+      <hr class="divider">
+      
+      <div class="row">
+         <div class="col-auto">
+	    <button type="submit" class="btn btn-primary submit-target" onclick="adminHardwareSettings_save()">Save</button>
+         </div>
+      </div>		
+   </div>
+</div>
+<script>
+ var adminHardwareSettingsIP = ""
+ function adminHardwareSettings_save() {
+    settings = gatherSettings("adminHardwareSettings");
+    
+    return jsonCall("getHardware",
+                    `{{scheme}}://${adminHardwareSettingsIP}:{{port}}/ajax/hardware`,
+                    {settings: settings},
+                    {method: "POST"});
+ }
+ 
+ function adminHardwareSettings_enter(iconBtn) {
+    {% if type == "display" %}
+    let name = iconBtn.dataset.icondataname
+
+    adminHardwareSettingsIP = iconBtn.dataset.icondataip
+    {% else %}
+    let name = "{{name}}";
+
+    adminHardwareSettingsIP = "{{ip}}"
+    {% endif %}
+    
+    $("#adminHardware-items").empty()
+    $("#adminHardwareSettings-title").text("Hardware Setup - " + name);
+    
+    getHardwareSettingsAjax(adminHardwareSettingsIP)
+       .done(function(response) {
+          loadSettings("adminHardwareSettings", response, "#adminHardware-items" );
+       })
+ }
+
+ function adminHardwareSettings_exit() {
+ }
+</script>

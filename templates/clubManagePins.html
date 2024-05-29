@@ -1,0 +1,90 @@
+<div class="display-view d-none" id="clubManagePins">
+   {{ navPanel("clubManagePins", "clubMore" , "Club - Manage Pins") }}
+   <div class="container mt-3">
+      <div class="row">
+	    <div class="col-auto">
+	       PIN Expire Time:
+	    </div>
+	 </div>
+	 <div class="row">
+	    <div class="col-4 col-md-auto">
+	       <input type="text" class="form-control check-time" id="clubManagePins-defaultPINExpireTime" value="">
+	    </div>
+	    <div class="col-auto">
+	       <button type="button" id="btn_msg" class="btn btn-primary my-form-control clubManagePins-submit-target" onclick='clubManagePins_GetNewAllPINs()'>Reset All PINs</button>
+	    </div>
+	 </div>
+         
+	 
+	 {% for s in sheets %}
+            {% if loop.first %}
+	       <hr class="divider mt-2">
+            {% else %}
+	       <hr class="mt-2">
+            {% endif %}
+            
+	    <div class="row">
+	       <div class="col-auto">
+		  {{s.name}}{% if s.ip == 'Unassigned'%} - {{s.ip}} {% endif %}
+	       </div>
+	    </div>
+	    
+	    <div class="row">
+	       <div class="col-5 col-md-auto">
+		  <input type="text" class="form-control disabled" id="clubManagePins-pin{{loop.index0}}" value="{{s.pin}}">
+	       </div>
+	       <div class="col-auto" >
+		  <button type="button" class='btn btn-primary my-form-control
+				{% if s.ip == "Unassigned" %} disabled {% else %} clubManagePins-submit-target {% endif %}'
+			  onclick='clubManagePins_GetNewPIN("{{loop.index0}}", "{{s.name}}")'>New PIN</button>
+	       </div>
+               <div class="col-auto pt-1">
+                  <span class="align-middle" id="clubManagePins-pinExpireTime{{loop.index0}}"> {{s.pinExpireTime}} </span>
+               </div>
+	    </div>
+	 {% endfor %}
+   </div>
+</div>
+<script>
+ function clubManagePins_GetNewPIN(pinHolder, sheet) {
+    let expireTime = $("#clubManagePins-defaultPINExpireTime").val();
+    jsonCall("GetNewPIN",
+	     "/pin/get",
+	     { sheet: sheet,
+	       expireTime: expireTime},
+             {})
+       .done(function (response) {
+	  $(`#clubManagePins-pin${pinHolder}`).val(response.pin);
+	  $(`#clubManagePins-pinExpireTime${pinHolder}`).text(response.pinExpireTime);
+       });
+ }
+
+ function clubManagePins_GetNewAllPINs() {
+    let expireTime = $("#clubManagePins-defaultPINExpireTime").val();
+    jsonCall("GetNewPIN",
+	     "/pin/get/all",
+	     { expireTime: expireTime},
+             {})
+       .done(function (response) {
+	  let pins = response.pins;
+	  for (let v in response.pins) {
+	     $(`#clubManagePins-pin${pins[v].ordinal}`).val(pins[v].pin);			 
+	     $(`#clubManagePins-pinExpireTime${pins[v].ordinal}`).text(pins[v].pinExpireTime);			 
+	  }
+       })
+ }
+
+ function clubManagePins_enter() {
+    getDefaultsAjax(ip, false)
+       .done(function(response) {
+          loadSettings("clubManagePins", response);
+       })
+
+    $("#clubManagePins-defaultPINExpireTime").on("change", function() {
+       verifyTimeField($("#clubManagePins-defaultPINExpireTime"), ".clubManagePins-submit-target");
+    })
+ }
+
+ function clubManagePins_exit() {
+ }
+</script>

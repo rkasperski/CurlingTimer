@@ -1,0 +1,75 @@
+<div id="sheetCompetitionTimerUtility" class="display-view d-none">
+   {{ overlayNav("sheetCompetitionTimerUtility", "Competition - Utility Timer", idTtitle="sheetCompetitionTimerUtility-title") }}   
+   <div class="container mt-4 justify-content-center">
+      <div class="row justify-content-md-center">
+      	 <div class="col-auto align-self-center d-none" id="sheetCompetitionTimerUtility-rock">
+            <img class="rock-img" src="/static/images/Curling-Rock-red-sm.png">
+	 </div>
+      	 <div class="col-auto ml-3  align-self-center">
+	    <span id="sheetCompetitionTimerUtility-time" class="timeDisplay"></span>
+	 </div>
+      </div>
+      <div class="row justify-content-center mt-4">
+         <div class="col-auto">
+	    <button type="button" class="btn btn-primary btn-lg" id="sheetCompetitionTimerUtility-btn-done" onclick="sheetCompetitionTimerUtility_done()">Done</button>
+         </div>
+         <div class="col-auto">
+	    <button type="button" class="btn btn-primary btn-lg" id="sheetCompetitionTimerUtility-btn-cancel" onclick="sheetCompetitionTimerUtility_cancel()">Cancel</button>
+         </div>
+      </div>
+   </div>
+</div>
+
+<script>
+ var sheetCompetitionTimerUtility_timer = 0;
+ var sheetCompetitionYimerUtility_from = null;
+ 
+ function sheetCompetitionTimerUtility_timerRunning(active, time, r) {
+    if (time == 0) {
+       sheetCompetitionTimerUtility_done()   ;    
+    }
+ }
+ 
+ function sheetCompetitionTimerUtility_cancel() {
+    overlayHide("sheetCompetitionTimerUtility", null);
+ }
+
+ function sheetCompetitionTimerUtility_done() {
+    overlayHide("sheetCompetitionTimerUtility",
+                {type: $("#sheetCompetitionTimerUtility").data("type"),
+                 complete:"yes"});
+ }
+ 
+ function sheetCompetitionTimerUtility_data() {
+    return {type: $("#sheetCompetitionTimerUtility").data("type"),
+            complete: "no"};
+ }
+
+ function sheetCompetitionTimerUtility_show(data) {
+    $("#sheetCompetitionTimerUtility").data("type", data.type);
+
+    if (data.time) {
+       $('#sheetCompetitionTimerUtility-time').text(timer_secsToTime(data.time));
+    }
+
+    $("#sheetCompetitionTimerUtility .nav-title").text(data.title);
+    
+    if (data.type == "team") {
+       $("#sheetCompetitionTimerUtility-btn-cancel").removeClass("d-none");
+       $("#sheetCompetitionTimerUtility-rock").removeClass("d-none");
+       $("#sheetCompetitionTimerUtility-rock img").attr("src", data.rockSvg);
+    } else {
+       $("#sheetCompetitionTimerUtilityTimer-btn-cancel").addClass("d-none");
+       $("#sheetCompetitionTimerUtilityTimer-rock").addClass("d-none");
+    }
+    
+    sheetCompetitionTimerUtility_timer = timer_tracker(data.ip,
+                                                       "#sheetCompetitionTimerUtility-time",
+                                                       data.timerStatusUrl,
+                                                       sheetCompetitionTimerUtility_timerRunning);
+ }
+
+ function sheetCompetitionTimerUtility_hide() {
+    timer_cancel(sheetCompetitionTimerUtility_timer);
+ }
+</script>

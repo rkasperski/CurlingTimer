@@ -1,0 +1,50 @@
+<div class="display-view d-none" id="clubLogout">
+   {% if type == "display" %} 
+      {{ navPanel("clubLogout", "club" , "Club - Logout") }}
+   {% else %}
+      {{ navPanel("clubLogout", "club" , "Logout - " ~ name, upTop="breaktimerAdmin") }}
+   {% endif %}
+
+   <div class="container">
+      <div class="row justify-content-center">
+         <div class="col-auto">
+            <span id="clubLogout-msg"> someone </span> Click logout to logout. You will be redirected to the logon screen.
+         </div>
+      </div>
+      <div class="row justify-content-center mt-4">
+         <div class="col-auto">
+            <button type="submit" class="btn btn-primary submit-target" onclick="clubLogout_logout()"> Logout </button>
+         </div>
+      </div>
+   </div>
+</div>
+<script>
+ var clubLogoutHandle = $("#clubLogout");
+ 
+ function clubLogout_logout() {
+    accessToken = null;
+    logoutRecord();
+    panelNavigate("clubLogin")
+ }
+ 
+ function clubLogout_enter() {
+    if (loginInfo && loginInfo.user) {
+       $("#clubLogout-msg").html(`You are currently logged in as user:<b> ${htmlToText(loginInfo.user)}</b>.`);
+    } else if (loginInfo && loginInfo.pinSheetID) {
+       $("#clubLogout-msg").html(`You are currently logged using a PIN.`);
+    } else {
+       $("#clubLogout-msg").text(`You are not currently logged in.`);
+    }
+
+    {% if type == "display" %} 
+    if (loginInfo && loginInfo.pinSheetID) {
+       updateNavPanel(clubLogoutHandle, "clubLogout", "PIN - Logout", "sheet" + loginInfo.pinSheetID);
+    } else {
+       updateNavPanel(clubLogoutHandle, "clubLogout", "Club - Logout", "club");
+    }
+    {% endif %}
+ }
+ 
+ function clubLogout_exit() {
+ }
+</script>

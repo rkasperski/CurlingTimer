@@ -1,0 +1,29 @@
+<div class="display-view d-none" id="adminHardware">
+   {{ navPanel("adminHardware", "clubAdmin" , "Hardware - Setup") }}
+   <div class="container mt-3 mb-3">
+      <div class="row my-1 justify-content-evenly" id ="adminHardware-actionIcons">
+      </div>
+   </div>
+</div>
+<script>
+ function adminHardware_addDevice(p, i) {
+    addActionIcon("#adminHardware-actionIcons",
+                  `adminHardware-actionIcons${i}`,
+                  p.name,
+                  p.type == "display" ? "display.svg" : "stopwatch.svg",
+                  `panelNavigate('adminHardwareSettings', this)`,
+                  p,
+                  i > 0 && (i % 2 == 0))
+ }
+ 
+ function adminHardware_enter() {
+    $(".iconClass-adminHardware-actionIcons").remove();
+    getDevicesAjax()
+       .done(function(response) {
+          response.displays.concat(response.sensors).forEach(adminHardware_addDevice)
+       });
+ }
+
+ function adminHardware_exit() {
+ }
+</script>

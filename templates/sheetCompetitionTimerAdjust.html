@@ -1,0 +1,49 @@
+<div id="sheetCompetitionTimerAdjust" class="display-view d-none">
+   {{ overlayNav("sheetCompetitionTimerAdjust", "Competition - Adjust Time") }}   
+   <div class="container mt-4 justify-content-center">
+      <div class="row justify-content-md-center">
+      	 <div class="col-auto align-self-center">
+            <img class="rock-img" id="sheetCompetitionTimerAdjust-rock-colour" src="/static/images/Curling-Rock-red-sm.png">
+	 </div>
+	 <div class="col-auto ml-3 align-self-center">
+	    <img src="static/images/up_arrow.png" alt="increase team time" height="50" onclick="sheetCompetitionTimerAdjust_increment('sheetCompetitionTimerAdjust-team-time')">
+	    <br>
+	    <br>
+	    <img src="static/images/down_arrow.png" alt="decrease team time"height="50" onclick="sheetCompetitionTimerAdjust_decrement('sheetCompetitionTimerAdjust-team-time')">
+	 </div>
+      	 <div class="col-auto ml-3  align-self-center">
+	    <span class="timeDisplay" id="sheetCompetitionTimerAdjust-team-time"></span>
+	 </div>				    
+      </div>
+      <div class="row justify-content-center mt-4">
+         <div class="col-auto">
+	    <button type="button" class="btn btn-primary submit-target btn-lg" id="sheetCompetitionTimerAdjust-btn" onclick="sheetCompetitionTimerAdjust_newTeamTime();"><i class="fas fa-external-link-alt"></i></button>
+         </div>
+      </div>
+   </div>
+</div>
+<script>
+ function sheetCompetitionTimerAdjust_newTeamTime() {
+    let time = strToSeconds($("#sheetCompetitionTimerAdjust-team-time").text());
+    overlayHide("sheetCompetitionTimerAdjust",
+                {teamNo:  $("#sheetCompetitionTimerAdjust-btn").data("team"),
+                 time: time
+                });
+ }
+ 
+ function sheetCompetitionTimerAdjust_increment(w) {
+    let time = $(`#${w}`)
+    time.text(secondsToStr(strToSeconds(time.text()) + 0.99 + 1));
+ }
+
+ function sheetCompetitionTimerAdjust_decrement(w) {
+    let time = $(`#${w}`)
+    time.text(secondsToStr(strToSeconds(time.text()) + 0.99 - 1));
+ }
+ 
+ function sheetCompetitionTimerAdjust_show(data) {
+    $("#sheetCompetitionTimerAdjust-rock-colour").attr("src", data.rockSvg);
+    $("#sheetCompetitionTimerAdjust-team-time").text(data.time)
+    $("#sheetCompetitionTimerAdjust-btn").data("team", data.teamNo);
+ }
+</script>

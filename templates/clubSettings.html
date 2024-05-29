@@ -1,0 +1,191 @@
+<div class="display-view d-none" id="clubSettings">
+   {{ navPanel("clubSettings", "clubMore" , "Club - Settings") }}
+   <div class="container mt-3 mb-3">
+      <div class="row">
+	 <div class="col-7 col-md-3">
+	    <label for="clubSettings-welcomeMessage" >Welcome Message:</label>
+         </div>
+         <div class="col-12 col-md-8">
+	    <input type="text" class="form-control" id="clubSettings-welcomeMessage" value="">
+	 </div>
+      </div>
+      <div class="row mt-2">
+         <div class="col-8 col-md-9">
+	    <label for="clubSettings-blankTime" >Clock Blank Time:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control check-time" id="clubSettings-blankTime" value="">
+	 </div>
+      </div>
+      <hr class="divider">
+      <div class="row mt-2">
+         <div class="col-8 col-md-9">
+	    <label for="clubSettings-teamTime" >Per Team Time:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control check-time" id="clubSettings-teamTime" value="">
+         </div>
+      </div>
+      <div class="row mt-2">
+	 <div class="col-8 col-md-9">
+	    <label for="clubSettings-intermissionLength" >Intermission:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control check-time" id="clubSettings-intermissionLength" value="">
+         </div>
+      </div>
+      <div class="row mt-2">
+	 <div class="col-8 col-md-9">
+	    <label for="clubSettings-numberOfTimeouts" >Timeout Number:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control check-number" id="clubSettings-numberOfTimeouts" value="">
+	 </div>
+      </div>
+      <div class="row mt-2">
+	 <div class="col-8 col-md-9">
+	    <label for="clubSettings-timeoutLength" >Timeout Length:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control check-time" id="clubSettings-timeoutLength" value="">
+	 </div>
+      </div>
+      <div class="row mt-2">
+	 <div class="col-8 col-md-9">
+	    <label for="clubSettings-extraEndTime" >Extra End Time:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class=" form-control check-time" id="clubSettings-extraEndTime" value="">
+         </div>
+      </div>
+      <div class="row mt-2">
+	 <div class="col-8 col-md-9">
+	    <label for="clubSettings-betweenEndTime" >Between End Time:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control " id="clubSettings-betweenEndTime" value="">
+	 </div>
+      </div>
+      <div class="row mt-2">
+	 <div class="col-8 col-md-9">
+	    <label for="clubSettings-scrollTeamsSeparator" >Scrolling Teams Separator:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control " id="clubSettings-scrollTeamsSeparator" value="">
+	 </div>
+      </div>
+      <div class="row mt-2">
+	 <div class="col-8 col-md-9">
+	    <label for="clubSettings-largeActiveTeamTimer" >Large Active Team Timer:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control " id="clubSettings-largeActiveTeamTimer" value="">
+	 </div>
+      </div>
+      <div class="row mt-2">
+	 <div class="col-8 col-md-9">
+	    <label for="clubSettings-largeStoppedTeamTimer" >Large Stopped Team Timer:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control" id="clubSettings-largeStoppedTeamTimer" value="">
+	 </div>
+      </div>
+      <hr class="divider">
+      <div class="row mt-2">
+	 <div class="col-8 col-md-9">
+	    <label for="clubSettings-gameTime" >Game Time:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control check-time" id="clubSettings-gameTime" value="">
+	 </div>
+      </div>
+      <div class="row mt-2">
+	 <div class="col-8 col-md-9">
+	    <label for="clubSettings-finishedMessageDisplayTime" >Finish Message Display Time:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control check-tim" id="clubSettings-finishedMessageDisplayTime" value="">
+	 </div>
+      </div>
+      <div class="row">
+         <div class="mt-2 col-8 col-md-3">
+	    <label for="clubSettings-finishedMessageColour" >Finished Message:</label>
+         </div>
+	 <div class="mt-2 col-4 col-md-2">
+	    {{macros.colorSelector(colours, "clubSettings-finishedMessageColour", "clubSettings-finishedMessageColour", default=finishedMessageColour)}}
+         </div>
+	 <div class="mt-2 col-12 col-md-6">
+	    <input type="text" id="clubSettings-finishedMessage" class="form-control" value="">
+         </div>
+      </div>
+      <div class="row">
+	 <div class="mt-2 col-8 col-md-3">
+	    <label for="clubSettings-lastEndMessageColour" >Last End Message:</label>
+         </div>
+         <div class="mt-2 col-4 col-md-2">
+	    {{macros.colorSelector(colours, "clubSettings-lastEndMessageColour", "clubSettings-lastEndMessageColour", default=lastEndMessageColour)}}
+         </div>
+	 <div class="mt-2 col-12 col-md-6">
+	    <input type="text" id="clubSettings-lastEndMessage" class="form-control" value="">
+         </div>
+      </div>
+      <hr class="divider">
+      <div class="row mt-2">
+	 <div class="col-7 col-md-9">
+	    <label for="clubSettings-defaultPINExpireTime" >PIN Expire Time:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control check-time" id="clubSettings-defaultPINExpireTime" value="">
+	 </div>
+      </div>		
+      <hr class="divider">
+      <div class="row mt-2">
+	 <div class="col-7 col-md-9">
+	    <label for="clubSettings-breakFilterTime" >Break Timer Filter Time:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control check-time" id="clubSettings-breakFilterTime" value="">
+	 </div>
+      </div>
+      <div class="row mt-2">
+	 <div class="col-7 col-md-9">
+	    <label for="clubSettings-rockCircumference" >Rock Circumference(mm):</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control" id="clubSettings-rockCircumference" value="">
+	 </div>
+      </div>
+      <hr class="divider">
+      <div class="row mt-2">
+	 <div class="col-7 col-md-9">
+	    <label for="clubSettings-ipOnStart" >Show IP at Start:</label>
+         </div>
+         <div class="col-4 col-md-2">
+	    <input type="text" class="form-control" id="clubSettings-ipOnStart" value="">
+	 </div>
+      </div>
+      <hr class="divider">
+      <div class="row">
+	 <div class="col-auto">
+	    <button type="submit" id="clubSettings-btn-save" onclick="clubSettings_save()" class="btn btn-primary submit-target">Save</button>
+	 </div>
+      </div>		
+   </div>
+</div>
+<script>
+ function clubSettings_save() {
+    settings = gatherSettings("clubSettings");
+    
+    setDefaultsAjax(settings)
+ }
+ 
+ function clubSettings_enter() {
+    getDefaultsAjax(ip, false)
+       .done(function(response) {
+          loadSettings("clubSettings", response);
+       })
+ }
+
+ function clubSettings_exit() {
+ }
+</script>

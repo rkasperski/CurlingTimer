@@ -1,0 +1,267 @@
+<div class="display-view  d-none" id="clubCountdown">
+   {{ navPanel("clubCountdown", "club" , "Club - Countdown") }}
+
+   <div class="container">
+      <div class="row">
+         <div class="col-auto">
+	    <label for="clubCountdown-welcomeMessage">Message:</label>
+         </div>
+      </div>				
+      <div class="row mb-3">
+         <div class="col-7">
+	    <input type="text" class="form-control" id="clubCountdown-welcomeMessage" value="">
+         </div>
+         <div class="col-3 col-md-auto">
+	    {{macros.colorSelector(colours, "clubCountdown-welcomeMessageColour", "clubCountdown-welcomeMessageColour")}}
+         </div>
+         <div class="col-auto">
+	    <button type="button" id="clubCountdown-btn-msg" class="btn btn-primary icon-button ml-2" onclick='MessageAll($("#clubCountdown-welcomeMessage").val(),$("#clubCountdown-welcomeMessageColour").val())'><i class="fas fa-comments"></i></button>
+         </div>
+      </div>
+      
+      <div class="row">
+         <div class="col-auto">
+	    <label for="clubCountdown-finishedMessage">Finished Message:</label>
+         </div>
+      </div>
+      <div class="row mb-3">
+         <div class="col-7">
+	    <input type="text" class="form-control" id="clubCountdown-finishedMessage" value="">
+         </div>
+         <div class="col-3 col-md-auto ml-1">
+	    {{macros.colorSelector(colours, "clubCountdown-finishedMessageColour", "clubCountdown-finishedMessageColour")}}
+         </div>
+      </div>
+      
+      <div class="row">
+         <div class="col-auto">
+	    <label for="clubCountdown-lastEndMessage">Last End Message:</label>
+         </div>
+      </div>
+      <div class="row mb-3">
+         <div class="col-7">
+	    <input type="text" class="form-control" id="clubCountdown-lastEndMessage" value="">
+         </div>
+         <div class="col-3 col-md-auto ml-1">
+	    {{macros.colorSelector(colours, "clubCountdown-lastEndMessageColour", "clubCountdown-lastEndMessageColour")}}
+         </div>
+      </div>
+      
+      <div class="row">
+         <div class="col-4 col-md-2">
+	    <label for="clubCountdown-gameTime">Game Time:</label>
+	    <input type="text" class="form-control check-time" id="clubCountdown-gameTime" value="">
+         </div>
+         <div class="col-4 col-md-auto ml-2">
+	    <label for="clubCountdown-teamColour">Team Colour:</label>
+	    {{macros.colorSelector(colours, "clubCountdown-teamColour", "clubCountdown-teamColour", extra="board", default="white")}}
+         </div>
+         <div class="col-auto">
+	    <label for="clubCountdown-btn-clearAll">&nbsp;</label>
+	    <div class="form-control unpadded-btn-group ml-1">
+	       <button type="button" id="clubCountdown-btn-clearAll" class="icon-button btn btn-warning submit-target mx-2" onclick='clubCountdown_clearAll();'><i class="fas fa-backspace"></i></button>
+	       <button type="button" id="clubCountdown-btn-setAll" class="disabled icon-button btn btn-primary submit-target mx-2" onclick="clubCountdown_setupAll();"><i class="fas fa-external-link-alt"></i></button>
+	       <button type="button" id="clubCountdown-btn-startAll" class="icon-button btn btn-success submit-target mx-2" onclick="CountdownResumeAll();"><i class="fas fa-play"></i></button>
+	       <button type="button" id="clubCountdown-btn-pauseAll" class="icon-button btn btn-danger submit-target mx-2" onclick="CountdownPauseAll();"><i class="fas fa-pause"></i></button>
+	    </div>
+         </div>
+      </div>
+      {% for s in sheets %}
+         {% if loop.first %}
+	    <hr class="divider">
+         {% else  %}
+	    <hr>
+         {% endif %}
+         {% if s.ip == "Unassigned" %}
+	    <div class="row">
+               <div class="col-auto ms-4 disabled xd-out">
+	          {{s.name}}
+	          <br>
+	          Not configured
+	       </div>
+	    </div>
+         {% else %}			
+	    <div class="row">
+	       <div class="col-auto">
+	          <a href="javascript:panelNavigate('sheetCountdown{{loop.index0}}')">{{s.name}}</a>
+	       </div>
+	    </div>
+	    
+	    <div class="row mt-2">
+	       <div class="col-12 row mb-2">
+                  <div class="col-auto my-auto pe-0">
+                     <img class="sm-rock-img" alt="{{s.topColour}} rock" src="/static/images/Curling-Rock-{{s.topColour}}-sm.png">
+                  </div>
+                  
+                  <div class="col-7 col-md-5 pe-0" >
+                     <div class="input-group">
+                        <input type="text" class="form-control border-right-0 border clubCountdown-team" placeholder="top team ..." id="clubCountdown-team-top{{loop.index0}}">
+                        <span class="input-group-text" onclick='$("#clubCountdown-team-top{{loop.index0}}").val("")'>
+                           <i class="fa fa-times"></i>
+                        </span>
+                     </div>
+                  </div>
+                  <div class="col-auto row pe-0">
+                     <div class="col-auto my-auto pe-0">
+	                <button type="button" id="clubCountdown-btn_flip{{loop.index0}}" class="icon-button btn btn-warning submit-target" onclick='flip("clubCountdown-team-top{{loop.index0}}","clubCountdown-team-bottom{{loop.index0}}");'><i class="fas fa-retweet"></i></button>
+                     </div>
+                     <div class="col-auto my-auto pe-0">
+	                <button type="button" id="clubCountdown-btn-winner-top{{loop.index0}}" class="icon-button btn btn-success submit-target" onclick='clubCountdown_showWinner({{loop.index0}}, "{{s.ip}}", "#clubCountdown-team-top{{loop.index0}}")'><i class="fa fa-trophy"></i></button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+	    <div class="row">
+	       <div class="col-12 row">
+	          <div class="col-auto my-auto pe-0">
+                     <img class="sm-rock-img" alt="{{s.bottomColour}} rock" src="/static/images/Curling-Rock-{{s.bottomColour}}-sm.png">
+	          </div>
+                  
+                  <div class="col-7 col-md-5 pe-0">
+                     <div class="input-group">
+                        <input type="text" class="form-control border-right-0 border clubCountdown-team" placeholder="bottom team ..." id="clubCountdown-team-bottom{{loop.index0}}">
+                        <span class="input-group-text" onclick='$("#clubCountdown-team-bottom{{loop.index0}}").val("")'><i class="fa fa-times"></i></span>
+                     </div>
+                  </div>
+                  <div class="col-auto row pe-0">
+                     <div class="col-auto my-auto pe-0">
+                        <button type="button" id="clubCountdown-btn-set{{loop.index0}}" class="disabled icon-button btn btn-primary submit-target" onclick="clubCountdown_setup('{{s.ip}}', {{loop.index0}})"><i class="fas fa-external-link-alt"></i></button>
+                        
+                     </div>
+                     <div class="col-auto my-auto pe-0">
+	                <button type="button" id="clubCountdown-btn-winner-bottom{{loop.index0}}" class="icon-button btn btn-success submit-target" onclick='clubCountdown_showWinner("{{loop.index0}}", "{{s.ip}}", "#clubCountdown-team-bottom{{loop.index0}}")'><i class="fa fa-trophy"></i></button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+	    <div class="row mt-2">
+	       <div class="col-12 row">
+	          <div class="col-auto my-auto pe-0 invisible">
+                     <img class="sm-rock-img" src="/static/images/Curling-Rock-red-sm.png">
+	          </div>
+                  
+                  <div class="col-7 col-md-5 row">
+                     <div class="col-auto">
+	                <button type="button" id="clubCountdown-btn-start{{loop.index0}}" class="icon-button btn btn-success submit-target" onclick='CountDownStart("{{s.ip}}")'><i class="fas fa-play"></i></button>
+                     </div>
+                     <div class="col-auto">
+	                <button type="button" id="clubCountdown-btn-pause{{loop.index0}}" class="icon-button btn btn-danger submit-target" onclick='CountDownPause("{{s.ip}}")'><i class="fas fa-pause"></i></button>
+                     </div>
+                     <div class="col-auto pe-0">
+	                <button type="button" id="clubCountdown-btn-lastEnd{{loop.index0}}" class="icon-button btn btn-danger submit-target" onclick='CountDownLastEnd("{{s.ip}}")'>LE</button>
+                     </div>
+                  </div>
+                  <div class="col-auto ms-4" >
+                     <button type="button" id="clubCountdown-btn-onOff{{loop.index0}}" class="icon-button btn btn-danger submit-target" data-state="off" onclick="clubCountdown_onOff('{{loop.index0}}', '{{s.ip}}')"><i class="fas fa-toggle-off"></i></button>
+                  </div>
+	       </div>
+            </div>
+         {% endif %}
+      {%endfor %}
+   </div>
+</div>
+<script>
+ function clubCountdown_setup(ip, i) {
+    CountDownSetup(ip, 
+                   $("#clubCountdown-gameTime").val(), 
+                   $("#clubCountdown-finishedMessage").val(), 
+                   $("#clubCountdown-finishedMessageColour").val(), 
+                   $("#clubCountdown-lastEndMessage").val(),
+                   $("#clubCountdown-lastEndMessageColour").val(), 
+                   $("#clubCountdown-teamColour").val(),
+                   $(`#clubCountdown-team-top${i}`).val(),
+                   $(`#clubCountdown-team-bottom${i}`).val())
+ }
+ 
+ function clubCountdown_setupAll() {
+    for (let p in peers) {
+       peer = peers[p][0];
+       if (peer != "Unassigned") {
+          clubCountdown_setup(peer, p) 
+       }
+    }	     
+ }
+ 
+ function clubCountdown_clearAll() {
+    $(".clubCountdown-team").val("");
+ }	 
+
+ function clubCountdown_setState(id, state) {
+    let btn = $(`#clubCountdown-btn-onOff${id}`);
+    if (state == btn.data("state")) {
+       return;
+    }
+    
+    if (state == "off") {
+       btn.data("state", "off");
+       btn.html('<i class="fas fa-toggle-off"></i>');
+       btn.removeClass("btn-success").addClass("btn-danger")
+    } else {
+       btn.data("state", "on");
+       btn.html('<i class="fas fa-toggle-on"></i>');
+       btn.removeClass("btn-danger").addClass("btn-success")
+    }
+ }
+
+ function clubCountdown_onOff(id, ip) {
+    let btn = $(`#clubCountdown-btn-onOff${id}`);
+    if (btn.data("state") == "off") {
+       CountDownShow(ip);
+    } else {
+       DisplayBlank(ip);
+    }
+
+    sheetCheckActive(clubCountdown_activeCallback)
+ }
+
+ function clubCountdown_activeCallback(clubStatus, i, sheetStatus) {
+    clubCountdown_setState(i, (!sheetStatus.alive) || sheetStatus.idle ? "off": "on")
+    
+    enableField(!sheetStatus.active, `#clubCountdown-btn-set${i}`);
+    enableField(!sheetStatus.active, `#clubCountdown-btn-lastEnd${i}`);
+    enableField(!sheetStatus.active, `#clubCountdown-btn-onOff${i}`);
+    enableField(!sheetStatus.active, `#clubCountdown-btn-winner-top${i}`);
+    enableField(!sheetStatus.active, `#clubCountdown-btn-winner-bottom${i}`);
+
+    enableField(clubStatus.active == -1, "#clubCountdown-btn-setAll");
+ }
+
+ function clubCountdown_showWinner(id, ip, teamSelector) {
+    let team = $(teamSelector).val()
+    
+    Message(ip, team);
+ }
+ 
+ function clubCountdown_enter(draw) {
+    startActivityCheckTimer(clubCountdown_activeCallback) 
+
+    getDefaultsAjax(ip, false)
+       .done(function(response) {
+          $("#clubCountdown-welcomeMessage").val(response.welcomeMessage);
+          setColour("#clubCountdown-welcomeMessageColour", "white");
+          $("#clubCountdown-finishedMessage").val(response.finishedMessage);
+          setColour("#clubCountdown-finishedMessageColour", response.finishedMessageColour);
+          $("#clubCountdown-lastEndMessage").val(response.lastEndMessage);
+          setColour("#clubCountdown-lastEndMessageColour", response.lastEndMessageColour);
+          $("#clubCountdown-gameTime").val(response.gameTime);
+          setColour("#clubCountdown-teamColour", "white");
+       })
+
+    if (draw) {
+       $('#clubCountdown-teamColour').val(draw.colour);
+
+       for (p in draw.sheets) {
+	  $(`#clubCountdown-team-top${p}`).val(draw.sheets[p].team1);
+	  $(`#clubCountdown-team-bottom${p}`).val(draw.sheets[p].team2);
+       }
+
+    } else {
+       grabNamesFromPeers("#clubCountdown-team-top", "#clubCountdown-team-bottom");
+    }
+ }
+
+ function clubCountdown_exit() {
+    stopActivityCheckTimer();
+ }
+
+</script>
