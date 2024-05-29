@@ -1,0 +1,18 @@
+set -x
+if [ ! -d ".venv" ]
+then
+  python -m venv .venv
+fi
+sudo apt install git
+# install Pillow and build and install rpi-rgn-matrix before
+# installing requirements(no edit of pip freeze file)
+source .venv/bin/activate
+pip install Pillow
+rm -rf rpi-led-matrix
+git clone https://github.com/hzeller/rpi-rgb-led-matrix.git
+cd rpi-rgb-led-matrix
+make build-python PYTHON=$(which python)
+make install-python PYTHON=$(which python)
+cd ..
+pip install -r requirements.txt
+python build_install.py -v

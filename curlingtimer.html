@@ -1,0 +1,117 @@
+<!doctype html>
+{% import 'macros.html' as macros %}
+{% from "macros.html" import navPanel, selectableIcon, actionIcon %}
+{% include 'helpers.css' %}
+<html lang="en">
+   <head>
+      {% include 'head.html' %}
+      <script src="/static/js/fileSaver.js"></script>
+      <title>{{organization}}</title>
+   </head>
+   <body>
+      {% include "sheetCompetitionSetup.html" %}
+      {% include "sheetCompetitionTimer.html" %}
+      {% include "clubClock.html" %}
+      {% include "clubKapow.html" %}
+      {% include "sheetMessage.html" %}
+      {% include "sheetCountdown.html" %}
+      {% include "clubManagePins.html" %}
+      {% include "clubElapsedTimer.html" %}
+      {% include "clubBlank.html" %}
+      {% include "sheets.html" %}
+      {% include "sheet.html" %}
+      {% include "clubMore.html" %}
+      {% include "clubMessage.html" %}
+      {% include "clubCountdown.html" %}
+      {% include "clubDraws.html" %}
+      {% include "clubCompetition.html" %}
+      {% include "clubAbout.html" %}
+      {% include "club.html" %}
+      {% include "clubLogout.html" %}
+      {% include "clubLogin.html" %}
+      {% include "clubTraining.html" %}
+      {% include "clubSettings.html" %}
+      {% include "sheetKapow.html" %}
+      {% include "clubPassword.html" %}
+      {% include "sheetElapsed.html" %}
+      {% include "sheetTrainingSetup.html" %}
+      {% include "sheetTraining.html" %}
+      {% include "clubColours.html" %}
+      {% include "clubClockStatus.html" %}
+      {% include "clubAdmin.html" %}
+      {% include "adminSecret.html" %}
+      {% include "adminUpdate.html" %}
+      {% include "adminUsers.html" %}
+      {% include "adminShutdown.html" %}
+      {% include "adminSetClock.html" %}
+      {% include "adminHardware.html" %}
+      {% include "adminHardwareSettings.html" %}
+      {% include "adminOrganization.html" %}
+      {% include "adminSSL.html" %}
+      {% include "adminSheets.html" %}
+      {% include "adminDebug.html" %}
+      {% include "adminLogs.html" %}
+      {% include "adminLogsDisplay.html" %}
+      {% include "adminMemory.html" %}
+      {% include "adminMemoryDisplay.html" %}
+      {% include "adminPTPDStatus.html" %}
+      {% include "adminPTPDStats.html" %}
+      {% include "adminPTPDLogs.html" %}
+      {% include "adminPTPDOffset.html" %}
+      {% include "adminShowVersions.html" %}
+   </body>
+   <script>
+    var setupStage = {{setup}};
+    {% include "clockAPI.js" %}
+    {% include 'timer.js' %}
+    {% include 'helpers.js' %}
+    {% include 'login.js' %}
+    {% include 'activity.js' %}
+    {% include 'navigation.js' %}
+
+    function club_verifyLoggedIn() {
+       let result = null;
+       Status(ip, "competition/status", {}, false)
+          .fail(function () {
+             logoutRecord()
+             result = "clubLogin"
+          })
+
+       return result;
+    }
+
+    loginInfo = null;
+    if (typeof(Storage) !== "undefined") {
+       let s = localStorage.getItem("logininfo")
+       if (s) {
+          loginInfo = JSON.parse(s)
+       }
+    }
+
+    if (setupStage == 0) {
+       Status(ip, "competition/status", false)
+       adminSecret_directShow(name, ip)
+    } else if (loginInfo && loginInfo.user) {
+       accessToken = loginInfo.accessToken;
+       Status(ip, "competition/status", {}, false)
+          .done(() => showFromTo("random", "club"))
+          .fail(function () {
+             logoutRecord()
+             showFromTo("club", "clubLogin") ;
+          })
+    } else if (loginInfo && loginInfo.pinSheetID && loginInfo.pinSheetIP) {
+       accessToken = loginInfo.accessToken;
+       ip = loginInfo.pinSheetIP;
+       Status(ip, "competition/status", false)
+          .done(() => showFromTo("random", "sheet" + loginInfo.pinSheetID))
+          .fail(function () {
+             logoutRecord()
+             showFromTo("club", "clubLogin") ;
+          })
+    } else {
+       logoutRecord()
+       showFromTo("club", "clubLogin") ;
+    }
+   </script> 
+</html>
+

@@ -1,0 +1,7 @@
+set -x
+if [ ! -d ".venvb" ]
+then
+  python -m venv .venvb
+fi
+source .venvb/bin/activate
+pip install -r breaktimer.requirements.txt

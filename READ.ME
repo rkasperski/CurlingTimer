@@ -1,0 +1,64 @@
+two default accounts are made(in the spirit of being a curling timer)
+        button good
+        skip callsTheShots
+
+to generate running clock display software
+        1. create directory
+        2. unpack software into the directory
+        3. cd to the directory
+        4. run ./build-display . It wiil beuild a virtual env and install the necessary requirements
+           and then build an install. It builds the software for both a CurlingTimer and BreakTimer.
+           The end result is a tar file in dist/CurlingTimer.*.tgz
+           If you want to directly run to debug use
+           source .venv/bin/activate
+           sudo env DEBUGFILE=ALl .venv/bin/python CurlingTimer.py
+           to debug the breaktimer run "build-breaktimer" which makes the virtual env ".venvb"
+           and populates the required modules.
+        5. to build a new verson
+                source .venv/bin/activate
+                python build_install.py
+
+Its recommended that you have enough of an internet connection that the display assigned the
+task of being the primary clock can get the current time via ntp when it boots. All other devices use
+pptp to sync their times very closely to that device. If you can't connect to the internet
+then you can use a hardware clock. This is much less desirable because it involves changing
+the battery periodically. Raspberry 5's have a built in clock but the standard rechargeable
+battery is not likely big enough to last the 6 months between curling seasons. In our club this
+involves unbolting the clock from the wall, etc.
+
+The Battery installation includes a hardware clock which can be a ds1307/ds3231 on the i2c bus.
+These are directly read as the raspberry pi software to do this has proven to be problematic.
+You can also use a usb ds3231. The installation script disbles the systemd-timesyncd.service for
+all but the primary clock server. If you install the clocks in a place where they can talk to the
+internet at large choose one of the clocks to the primary ptpd node and
+re-anable systemd-timesyncd.service by doing
+    sudo systemctl start systemd-timesyncd.service
+    sudo systemctl enable systemd-timesyncd.service
+
+!!! Magic incantation
+sudo hwclock --show
+hwclock: ioctl(RTC_RD_TIME) to /dev/rtc0 to read the time failed: Invalid argument
+
+   run this command to reset it
+
+   sudo hwclock --systohc -D --noadjfile --utc
+
+   Exists in curlingTimer/install as recover-hwclock.sh
+
+Cuurently built with python 3.9
+
+build rpi-led - handled by the build-rgb-matrix script
+    mkdir -p ~/dev
+    cd ~/dev
+    git clone https://github.com/hzeller/rpi-rgb-led-matrix.git
+    sudo apt-get install libtiff5-dev libjpeg-dev libopenjp2-7-dev zlib1g-dev libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev python3-tk libharfbuzz-dev libfribidi-dev libxcb1-dev libimagequant-dev libraqm-dev
+    pip install Pillow
+    cd ~/dev/rpi-rgb-led-matrix/bindings/python/
+    make build-python PYTHON=$(pyenv which python3)
+    make install-python PYTHON=$(pyenv which python3)
+    # you may to unzip the egg to allow the compiled modules to be found
+
+    cd ~/dev/curlingTimer
+    export CFLAGS=-fcommon
+    pip install RPi.GPIO
+    pip install -r requirements.txt
