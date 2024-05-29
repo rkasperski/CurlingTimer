@@ -1,0 +1,44 @@
+<div id="clubTraining" class="display-view d-none">
+   {{ navPanel("clubTraining", "club", "Club - Training") }}
+   <div class="row justify-content-evenly">
+      {% for s in sheets %}
+         {% if loop.index0 % 2 == 0 and not first %}
+            <div class="w-100"></div>
+         {% endif %}
+         {{ actionIcon(s.name, "trophy.svg", "panelNavigate('sheetTrainingSetup" ~loop.index0 ~ "')", unassigned=s.ip == "Unassigned") }}
+      {% endfor %}
+   </div>
+   <div class="row justify-content-evenly" id="clubTraining-deviceIcons">
+   </div>
+</div>
+<script>
+ function  clubTraining_onclick(ip, name, isDisplay)  {
+    panelNavigate("sheetTrainingSetup", {ip:ip, name:name, isDisplay: isDisplay});
+ }
+ 
+ function clubTraining_addDevice(p, i) {
+    let isDisplay = p.type == "display";
+    addActionIcon("#clubTraining-deviceIcons",
+                  i,
+                  `${p.name}`,
+                  isDisplay ? "display.svg" : "stopwatch.svg",
+                  `clubTraining_onclick('${p.ip}', '${p.name}', ${isDisplay})`,
+                  p, 
+                  i > 0 && (i % 2 == 0))
+ }
+
+ function clubTraining_getDevices() {
+    $('#clubTraining-deviceIcons').empty();
+    getDevicesAjax()
+       .done(function(response) {
+          response.sensors.forEach(clubTraining_addDevice);
+       })
+ }
+ 
+ function clubTraining_enter() {
+    clubTraining_getDevices();    
+ }
+
+ function clubTraining_exit() {
+ }
+</script>

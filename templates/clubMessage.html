@@ -1,0 +1,66 @@
+<div class="display-view d-none" id="clubMessage">
+   {{ navPanel("clubMessage", "club" , "Club - Message") }}
+
+   <div class="row justify-content-center">
+      <div class="col-md-8">
+         <div class="row mt-3">
+            <div class="col-auto">
+	       <label for="message">Message:</label>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-7 col-md-auto">
+	       <input type="text" class="form-control" id="clubMessage-message">
+            </div>
+            <div class="col-3 col-md-auto">
+	       {{macros.colorSelector(colours, "clubMessage-msgColour", "clubMessage-msgColour")}}
+            </div>
+            <div class="col-auto">
+	       <button type="button" id="btn_msg" class="btn btn-primary icon-button mb-2" onclick='MessageAll($("#clubMessage-message").val(), $("#clubMessage-msgColour").val())'><i class="fas fa-comments"></i></button>
+            </div>
+         </div>
+         
+         {% for s in sheets %}
+            {% if loop.first %}
+	       <hr class="divider">
+            {% else  %}
+	       <hr>
+            {% endif %}
+            {% if s.ip == "Unassigned" %} 
+	       <div class="row">
+                  <div class="col-auto ms-4 disabled xd-out">
+	             {{s.name}}
+	             <br>
+	             Not configured
+	          </div>
+	       </div>
+            {% else %}
+	       <div class=""row">
+	          <div class="col-auto">
+	             <a href="javascript:panelNavigate('sheetMessage{{loop.index0}}')">{{s.name}}</a>
+	          </div>
+	       </div>
+               
+	       <div class="row">
+	          <div class="col-7 col-md-auto">
+	             <input type="text" class="form-control" name="message_{{loop.index0}}" id="clubMessage-message_{{loop.index0}}">
+	          </div>
+	          <div class="col-3 col-md-auto" >
+	             {{macros.colorSelector(colours, "clubMessage-msgColour_{{loop.index0}}", "clubMessage-msgColour_{{loop.index0}}")}}
+	          </div>
+	          <div class="col-auto" >
+	             <button type="button" id="clubMessage-btn_message_show_{{loop.index0}}" class="btn btn-primary icon-button" onclick='Message("{{s.ip}}", $("#clubMessage-message_{{loop.index0}}").val(), $("#clubMessage-msgColour_{{loop.index0}}").val())'><i class="fas fa-comment"></i></button>
+	          </div>
+	       </div>
+            {% endif %}
+         {% endfor %}
+      </div>
+   </div>
+</div>
+<script>
+ function clubMessage_enter() {
+ }
+
+ function clubMessage_exit() {
+ }
+</script>

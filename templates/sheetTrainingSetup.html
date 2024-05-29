@@ -1,0 +1,239 @@
+<div class="display-view d-none" id="sheetTrainingSetup">
+   {{ navPanel("sheetTrainingSetup", "sheetn" , "Sheet - Training Setup") }}
+   
+   <div class="row justify-content-center mx-2">
+      <div class="col-12 col-md-8">      
+         <div class="row justify-content-center">
+	    <div class="col-auto">
+	       <h3>Style</h3>
+            </div>
+	    <div class="col-auto">
+	       <select class="form-control placement" id="sheetTrainingSetup-style" onchange="sheetTrainingSetup_styleChange();">
+	          <option value="raw">Raw</option>
+	          <option value="half">Half Sheet</option>
+	          <option value="h2h">Hog to Hog</option>
+	          <option value="full" selected>Full Sheet</option>
+	       </select>
+	    </div> 
+         </div>
+         <hr class="divider">
+         <div class="" id="sheetTrainingSetup-sensors">
+         </div>
+         
+         <div class="col-auto">
+	    <button type="submit" id="sheetTrainingSetup-btn-next" onclick="sheetTrainingSetup_gotoTiming()" class="btn btn-primary sheetTrainingSetup-submit-target">Go To Timing</button>
+         </div>
+      </div>
+      
+   </div>
+</div>
+<script>
+ var sheetTrainingSetupIP = ""
+ var sheetTrainingSetupHandle = $('#sheetTrainingSetup');
+ var sheetTrainingIsDisplay = false;
+ var sheetTrainingSetupName = null;
+ 
+ function sheetTrainingSetup_selectSensor(sensor, name) {
+    sheetTrainingSetup_autoAssignPlacement();
+ }
+
+ function sheetTrainingSetup_getSelectedSensors() {
+    let data = [];
+    let sensors = $(".sheetTrainingSetup-sensor");
+    for (let x = 0; x < sensors.length; x++) {
+       let s = sensors[x];
+       let i = s.dataset["sequence"];
+       
+       if ($(`#sheetTrainingSetup-selected${i}`).prop('checked')) {
+	  data[i] = {name: s.dataset["name"],
+		     ip: s.dataset["ip"],
+		     colour: $(`#sheetTrainingSetup-colour${i}`).val(),
+		     placement: $(`#sheetTrainingSetup-placement${i}`).val(),
+	  };
+       }
+    }
+
+    return data;
+ }
+ 
+ function sheetTrainingSetup_gotoTiming() {
+    let selectedSensors = sheetTrainingSetup_getSelectedSensors();
+    panelNavigate(`sheetTraining`, {style: $('#sheetTrainingSetup-style').val(),
+                                    sensors: selectedSensors,
+                                    ip: sheetTrainingSetupIP,
+                                    name: sheetTrainingSetupName,
+                                    hasDisplay: sheetTrainingIsDisplay});
+ }
+ 
+ var sheetTrainingSetup_placements = ["s1", "h1", "h2", "s2"];
+ var sheetTrainingSetup_colours = [["white", "white"],
+                                    ["yellow", "ywllow"],
+                                    ["red", "red"],
+                                    ["green", "green"],
+                                    ["blue", "blue"],
+                                    ["orange", "orange"]];
+
+ function sheetTrainingSetup_autoAssignPlacement() {
+    let nSelected = 0;
+    let nAssigned = 0;
+    let style = $('#sheetTrainingSetup-style').val();
+    let offset = (style == "h2h") ? 1 : 0;
+    let nSensors = $("#sheetTrainingSetup-sensors").children().length;
+    
+    for (i = 0; i < nSensors; i++) {
+       if($(`#sheetTrainingSetup-selected${i}`).prop('checked')) {
+          nSelected++;
+          if ((nAssigned < 2 && style != "raw") || (nAssigned < 4 && style == "full") || style =="raw") {
+             $(`#sheetTrainingSetup-placement${i}`).val(sheetTrainingSetup_placements[nAssigned + offset])
+             $(`#sheetTrainingSetup-colour${i}`).val(sheetTrainingSetup_colours[nAssigned + offset][0])
+             nAssigned++;
+          } else {
+             $(`#sheetTrainingSetup-placement${i}`).val("raw")
+          }
+       }
+    }
+ }
+ 
+ function sheetTrainingSetup_styleChange() {
+    let style = $('#sheetTrainingSetup-style').val();
+    
+    let half = style == "half";
+    let h2h = style == "h2h";
+    let full = style == "full" || style == "raw";
+    
+    $('.sheetTrainingSetup-placement option[value="h1"]').attr("disabled", !(half || full || h2h));
+    $('.sheetTrainingSetup-placement option[value="s1"]').attr("disabled", !(half || full));
+    
+    $('.sheetTrainingSetup-placement option[value="s2"]').attr("disabled", !(full));
+    $('.sheetTrainingSetup-placement option[value="h2"]').attr("disabled", !(full || h2h));
+    sheetTrainingSetup_autoAssignPlacement();
+    sheetTrainingSetup_verifyStyleConstraints();    
+ }
+ 
+ function sheetTrainingSetup_changePlacement(sensor, ordinal, name) {
+    $("#sheetTrainingSetup-sensorName_" + ordinal).val(name);
+    sheetTrainingSetup_updateSensor(sensor, name);
+ }
+
+ function sheetTrainingSetup_verifyStyleConstraints() {
+    let style = $("#sheetTrainingSetup-style").val();
+    
+    let isValid = true;
+
+    if (style != "raw") {
+       let nSelected = 0;
+       let placementTracker = new Map();
+       let nSensors = $("#sheetTrainingSetup-sensors").children().length;
+       
+       for (i = 0; i < nSensors; i++) {
+          if($(`#sheetTrainingSetup-selected${i}`).prop('checked')) {
+             nSelected++;
+             let place = $(`#sheetTrainingSetup-placement${i}`).val()
+
+             if (placementTracker.get(place)) {
+                isValid = false;
+                break;
+             }
+
+             placementTracker.set(place, nSelected);
+          }
+       }
+
+       if (style == "half" || style == "h2h") {
+          isValid = isValid && nSelected == 2;
+       } else {
+          isValid = isValid && nSelected == 4;
+       }
+    } else {
+       isValid =  $(".sheetTrainingSetup-selection:checked").length > 0
+    }
+    
+    enableField(isValid, ".sheetTrainingSetup-submit-target");
+ }
+
+ function sheetTrainingSetup_addSensor(sensor, idx, colours) {
+    let s =
+       `<div class="row gy-2 mb-3 sheetTrainingSetup-sensor" id="sheetTrainingSetup-sensor${idx}" 
+      data-sequence="${idx}" 
+      data-name="${sensor.name}" 
+      data-ip="${sensor.ip}">
+  <div class="col-10 col-md-auto">
+     <h3>
+        <input class="form-check-input sheetTrainingSetup-selection big-check" type="checkbox" id="sheetTrainingSetup-selected${idx}" onchange="sheetTrainingSetup_selectSensor(this, '${sensor.name}');" onfocus="sheetTrainingSetup_selectSensor(this, '${sensor.name}');">
+        <label class="form-check-label ml-2" for="sheetTrainingSetup-selected${idx}"> ${sensor.name} </label>
+     </h3>
+  </div>
+  <div class="offset-1 col-4 offset-md-0 col-md-auto">
+     <select class="form-control sheetTrainingSetup-placement" id="sheetTrainingSetup-placement${idx}" onchange="sheetTrainingSetup_changePlacement(this, '${idx}', '${sensor.name}');" onfocus="sheetTrainingSetup_updateSensor(this, '${sensor.name}');">
+        <option value="s1">T/Back-Line 1</option>
+        <option value="h1">Hog-Line 1</option>
+        <option value="s2">T/Back-Line 2</option>
+        <option value="h2">Hog-Line 2</option>
+     </select>
+  </div> 
+  <div class="col-3 col-md-auto" id="sheetTrainingSetup-color-container${idx}">
+  </div>
+  <div class="col-2 col-md-auto">
+     <button type="button" class="btn btn-primary icon-button mb-2" onclick="BreakTimerSensorFlash('${sensor.ip}', '${sensor.name}', 30)"><i class="fas fa-sun"></i></button>
+  </div>
+</div>`
+
+       $("#sheetTrainingSetup-sensors").append(s);
+    addColourSelector(`#sheetTrainingSetup-color-container${idx}`, `sheetTrainingSetup-colour${idx}`, "red", colours);
+ }
+
+ function sheetTrainingSetup_bindVerifiers() {
+    $('.sheetTrainingSetup-placement').on('keyup', function(e) {
+       sheetTrainingSetup_verifyStyleConstraints();
+    });
+    
+    $('.sheetTrainingSetup-placement').on('change', function(e) {
+       sheetTrainingSetup_verifyStyleConstraints();
+    });
+    
+    $('.sheetTrainingSetup-selection').on('change', function(e) {
+       sheetTrainingSetup_verifyStyleConstraints();
+    });
+ }
+ 
+ function sheetTrainingSetup() {
+    $("#sheetTrainingSetup-sensors").empty();
+    
+    getDevicesAjax()
+       .done(function(devices) {
+          for (let idx = 0; idx < devices.sensors.length; idx++) {
+             sheetTrainingSetup_addSensor(devices.sensors[idx], idx, sheetTrainingSetup_colours);
+          }
+          sheetTrainingSetup_bindVerifiers();                
+       });
+    
+    sheetTrainingSetup_verifyStyleConstraints();
+    sheetTrainingSetup_styleChange();
+ }
+
+ function sheetTrainingSetup_enter(data) {
+    if (data !== null) {
+       sheetTrainingSetupIP = data.ip;
+       updateNavPanel(sheetTrainingSetupHandle, "sheetTrainingSetup", `${data.name} - Training Setup`);
+       sheetTrainingSetupName = data.name;
+       sheetTrainingIsDisplay = data.isDisplay;       
+    }
+    sheetTrainingSetup();
+ }
+ 
+ function sheetTrainingSetup_exit() {
+ }
+ 
+ {% for s in sheets %}
+ function sheetTrainingSetup{{loop.index0}}_enter() {
+    sheetTrainingSetupIP = "{{s.ip}}";
+    sheetTrainingIsDisplay = true;;       
+    updateNavPanel(sheetTrainingSetupHandle, "sheetTrainingSetup{{loop.index0}}", "{{s.name}} - Training Setup");
+    sheetTrainingSetupName = "{{s.name}}";    
+    sheetTrainingSetup();
+ }
+ 
+ function sheetTrainingSetup{{loop.index0}}_exit() {
+ }
+ {% endfor %}
+</script>

@@ -1,0 +1,135 @@
+<div id="sheetCompetitionSetup" class="display-view d-none">
+   {{ navPanel("sheetCompetitionSetup", "sheet", "sheet - message") }}   
+   <div class="row justify-content-center mx-2">
+      <div class="col-12 col-md-6">      
+         <div class="row mt-2">
+	    <div class="col-6" class="col-form-label">
+	       <label for="sheetCompetitionSetup-teamTime" class="col-form-label">Time Limit Per Team:</label>
+            </div>
+            <div class="col-3">
+	       <input type="text" class="form-control check-time" id="sheetCompetitionSetup-teamTime" value="">
+	    </div>
+         </div>
+         <div class="row mt-4">
+	    <div class="col-6" class="col-form-label">
+	       <label for="sheetCompetitionSetup-intermissionLength" class="col-form-label">Intermission Length:</label>
+            </div>
+            <div class="col-3">
+	       <input type="text" class="form-control check-time" id="sheetCompetitionSetup-intermissionLength" value="">
+	    </div>
+         </div>
+         <div class="row mt-4">
+	    <div class="col-6" class="col-form-label">
+	       <label for="clubCompetitionSetup-teamColour">Team Colour:</label>
+            </div>
+            <div class="col-3">
+	       {{macros.colorSelector(colours, "clubCompetitionSetup-teamColour", "clubCompetitionSetup-teamColour", extra="board", default="white")}}
+               
+            </div>
+         </div>
+         
+         <div class="row mt-4">
+	    <div class="col-auto my-auto">
+               <img class="rock-img" id="sheetCompetitionSetup-top-rock" src="/static/images/Curling-Rock-blue-sm.png">
+	    </div>
+	    <div class="col-7 col-md-auto ml-3 my-auto">
+	       <div class="input-group">
+	          <input type="text" class="form-control border-right-0 border" id="sheetCompetitionSetup-team1" placeholder="top team ...">
+                  <span class="input-group-text" onclick='$("#sheetCompetitionSetup-team1").val("")'>
+                     <i class="fa fa-times"></i>
+                  </span>
+               </div>
+            </div>
+	    <div class="col-auto ml-1 my-auto ">
+	       <button type="button" class="icon-button btn btn-warning submit-target" onclick='flip("sheetCompetitionSetup-team1","sheetCompetitionSetup-team2");'><i class="fas fa-retweet"></i></button>
+	    </div>			    
+         </div>
+         <div class="row mt-4">
+	    <div class="col-auto my-auto">
+               <img class="rock-img" id="sheetCompetitionSetup-bottom-rock" src="/static/images/Curling-Rock-red-sm.png">
+	    </div>
+	    <div class="col-7 col-md-auto ml-3 my-auto">
+	       <div class="input-group">
+	          <input type="text" class="form-control border-right-0 border" id="sheetCompetitionSetup-team2" placeholder="bottom team ...">
+                  <span class="input-group-text" onclick='$("#sheetCompetitionSetup-team2").val("")'>
+                     <i class="fa fa-times"></i>
+                  </span>
+               </div>
+            </div>
+	    <div class="col-auto ml-1 my-auto ">
+	       <button type="button"
+                       class="icon-button btn btn-primary submit-target"
+                       onclick="sheetCompetitionSetup_setTeamNames()">
+                  <i class="fas fa-external-link-alt"></i>
+               </button>			
+	    </div>			    
+         </div>
+         <div class="row mt-4">
+	    <div class="col-auto">
+	       <button type="submit"
+                       class="btn btn-primary submit-target"
+                       onclick="sheetCompetitionSetup_newGame()">New Game</button>
+	    </div>
+	    <div class="col-auto">
+	       <button type="submit"
+                       class="btn btn-primary submit-target"
+                       onclick="sheetCompetitionSetup_showTimer()">Show Timer</button>
+	    </div>
+         </div>		
+      </div>
+   </div>
+</div>
+<script>
+ var sheetCompetitionSetupIP = ""
+ var sheetCompetitionSetupIdx = 0;
+ var sheetCompetitionSetupHandle = $('#sheetCompetitionSetup');
+ 
+ function sheetCompetitionSetup() {
+    getDefaultsAjax(sheetCompetitionSetupIP, false)
+       .done(function(response) {
+          loadSettings("sheetCompetitionSetup", response);
+       })
+
+    getTeamNames(sheetCompetitionSetupIP, false)
+       .done(function(response) {
+	  $("#sheetCompetitionSetup-team1").val(response.team1);
+	  $("#sheetCompetitionSetup-team2").val(response.team2);
+          $("#sheetCompetitionSetup-top-rock").attr("src", `/static/images/Curling-Rock-${response.topColour}-sm.png`)
+          $("#sheetCompetitionSetup-bottom-rock").attr("src", `/static/images/Curling-Rock-${response.bottomColour}-sm.png`)
+       })
+ }
+
+ function sheetCompetitionSetup_newGame() {
+    CompetitionSetup(sheetCompetitionSetupIP,
+                     null,
+                     $("#sheetCompetitionSetup-teamTime").val(),
+                     $("#sheetCompetitionSetup-intermissionLength").val(),
+                     $("#sheetCompetitionSetup-teamColour").val(),
+                     $('#sheetCompetitionSetup-team1').val(),
+                     $('#sheetCompetitionSetup-team2').val());
+    
+    TeamNamesShow(sheetCompetitionSetupIP);
+    sheetCompetitionSetup_showTimer();
+ }
+ 
+ function sheetCompetitionSetup_showTimer() {
+    panelNavigate("sheetCompetitionTimer" + sheetCompetitionSetupIdx);
+ }
+ 
+ function sheetCompetitionSetup_setTeamNames() {
+    TeamNamesSet(sheetCompetitionSetupIP, $('#sheetCompetitionSetup-team1').val(), $('#sheetCompetitionSetup-team2').val());
+    TeamNamesShow(sheetCompetitionSetupIP);
+ }
+ 
+ {% for s in sheets %}
+ function sheetCompetitionSetup{{loop.index0}}_enter() {
+    sheetCompetitionSetupIP = "{{s.ip}}";
+    sheetCompetitionSetupIdx = {{loop.index0}};
+    updateNavPanel(sheetCompetitionSetupHandle, "sheetCompetitionSetup{{loop.index0}}", "{{s.name}} - Competition Setup");
+    sheetCompetitionSetup();
+ }
+ 
+ function sheetCompetitionSetup{{loop.index0}}_exit() {
+ }
+ {% endfor %}
+</script>

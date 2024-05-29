@@ -1,0 +1,55 @@
+<div class="display-view d-none" id="clubBlank">
+   {{ navPanel("clubBlank", "club" , "Club - Blank") }}
+
+   <div class="row justify-content-evenly">
+      {{ actionIcon("Blank All", "eye-slash.svg", "DisplayBlankAll(true)") }}               
+      {{ actionIcon("Show All", "eye.svg", "DisplayBlankAll(false)") }}               
+   </div>
+   
+   <hr class="divider">
+   <div class="row justify-content-evenly">
+      {% for s in sheets %}
+         {% if loop.index0 % 2 == 0 and not first %}
+            <div class="w-100"></div>
+         {% endif %}
+         {{ actionIcon(s.name, "toggle-off.svg", "clubBlank_onOffToggle('" ~ s.ip ~ "', " ~ loop.index0 ~ ")", idIcon="clubBlank-btn-onOff" ~ loop.index0 , idTitle="clubBlank_onOffTitle" ~ loop.index0, disabled=s.ip == "Unassigned", twoLineTitle=true) }}
+         
+      {% endfor %}
+   </div>
+</div>
+<script>
+
+ function clubBlank_setState(id, state) {
+    let btn = $(`#clubBlank-btn-onOff${id}`);
+    if (state == btn.data("state")) {
+       return;
+    }
+
+    btn.data("state", state);
+    let isOff = state == "off";
+    btn.attr("src", isOff ? "/static/images/toggle-off.svg" : "/static/images/toggle-on.svg")
+    $(`#clubBlank_onOffTitle${id}`).html(isOff ? "is&nbsp;off" : "is&nbsp;on")
+ }
+
+ function clubBlank_onOffToggle(ip, id) {
+    let btn = $(`#clubBlank-btn-onOff${id}`);
+    let setToBlank = btn.data("state") == "on"
+    DisplayBlank(ip, setToBlank)
+    
+    sheetCheckActive(clubBlank_activeCallback)
+ }
+
+ function clubBlank_activeCallback(somethingActive, i, sheetStatus) {
+    clubBlank_setState(i, sheetStatus.alive && !sheetStatus.idle ? "on": "off")
+    enableField(!sheetStatus.active, `#clubBlank-btn-blank${i}`);
+    enableField(somethingActive != 0, "#clubBlank-btn-blank-all");             
+ }
+ 
+ function clubBlank_enter() {
+    startActivityCheckTimer(clubBlank_activeCallback) 
+ }
+
+ function clubBlank_exit() {
+    stopActivityCheckTimer();
+ }
+</script>

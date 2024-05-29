@@ -1,0 +1,99 @@
+<div class="display-view d-none" id="clubAbout">
+   {% if type == "display" %}
+      {{ navPanel("clubAbout", "clubMore" , "About") }}
+   {% else %}
+      {{ navPanel("clubAbout", "clubMore" , "About - " ~ name, upTop="breaktimerAdmin") }}
+   {% endif %}
+   <div class="container">
+      <div class="row">
+         <p>
+            This software is open source and is licensed under the &nbsp;<b> GNU General Public License v2.0</b>
+            <br>
+            <b>https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</b>
+         </p>
+         <p>
+            The GNU GPL is the most widely used free software license and has a strong copyleft requirement. When distributing derived works, the source code of the work must be made available under the same license. There are multiple variants of the GNU GPL, each with different requirements. Unless required by applicable law or agreed to in writing, software
+            distributed under the License is distributed on an "AS IS" BASIS,
+            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+            See the License for the specific language governing permissions and
+            limitations under the License.
+         </p>
+         <p>
+            This software would not be possible without the amazing work, dedication and skill of the open source community. All code here is open source.
+         </p>
+         <p>
+            Although this list is long it is likely incomplete
+            <br>
+         </p>
+      </div>
+      <div class="row">
+         <p>
+            <ul class="list-group list-group-flush">
+               <li class="list-group-item">FileSaver.js - save file to disk</li>
+               <li class="list-group-item">Pillow - image/text generation</li>
+               <li class="list-group-item">XlsxWriter - writing of excel files</li>
+               <li class="list-group-item">aiohttp - provides the webserver</li>
+               <li class="list-group-item">aiohttp-cors - CORS support for aiohttp</li>
+               <li class="list-group-item">aiohttp-jinja2 -jinja2 template renderer for aiohttp.web </li>
+               <li class="list-group-item">aiohttp-security - security for aiohttp.web</li>
+               <li class="list-group-item">aiohttp-session - sessions for aiohttp.web</li>
+               <li class="list-group-item">aiozeroconf - multicast DNS service discovery </li>
+               <li class="list-group-item">altgraph - Python graph (network) package</li>
+               <li class="list-group-item">appdirs - module for determining appropriate platform-specific dirs</li>
+               <li class="list-group-item">async-timeout - asyncio-compatible timeout context manager.</li>
+               <li class="list-group-item">attrs - Classes Without Boilerplate</li>
+               <li class="list-group-item">backports.entry-points-selectable - compatibility shims</li>
+               <li class="list-group-item">backports.zoneinfo -Backport of the standard library zoneinfo module </li>
+               <li class="list-group-item">bootstrap.js - page layout</li>
+               <li class="list-group-item">certifi - Python package for providing Mozilla's CA Bundle</li>
+               <li class="list-group-item">cffi - Foreign Function Interface for Python calling C code</li>
+               <li class="list-group-item">chardet - Character encoding auto-detection in Python 3</li>
+               <li class="list-group-item">cryptography - hashing, fingerprinting and encrypt/decrypt</li>
+               <li class="list-group-item">distlib - Distribution utilities</li>
+               <li class="list-group-item">et-xmlfile - implementation of lxml.xmlfile for the standard library</li>
+               <li class="list-group-item">filehash - acilitate generating checksums / hashes of files and directories</li>
+               <li class="list-group-item">filelock - platform independent file lock</li>
+               <li class="list-group-item">pigpio - access to Raspberry Pi pins and high accuracy timing</li>
+               <li class="list-group-item">hidapi - access to usb devices</li>
+               <li class="list-group-item">idna - Internationalized Domain Names in Applications (IDNA)</li>
+               <li class="list-group-item">importlib-resources - Read resources from Python packages</li>
+               <li class="list-group-item">jQuery.js - javascript helpers</li>
+               <li class="list-group-item">jinja2 - web page template engine</li>
+               <li class="list-group-item">multidict - multidict implementation</li>
+               <li class="list-group-item">netifaces - enumereate network interfaces</li>
+               <li class="list-group-item">openpyxl - read/write Excel 2010 xlsx/xlsm/xltx/xltm files</li>
+               <li class="list-group-item">passlib - password encoding</li>
+               <li class="list-group-item">pdfminer.six - parsing of pdf pages</li>
+               <li class="list-group-item">pillow-scripts - imaging Library (Fork) Scripts</li>
+               <li class="list-group-item">platformdirs - package for determining appropriate platform-specific dirs</li>
+               <li class="list-group-item">popper.js - tooltips and popovers</li>
+               <li class="list-group-item">psutil - cross-platform lib for process and system monitoring</li>
+               <li class="list-group-item">pyOpenSSL - ssl support</li>
+               <li class="list-group-item">pycparser - C parser in Python</li>
+               <li class="list-group-item">pyinstaller - application packaging</li>
+               <li class="list-group-item">pyinstaller-hooks-contrib - PyInstaller community hooks repository</li>
+               <li class="list-group-item">pyrsistent - immutable datastructures</li>
+               <li class="list-group-item">python-dateutil - date parsing</li>
+               <li class="list-group-item">python-dotenv - persistent environment variables</li>
+               <li class="list-group-item">rpi-rgb-led-matrix - controls the hardware that does the display</li>
+               <li class="list-group-item">smbus - SM bus access </li>
+               <li class="list-group-item">tinydb - persistent storage of data</li>
+               <li class="list-group-item">tyzlocal - local timezone info</li>
+               <li class="list-group-item">tzdata - iana timezone data</li>
+               <li class="list-group-item">waitMe.js - loading animations</li>
+               <li class="list-group-item">xlrd - reading of excel files</li>
+               <li class="list-group-item">yarl - yet another url library</li>
+               <li class="list-group-item">zipp - uwrap zip files(excel)</li>
+            </ul>
+         </p>
+      </div>
+   </div>
+
+</div>
+<script>
+ function clubAbout_enter() {
+ }
+
+ function clubAbout_exit() {
+ }
+</script>

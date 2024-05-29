@@ -1,0 +1,242 @@
+5.6 - Tue May 28 08:43:21 2024
+- rework interface for rock throws
+- rework communictaio to use websockets for rock timing throws
+- rework rock throw detection. now done in client
+- auto start pigpiod when breaktimer starts.
+- save both throw events and raw times
+5.5 - Tue Apr 30 13:11:06 2024
+- new style interface for both displays and curling timers
+5.4 - Wed Feb  7 10:05:14 2024
+- fix timeout when setting time
+- reflect output of time setting commands back
+- during update restarts can be selected independently of other operations
+- sort of fix the problem with rendering of long scrolling text.
+- fix crash when displaying captured logs
+- add restart ptpd and reboot to update page
+5.3 - Tue Feb  6 09:54:31 2024
+- fix crash when displaying logs
+- fix error in url to set clock
+5.2 - Sat Jan 27 17:09:56 2024
+- remove utilscript.js from cache time limit setting
+- change cache timeout to a day
+- fix blanking of clocks while a kapow is running
+- updating was so close!!! can't sort dicts or objects without key extraction.
+5.1 - Fri Jan 26 23:13:31 2024
+- fix missing include when restarting breaktimers
+- fix boostrap 5 errors in competition timer
+- always include from Logger the logging routines
+- drop priviledges on breaktimer
+- fix determination of admin priviledges
+- implicit idle doesn't set display explicit idle. this allows an
+  implicit idle to return to what was display when the idle time
+  is reset
+- fix idle time issue when showing teamnames
+- when using rock timers idle time is reset when a new time is received
+5.0 - Wed Jan 24 17:26:29 2024
+- add in cleaning of builds
+4.99 - Wed Jan 24 15:51:11 2024
+- add web based update - version 1
+- fix bug to stop animation work from happening except on those
+  ajax calls that actually ask for it.
+4.98 - Thu Jan 18 17:07:31 2024
+- fix error in logging parameters for bad draw
+- fix setting of log levels
+- add logs to admin menu
+4.98 - Thu Jan 18 17:07:31 2024
+- move buttons on draw page from bottom to top
+- clean up excess prints
+4.97 - Thu Jan 18 12:24:04 2024
+- fix handling of battery clock
+4.96 - Wed Jan 17 17:30:09 2024
+- use session to pass admin/user/pin status
+- fix setting of individual pins
+- properly vertically align scrolling text with descenders and without tall ascenders.
+4.95 - Tue Jan 16 16:35:52 2024
+- bug fixes
+4.94 - Thu Dec 28 11:31:12 2023
+- simplify security handling
+- show pin expiry time
+- automatically redirect to login for ajax security issues
+4.93 - Mon Dec 18 23:39:37 2023
+- fix problem authenticating admin user
+4.92 - Wed Dec 13 16:11:20 2023
+- many layout updates for booststrap 5
+4.91 - Fri Dec  8 12:49:58 2023
+- Add between end timer
+- Add reset of times for the extra end
+4.90 - Thu Dec  7 15:13:10 2023
+- add cancel to intermission
+- add large display of active and stopped competition timers
+4.89 - Tue Nov 28 17:23:05 2023
+- fix save of rock times
+4.88 - Wed Nov 15 11:19:58 2023
+- add ability to vertically centre text in FancyText
+- colourize scrolling teams display
+- rework font handling. Requires ttf font
+- update to PIllow 10.x
+- add ability to scroll names using same font as messages
+- simply code for doing per request verification
+- fix handling of PIN access
+- add global system status page
+- add about page with reference to gplv2
+- rework log display
+4.86 - Tue Nov  7 12:00:44 2023
+- adjust display of count down and elapsed timer.; use same display for both. Be really nice to get richer character attributes from the fonts.
+- when a sheet has no game draws should leave it alone.
+4.84 - Sat Oct 28 16:27:58 2023
+- fix parsing errors in schedules. Every schedule has something interesting about it
+4.83 - Thu Oct 26 23:35:49 2023
+- lookup draws so that a match of date and either time or name is a match. 
+4.82 - Thu Oct 26 16:33:31 2023
+- flesh out monitoring tools
+- disable ntp on ptp setup
+4.81 - Thu Oct 26 12:30:21 2023
+- change all locations of setsecretkey to secret/set
+- be graceful in comm errors when grabbing logs
+- config sync timeout is 10 secs
+- genera timeout is 2 seconds
+- default is allows single line text for scrolling text
+- extras pops into new tab
+4.80 - Mon Oct 23 16:08:45 2023
+- fix immediate exit when no clock is found. SUpposed to return False!!!
+- when transfering configs use header to pas token not json.
+4.79 - Mon Oct 23 12:05:09 2023
+- add ability to check that shared secret is compatible
+4.78 - Sun Oct 22 14:38:20 2023
+- add extras to admin menu
+- hide trace operations - reasons had to do with a bug in aiohttp_server async handling. no longer an issue
+- actually fix showing times after an intermission
+4.77 - Sat Oct 21 17:04:55 2023
+- fix rock colours on competition setup
+- fix rock colours on timeouts
+- fix scrolling text issues - need to increase sequence number on every awaited background action.
+- after timeout competition timers go back to displayinf times
+4.76 - Fri Oct 20 14:57:00 2023
+- add direct urls for ptpd2 state, and stats and log files 
+4.75 - Fri Oct 20 12:38:54 2023
+- simplify handling of security. Ajax now sends token as a header
+4.74 - Mon Oct 16 12:16:13 2023
+- at start ip is only shown for 60 seconds
+- show what draws were added/updated when a multiple draws are added
+- allow ip to displayed at startup
+- be careful to make files owned by pi not root
+- add option to centre two line text
+- centre team names if they are short enough
+4.73 - Wed Sep 20 09:38:08 2023
+- use time.monotonic to time intervals
+- improve handling of clocks by directly reading hardware
+- add fake version of hwclock
+4.72 - Mon Aug 21 12:55:50 2023
+- Fix adjustment of time for top pariticpant in a competition.
+- Last end message scrolls if too lone and doesn't use twoline mode
+- change from using raspbian interface to rtc to reading ds1307 directly if /dev/rtc doesn't exist
+- add winner buttons for countdown timers
+- add button to control the blankness/idleness of the display
+- fix bugs inrock display on competition timer
+- add mirroring for dual sided display
+- change to use non-aliased ttf fonts
+4.71 - Thu Mar  9 12:27:41 2023
+- add automatic display of last end message
+4.70 - Wed Feb 22 17:10:31 2023
+- fix broken handling of idle when displaying scrolling text, twoline text and flashing text
+- twoline text scrolling now matches single line scrolling
+4.69 - Thu Feb 16 12:58:51 2023
+- fix rock colour on countdown and competition when teams are not board colour
+4.67 - Wed Feb 15 16:49:35 2023
+- cleanup non-compliant html
+- replace im
+age with img
+- fix colours in competition game when started from all sheet competition
+4.66 - Tue Feb 14 16:13:37 2023
+- fix the layout of teams on countdown timer when display is 600px wide.
+- fix setting of time
+- add restart vs reboot
+- fix permission error on clock status
+- when restarting/rebooting put message on display for a bit
+4.65 - Thu Feb  9 16:52:58 2023
+- properly pay attention to admin vs user when adding a user.
+4.64 - Tue Feb  7 15:58:44 2023
+- use preconfigured ptp2d configuration files that ACTUALLY work
+- tighten up timing on display of elapsed time and clock
+- when requesting ptp2d.status return /var/run/ptp2d.status
+- scrolling text is relative to start time and each column scroll
+  is the same length.
+- turn off wlan0 power saving mode on clock startup
+4.63 - Mon Jan  9 17:05:25 2023
+- add two classes of users. admin functions require an admin user
+- add restarting server page
+- fix double display of brightness in colour selector
+- only show admin menu if user is admin
+- put back accidently deleted menu items
+- cleanup restart wait page
+4.62 - Sat Jan  7 13:11:54 2023
+- enforce setting of secret key
+- reorganize menus
+- use curling rock images
+- fix pin handling
+- detect unsetup display and redirect to setup.
+4.61 - Thu Jan  5 20:29:17 2023
+- fix crash when gathering logfiles due to failure to check header column count
+4.60 - Thu Jan  5 13:28:17 2023
+- rename some break timers to rock timers
+- fix parsing of draws when the draw crosses a page boundary
+4.59 - Sat Dec 10 10:20:34 2022
+- finalize ptpd configuration
+- add node labels to /epoch/all
+- add averaging to output of logfile stats
+- fix layout of logfile so that it scrolls horizontally
+4.58 - Mon Dec  5 19:28:26 2022
+fix typeo on registerSensorEnumerator
+4.57 - Mon Dec  5 14:53:30 2022
+- add retrieval of log files from /var/log
+- set groups to pip and adm
+- add epoch retrieval and compare
+- fix creation of ptpd.config file
+4.56 - Thu Dec  1 15:29:32 2022
+- add more protection for accidently resetting clocks that are in use
+- add bad battery detection and notification
+0 add battery change instructions
+4.55 - Tue Nov 29 15:26:34 2022
+- add some protection for accidently resetting clcok data or changing clock modes.
+4.54 - Mon Nov 28 20:25:40 2022
+- deleting draws requires confirmation
+- set of realtime clock can be done from any display
+4.53 - Fri Nov 25 10:57:09 2022
+- fix type in memory
+- add help
+4.52 - Thu Nov 24 13:10:01 2022
+- update parsing of draw schedules
+- draw loading ignores bad dates
+- allow draw title to be set explicitly
+4.51 - Sat Mar  5 11:32:15 2022
+- move some style sections around to get rid of w3c validator issues
+- comment out accordian code in multilevel dropdown. Cause dropdowns not to work when screen was narrow.
+4.50 - Fri Feb 25 17:26:22 2022
+- change time for which access tokens used by draw setup are valid from 5 seconds to 180. Theoretically
+  the clocks are supposed to be closer than this. That's the next problem
+4.49
+- During setup of draws do repeats if communications fail.
+4.48
+- add hog to hog timing mode
+- redo split determination to skip some times that are incidental
+- use green light on timers to indicate when they will record
+4.47 - Tue Feb  8 10:27:32 2022
+- remove all vestiges of python PTP implemetation.
+- move handling of hardware clock out of led manager
+4.46 - Fri Feb  4 15:13:38 2022
+- fix display of sensor names so that they use placement descriptions if display type is not raw
+- map sensor names to placement so that timings calculations work again
+4.45 - Thu Feb  3 09:36:52 2022
+- build using unmodified rpi-rgb-led-matrix
+4.44 - Tue Feb  1 10:16:46 2022
+- configuration files on external media
+- import various forms of scheduled for Creston Curling Club
+- adds kapow's
+- display draws based on times
+- add ability to set hardware attributes
+- implements ssl but not enabled
+- simplify break timers to have just one timer per device
+- simplify break timer setup
+- attempt to handle difficult hardware clocks. some don't respond properly when display
+  is running
+- time synchronization now uses ptpd

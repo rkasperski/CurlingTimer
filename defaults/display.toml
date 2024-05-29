@@ -1,0 +1,12 @@
+[Display]
+gpio-mapping = "adafruit-hat-pwm"
+rows = "16"
+cols = "32"
+chain = "4"
+pwm-bits = "11"
+slowdown-gpio = "1"
+scan-mode = "0"
+pixel-mapper = "u-mapper"
+
+# this pin is set to high when ready
+powerLED = "0"

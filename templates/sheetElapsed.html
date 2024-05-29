@@ -1,0 +1,98 @@
+<div class="display-view d-none" id="sheetElapsed">
+   {{ navPanel("sheetElapsed", "club" , "Sheet - Elapsed") }}
+
+   <div class="container">
+      <div class="row justify-content-center">
+         <div class="col-auto">
+	    <span id="sheetElapsed-timer" class="clockDisplay">0:00</span>
+         </div>
+      </div>
+      <div class="row mt-1 justify-content-center">
+         <div class="col-auto">
+	    <button type="button" class="btn btn-lg btn-primary sheetElapsed-set-target" onclick="sheetElapsed_showSetTime()"><i class="fas fa-text-height"></i></button>	      
+         </div>
+         <div class="col-auto">
+	    <button type="button" id="sheetElapsed-btn-start" class="btn btn-lg btn-success" onclick="sheetElapsed_start()"><i class="fas fa-play"></i></button>
+         </div>
+         <div class="col-auto">
+	    <button type="button" id="sheetElapsed-btn-pause" class="btn btn-lg btn-danger" onclick="sheetElapsed_pause()"><i class="fas fa-pause"></i></button>
+         </div>
+      </div>
+   </div>
+</div>
+<script>
+ var sheetElapsedIP = ""
+ var sheetElapsedHandle = $('#sheetElapsed');
+ var setupSheetElapsed_timer = 0;
+ 
+ function sheetElapsed_timerRunning(active) {
+    enableField(!active, ".sheetElapsed-set-target");
+    enableField(!active, "#sheetElapsed-btn-start");
+    enableField(active, "#sheetElapsed-btn-pause");
+ }
+ 
+ function sheetElapsed_start(e) {
+    ElapsedResume(sheetElapsedIP);
+    sheetElapsed_timerRunning(true);
+ }
+ 
+ function sheetElapsed_pause(e) {
+    ElapsedPause(sheetElapsedIP);
+    sheetElapsed_timerRunning(false);
+ }
+ 
+ function endSheetElapsed() {
+    timer_cancel(setupSheetElapsed_timer)
+ }
+
+ function sheetElapsed_showSetTime() {
+    overlayShow("sheetCountdownSetTime", {time: $("#sheetElapsed-timer").text()})
+ }
+
+ function sheetElapsed_showFromOverlay(data) {
+    if (!data) {
+       return;
+    }
+
+    $("#sheetElapsed-timer").html(data.time);
+    ElapsedSet(sheetElapsedIP, data.time);
+ }
+ 
+ function sheetElapsed_setTime() {
+    let newTime = $("#sheetElapsed-text-new-time").val();
+    seconds = toSeconds(newTime);
+    $("#sheetElapsed-timer").text(clockTime(seconds, false));
+    ElapsedSet(sheetElapsedIP, newTime);
+    $('#sheetElapsed-setTimeModal').modal('hide');
+ }
+
+ function setupSheetElapsed(ip, ordinal, name) {
+    updateNavPanel(sheetElapsedHandle, `sheetElapsed${ordinal}`, `${name} - Elapsed`, `sheet${ordinal}`)
+    
+    sheetElapsedIP = ip;
+    setupSheetElapsed_timer = timer_tracker(sheetElapsedIP, "#sheetElapsed-timer", "elapsed/status", sheetElapsed_timerRunning, true)
+    
+    $('#sheetElapsed-txt-new-time').on('input', function(e) {
+       verifyTimeField(e.target, "#sheetElapsed-btn-set-time", true);
+    });
+    $('#sheetElapsed-txt-new-time').on('keyup', function(e) {
+       verifyTimeField(e.target, "#sheetElapsed-btn-set-time", true);
+    });
+
+    ElapsedShow(ip);
+ }
+ 
+ {% for s in sheets %}
+ function sheetElapsed{{loop.index0}}_enter() {
+    setupSheetElapsed( "{{s.ip}}" , {{loop.index0}}, "{{s.name}}");
+ }
+ 
+ function sheetElapsed{{loop.index0}}_exit() {
+    endSheetElapsed()
+ }
+ 
+ function sheetElapsed{{loop.index0}}_showFromOverlay(data) {
+    sheetElapsed_showFromOverlay(data);
+ }
+ {% endfor %}
+</script>

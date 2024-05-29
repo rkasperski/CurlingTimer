@@ -1,0 +1,70 @@
+<div class="display-view d-none" id="adminPTPDStats">
+   {{ navPanel("adminPTPDStats", "adminDebug" , "PTPD - Statistics") }}
+   <div class="container">
+      <div class="row justify-content-center">
+      	 <div class="col-12 col-md-9 display-table" id="adminPTPDStats-display">
+	    <table class="table table-striped no-more-tables" id="adminPTPD-table" >
+	       <thead class="thead-light">
+	       </thead>
+	       <tbody>
+	       </tbody>
+	    </table>
+	 </div>
+      </div>
+   </div>
+
+</div>
+<script>
+ var adminPTPDStats_nameMap = {"Offset From Master": "Primary Offset",
+                               "Slave to Master": "Sec to Prmry",
+                               "Master to Slave": "Prmry to Sec",
+                               "Last packet Received" : "Lst Pckt Rcvd",
+                               "One Way Delay Mean": "1Way Dly Mn",
+                               "One Way Delay Std Dev": "1Way Dly StDv",
+                               "Offset From Master Mean": "Ofs Fr Prm Mn",
+                               "Offset From Master Std Dev": "Ofs Fr Prm StDv",
+                               "Observed Drift Mean": " Obsv Drft Mn",
+                               "Observed Drift Std Dev": " Obsv Drft StDv"
+ };
+
+ function adminPTPDStats_mapHeaders(hdrs) {
+    return hdrs.map(function(h) {
+       h = h.trim();
+
+       if (h in adminPTPDStats_nameMap) {
+          h = adminPTPDStats_nameMap[h];
+       }
+
+       return h;
+    })
+ }
+ 
+ function adminPTPDStats_refresh() {
+    $("#adminPTPDStats-display").empty();
+    jsonCall("adminPTPDStats",
+             "{{scheme}}://{{ip}}:{{port}}/adminptpdstats",
+             {},
+             {method:"GET",
+              animation:"spinner",
+              animationTarget:"#adminPTPDStats"})
+       .done(function(response) {
+          for (let i = 0; i < response.data.length; i++) {
+             let data = response.data[i];
+             let newHeaders = adminPTPDStats_mapHeaders(data["header"]);
+             renderDynamicTableData("adminPTPDStats-display",
+                                    "adminPTPDStats-table" + i,
+                                    data["name"],
+                                    newHeaders, 
+                                    data["tail"],
+                                    i != 0);
+          }	  
+       })
+ }
+
+ function adminPTPDStats_enter() {
+    adminPTPDStats_refresh()
+ }
+
+ function adminPTPDStats_exit() {
+ }
+</script>

@@ -1,0 +1,99 @@
+<div id="clubColoursAdd" class="display-view d-none">
+   {{ overlayNav("clubColoursAdd", "New Colour") }}   
+   <div class="row justify-content-center">
+      <div class="col-auto">
+	 <label for="clubColoursAdd-newColour">Colour Name:</label>
+	 <input type="text" pattern="[a-z]+" class="form-control clubColoursAdd-verify-colour" id="clubColoursAdd-colour-name" value="">
+      </div>
+   </div>		    
+   <div class="row justify-content-center mt-4">
+      <div class="col-auto">
+	 <label for="clubColoursAdd-red">Red:</label>
+	 <input type="number" class="form-control clubColoursAdd-add-colour" min="0" max="255" id="clubColoursAdd-red" value="0">
+      </div>
+      <div class="col-auto">
+	 <label for="clubColoursAdd-green">Green:</label>
+	 <input type="number" class="form-control clubColoursAdd-add-colour" min="0" max="255" id="clubColoursAdd-green" value="0">
+      </div>
+      <div class="col-auto">
+	 <label for="clubColoursAdd-blue">Blue:</label>
+	 <input type="number" class="form-control clubColoursAdd-add-colour" min="0" max="255" id="clubColoursAdd-blue" value="0">
+      </div>
+   </div>
+   <div class="row justify-content-center mt-4">
+      <div class="col-auto">
+         <button type="button" class="btn btn-secondary" onclick="clubColoursAdd_cancel()">Cancel</button>
+      </div>
+      <div class="col-auto">
+         <button type="button" class="btn btn-primary clubColoursAdd-submit-target disabled" onclick="clubColoursAdd_add()">Add</button>
+      </div>
+   </div>
+</div>
+<script>
+ var clubColoursAdd_colours = null;
+ 
+ function clubColoursAdd_cancel() {
+    overlayHide("clubColoursAdd");
+ }
+ 
+ function clubColoursAdd_add() {
+    overlayHide("clubColoursAdd",
+                {name:  $("#clubColoursAdd-colour-name").val(),
+                 red:  $("#clubColoursAdd-red").val(),
+                 green:  $("#clubColoursAdd-green").val(),
+                 blue:  $("#clubColoursAdd-blue").val()})
+ }
+ 
+ function clubColoursAdd_showNewColour() {
+    let red = $("#clubColoursAdd-red").val();
+    let green = $("#clubColoursAdd-green").val();
+    let blue = $("#clubColoursAdd-blue").val();
+    
+    if (red >= 0 && red <= 255 &&
+	green >= 0 && green <= 255 &&
+	blue >= 0 && blue <= 255 ) {
+
+       jsonCall("showColour", "{{scheme}}://{{ip}}/colours/show",
+		{red: red,
+		 green: green,
+		 blue: blue},
+                {});
+       return true;
+    }
+
+    return false;
+ }
+ 
+ $(".clubColoursAdd-add-colour").on("input", clubColoursAdd_showNewColour)
+ 
+ $('.clubColoursAdd-verify-colour').on('keyup', function(e) {
+    let newColour = $("#clubColoursAdd-colour-name").val();
+    
+    let goodColour = clubColoursAdd_showNewColour() ;
+
+    if (goodColour && newColour.match(/^[a-z][a-z0-9_]*$/)) {
+       for (oldColour in clubColoursAdd_colours) {
+	  if (oldColour == newColour) {
+	     goodColour = false;
+	     break;
+	  }
+       }
+    } else {
+       goodColour = false;
+    }
+    
+    if (goodColour) {
+       $(".clubColoursAdd-submit-target").removeClass("disabled")
+    } else {
+       $(".clubColoursAdd-submit-target").addClass("disabled")
+    }
+ });
+ 
+ function clubColoursAdd_show(colours) {
+    clubColoursAdd_colours = colours;
+    $("#clubColoursAdd-colour-name").val("");
+    $("#clubColoursAdd-red").val("127");
+    $("#clubColoursAdd-blue").val("127");
+    $("#clubColoursAdd-green").val("127");
+ }
+</script>

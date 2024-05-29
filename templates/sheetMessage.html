@@ -1,0 +1,38 @@
+<div id="sheetMessage" class="display-view d-none">
+   {{ navPanel("sheetMessage", "sheet", "sheet - message") }}   
+   <div class="row mt-4 justify-content-center">
+      <div class="col-auto">
+	 <input type="text" class="form-control" id="sheetMessageText">
+      </div>
+      <div class="col-auto">
+	 {{macros.colorSelector(colours, "sheetMessageColour", "sheetMessageColour")}}
+      </div>
+      <div class="col-auto">
+	 <button type="button" onclick="sheetMessageSend('#sheetMessageText', '#sheetMessageColour')" class="icon-button btn btn-primary"><i class="fas fa-comment"></i></button>
+      </div>
+   </div>
+</div>
+<script>
+ var sheetMessageIp = ""
+ var sheetMessageHandle = $('#sheetMessage');
+ 
+ function sheetMessageSend(src, clr) {   
+    Message(sheetMessageIp, $(src).val(), $(clr).val());
+ }
+
+ function sheetMessageSetup() {
+    $('#sheetMessageText').val("");
+    $('#sheetMessageColour').val("white").change();
+ }
+
+ {% for s in sheets %}
+ function sheetMessage{{loop.index0}}_enter() {
+    sheetMessageIp = "{{s.ip}}"    
+    updateNavPanel(sheetMessageHandle, "sheetMessage{{loop.index0}}", "{{s.name}} - Message")
+    sheetMessageSetup()
+ }
+ 
+ function sheetMessage{{loop.index0}}_exit() {
+ }
+ {% endfor %}
+</script>

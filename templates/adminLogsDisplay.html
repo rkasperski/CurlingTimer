@@ -1,0 +1,126 @@
+<div class="display-view d-none" id="adminLogsDisplay">
+   {% if type == "display" %}
+      {{ navPanel("adminLogsDisplay", "adminLogs" , "Admin - Logs") }}
+   {% else %}
+      {{ navPanel("adminLogsDisplay", "breaktimerAdmin" , "Logs - " ~ name, upTop="breaktimerAdmin") }}
+   {% endif %}
+   <div class="row justify-content-evenly">
+      {{ actionIcon("Verbose - is off", "toggle-off.svg", "adminLogsDisplay_toggleVerbose()", idIcon="adminLogsDisplay_toggle" , idTitle="adminLogsDisplay_title") }}
+      {{ actionIcon("Refresh", "arrow-clockwise.svg", "adminLogsDisplay_refresh()") }}
+      {{ actionIcon("Clear Logs", "trash.svg", "adminLogsDisplay_clearLogs()") }}
+   </div>
+   <div class="row justify-md-content-center">
+      <div class="col-2 col-md-auto" >
+         <label for="adminLogsDisplay-filterText">Filter:</label>
+      </div>
+      <div class="col-9 col-md-3" >
+	 <input type="text"
+                class="form-control"
+                id="adminLogsDisplay-filterText"
+                onchange="adminLogsDisplay_filterText()"
+                onkeyup="adminLogsDisplay_filterText()"
+         >
+      </div>
+      <div class="form-check col-auto ms-3">
+         <input class="form-check-input"
+                type="checkbox"
+                value=""
+                id="adminLogsDisplay-showMatching"
+                onchange="adminLogsDisplay_filterText()" 
+         >
+         <label class="form-check-label" for="adminLogsDisplay-showMatching">
+            Show Matching:
+         </label>
+      </div>
+   </div>
+   <div class="row mt-2">
+      <div class="col-auto display-table">
+	 <table class="table table-striped no-more-tables" id="adminLogsDisplay-table" >
+	    <thead class="thead-light">
+	    </thead>
+	    <tbody>
+	    </tbody>
+	 </table>
+      </div>
+   </div>
+</div>
+<script>
+ var adminLogsDisplayIP = "";
+ var adminLogsDisplay_toggleVerboseState = false;
+
+ function adminLogsDisplay_setVerbose() {
+    $('#adminLogsDisplay_toggle').attr("src", adminLogsDisplay_toggleVerboseState ? "/static/images/toggle-on.svg" : "/static/images/toggle-off.svg")    
+    $('#adminLogsDisplay_title').text(adminLogsDisplay_toggleVerboseState ? "Verbose - is on" : "Verbose - is off")    
+ }
+
+ function adminLogsDisplay_clearLogs() {
+    jsonCall('LogLevel', `{{scheme}}://${adminLogsDisplayIP}:{{port}}/ajax/log/clear`, {}, {METHGOD:"POST"})
+       .always(adminLogsDisplay_refresh)
+ }
+
+ function adminLogsDisplay_filterText() {
+    let includeText = $("#adminLogsDisplay-filterText").val();
+    let showMatching = $("#adminLogsDisplay-showMatching").is(":checked")
+    $("#adminLogsDisplay-table td").css('color', "");
+    
+    $("#adminLogsDisplay-table tr").show();
+
+    let matchingCells = $("#adminLogsDisplay-table tr td").filter(function() {
+       return $(this).text().includes(includeText);
+    });
+
+    matchingCells.css('color','red');
+    if (showMatching) {
+       let containingRows = matchingCells.parent('tr');
+       $("#adminLogsDisplay-table tr").hide();
+       containingRows.show();
+    }
+ }
+
+ function adminLogsDisplay_refresh() {
+    emptyTable("adminLogsDisplay-table");
+    jsonCall('AdminLogs',
+             `{{scheme}}://${adminLogsDisplayIP}:{{port}}/adminlogs`,
+             {},
+             {method:"GET",
+              animation:"spinner",
+              animationTarget:"#adminLogs"})
+       .done(function(response) {	     
+          renderTableData("adminLogsDisplay-table", response.headers, response.data);
+          adminLogsDisplay_toggleVerboseState = response.level;
+          adminLogsDisplay_filterText();
+       })
+       .always(adminLogsDisplay_setVerbose)
+ }
+ 
+ function adminLogsDisplay_toggleVerbose() {
+    adminLogsDisplay_toggleVerboseState = !adminLogsDisplay_toggleVerboseState;
+    jsonCall('LogLevel', `{{scheme}}://${adminLogsDisplayIP}:{{port}}/ajax/log/level`, {level:  adminLogsDisplay_toggleVerboseState}, {})
+       .done(function(response) {	     
+          adminLogsDisplay_toggleVerboseState = response.level;
+       })
+       .always(adminLogsDisplay_refresh)
+ }
+ 
+ function adminLogsDisplay_enter(iconBtn) {
+    {% if type == "display" %}
+    let name = iconBtn.dataset.icondataname
+    
+    adminLogsDisplayIP = iconBtn.dataset.icondataip
+    {% else %}
+    let name = "{{name}}"
+    
+    adminLogsDisplayIP = "{{ip}}"
+    {% endif %}
+    $("#adminLogsDisplay-title").text("Logs - " + name);
+    $("#adminLogsDisplay-filterText").val("");
+    $("#adminLogsDisplay-showMatching").prop('checked', false);
+    
+    adminLogsDisplay_refresh();
+ }
+ 
+ function adminLogs_exit() {
+ }
+
+</script>
+

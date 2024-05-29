@@ -1,0 +1,102 @@
+<div class="display-view d-none" id="adminUpdateClean">
+   {{ navPanel("adminUpdateClean", "adminUpdate" , "Admin - Clean Updates", noUp=true) }}
+   <div class="container mb-3">  
+      <div class="row justify-content-center">
+      	 <div class="col-auto">
+	    <table class="table table-striped table-caption-top" id="adminUpdateClean-uploads-table">
+	       <thead class="thead-light">
+	          <tr>
+		     <th>Upload</th>
+		     <th>Devices</th>
+                     <th>Status</th>
+                     <th>clean</th>
+	          </tr>
+	       </thead>
+	       <tbody id="adminUpdateClean-uploads-body">
+	       </tbody>
+	    </table>
+	 </div>
+      </div>
+      <div class="row justify-content-evenly">
+         {{ actionIcon("Trash", "trash.svg", "adminUpdateClean_cleanSelectedFiles()") }}
+         {{ actionIcon("Refresh", "arrow-repeat.svg", "adminUpdateClean_cleanUpdates()") }}
+      </div>
+   </div>
+</div>
+<script>
+ var adminUpdateClean_cleanFromDevices = null;
+ 
+ function adminUpdateClean_cleanSelectedFiles() {
+    let cleanCheckBoxes = $('.adminUpdateClean-updates:checkbox:checked');
+    cleanUpdates = cleanCheckBoxes.map((i, d) =>  d.dataset["update"])
+    
+    cleanUpdates.each(function(idx, upd) {
+       let deviceList = adminUpdateClean_cleanFromDevices.get(upd);
+       let updS = htmlToText(upd);
+       
+       deviceList.forEach(function(idx, device) {
+          CleanUpdates(device, upd)
+             .done(function(res) {
+                if (res.cleaned) {
+                   $(`td[data-cleanmsg*='${updS}`).text(`${device}: cleaned`)
+                } else {
+                   $(`td[data-cleanmsg*='${updS}`).text(`${device}: ${htmlToText(res.msg)}`)
+                }
+             })
+             .fail(function () {
+                $(`td[data-cleanmsg*='${updS}`).text(`${device}: failed`)
+             })
+       })
+    })
+ }
+
+ function adminUpdateClean_cleanUpdates() {
+    let installDevices = getSelectedIconList("adminUpdate-iconChecked");
+    adminUpdateClean_cleanFromDevices = new Map();
+    
+    installDevices.each(function(ign, icon) {
+       let idx = icon.dataset.icondataidx;
+       let ip = icon.dataset.icondataip;
+       
+       ListUpdates(ip)
+          .done(function(res) {
+             res.updates.forEach(function (upd) {
+                updSet = adminUpdateClean_cleanFromDevices.get(upd)
+
+                if (!updSet) {
+                   updSet = new Set();
+                   adminUpdateClean_cleanFromDevices.set(upd, updSet)
+                }
+
+                updSet.add(ip)
+             })
+             adminUpdateClean_populateUploads(adminUpdateClean_cleanFromDevices)  ;           
+          })
+    })
+ }
+
+ function adminUpdateClean_deviceListString(deviceSet) {
+    return htmlToText(Array.from(deviceSet).join(", "));
+ }
+
+
+ function adminUpdateClean_populateUploads(updMap) {
+    $("#adminUpdateClean-uploads-body").empty()
+    updMap.forEach(function(devList, upd) {
+       $("#adminUpdateClean-uploads-body").append(`<tr>
+  <td> ${htmlToText(upd)} </td>
+  <td> ${adminUpdateClean_deviceListString(devList)} </td>
+  <td data-cleanmsg="${htmlToText(upd)}"> </td>
+  <td align="center"><input type="checkbox" class="form-check-input adminUpdateClean-updates" data-update="${htmlToText(upd)}"}></td>
+</tr>`)
+    })
+ }
+
+ function adminUpdateClean_enter() {
+    adminUpdateClean_cleanUpdates();
+ }
+
+ function adminUpdateClean_exit() {
+ }
+ 
+</script>

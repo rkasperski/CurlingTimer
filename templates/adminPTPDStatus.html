@@ -1,0 +1,45 @@
+<div class="display-view d-none" id="adminPTPDStatus">
+   {{ navPanel("adminPTPDStatus", "adminDebug" , "PTPD - status") }}
+   <div class="container">
+      <div class="row justify-content-center">
+      	 <div class="col-auto display-table" id="adminPTPDStatus-display">
+	    <table class="table table-striped" >
+	       <thead class="thead-light">
+	       </thead>
+	       <tbody>
+	       </tbody>
+	    </table>
+	 </div>
+      </div>
+   </div>
+</div>
+<script>
+
+ function adminPTPDStatus_refresh() {
+    $("#adminPTPDStatus-display").empty();
+    jsonCall("adminPTPDStatus",
+             "{{scheme}}://{{ip}}:{{port}}/adminptpdstatus",
+             {},
+             {method:"GET",
+              animation:"spinner",
+              animationTarget:"#adminPTPDStatus"})
+       .done(function(response) {	     
+          for (let i = 0; i < response.data.length; i++) {
+             let data = response.data[i];
+             renderDynamicTableData("adminPTPDStatus-display",
+                                    "adminPTPDStatus-table" + i,
+                                    data["name"],
+                                    data["header"], 
+                                    data["tail"],
+                                    i != 0);
+          }	  
+       })      
+ }
+ 
+ function adminPTPDStatus_enter() {
+    adminPTPDStatus_refresh();
+ }
+ 
+ function adminPTPDStatus_exit() {
+ }
+</script>

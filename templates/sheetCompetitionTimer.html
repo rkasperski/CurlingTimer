@@ -1,0 +1,326 @@
+<div id="sheetCompetitionTimer" class="display-view d-none">
+   {{ navPanel("sheetCompetitionTimer", "sheetCompetitionSetup", "sheet - message") }}
+   <div class="row justify-content-center mx-2">
+      <div class="col-12 col-md-6">
+         <div class="col-auto  timeDisplay ms-0 mt-n4">
+	    <span class="" id="sheetCompetitionTimer-team1-name"> </span>
+         </div>
+         <div class="row ms-2 mt-n4 ">
+            <div class="col-auto my-auto" >
+               <img class="rock-img " id="sheetCompetitionTimer-team1-rock" src="/static/images/Curling-Rock-red-sm.png"/>
+            </div>
+      	    <div class="col-4 col-md-2 ms-4">
+	       <span class="timeDisplay" id="sheetCompetitionTimer-team1-time">&nbsp;</span>
+	    </div>
+         </div>
+         <div class="row ms-4 mt-n2">
+	    <div class="col-auto">
+	       <button type="button" class="btn btn-success btn-lg me-3" onclick="sheetCompetitionTimer_resumeTeam1(event)"><i class="fas fa-play"></i></button>
+	       <button type="button" class="btn btn-danger btn-lg me-3" onclick="sheetCompetitionTimer_pauseTeam1(event)"><i class="fas fa-pause"></i></button>
+	       <button type="button" class="btn btn-primary btn-lg adjust-target me-3" onclick="sheetCompetitionTimer_showAdjust(1)">+/-</button>
+	       <button type="button" class="btn btn-primary btn-lg"  id="sheetCompetitionTimer-btn-team1-timeout" onclick="sheetCompetitionTimer_startTimeoutTeam1()"> </button>
+	    </div>
+         </div>
+         <hr class="half-rule">      
+         
+         <div class="row ms-4">
+	    <div class="col-auto">
+	       <button type="button" class="btn btn-success btn-lg me-3" onclick="sheetCompetitionTimer_resumeTeam2(event)" ><i class="fas fa-play"></i></button>
+	       <button type="button" class="btn btn-danger btn-lg me-3" onclick="sheetCompetitionTimer_pauseTeam2(event)" ><i class="fas fa-pause"></i></button>
+	       <button type="button" class="btn btn-primary btn-lg adjust-target me-3" onclick="sheetCompetitionTimer_showAdjust(2)">+/-</button>
+	       <button type="button" class="btn btn-primary btn-lg" id="sheetCompetitionTimer-btn-team2-timeout"  onclick="sheetCompetitionTimer_startTimeoutTeam2()"></button>
+	    </div>
+         </div>
+         <div class="row ms-2">
+            <div class="col-auto my-auto">
+               <img class="rock-img" id="sheetCompetitionTimer-team2-rock" src="/static/images/Curling-Rock-yellow-sm.png">
+            </div>
+      	    <div class="col-4 ms-4" >
+	       <span  class="timeDisplay" id="sheetCompetitionTimer-team2-time">&nbsp;</span>
+	    </div>
+         </div>
+         <div class="row ms-0 mt-n4 mb-n3">
+            <div class="col-auto">
+	       <span class="timeDisplay" id="sheetCompetitionTimer-team2-name"></span>
+            </div>
+         </div>
+         <hr class="half-rule">
+         <div class="row mt-2 mb-3">
+	    <div class="col-8 align-middle">
+	       <button type="button" onclick="sheetCompetitionTimer_startBetweenEndTimer()" class="btn btn-primary btn-lg submit-target">Between End Timer</button>
+            </div>
+            <div class="col-3">
+	       <input type="text" class="form-control check-time" id="sheetCompetitionTimer-betweenEndTime" value="">
+	    </div>
+         </div>	  
+         <div class="row mt-2 mb-3">
+	    <div class="col-8 align-middle">
+	       <button type="button" class="btn btn-primary btn-lg" onclick="sheetCompetitionTimer_startIntermissionTimer()" >Intermission</button>
+            </div>
+            <div class="col-3 ">
+	       <input type="text" class="form-control check-time"  id="sheetCompetitionTimer-intermissionLength" value="">
+	    </div>
+         </div>
+         <div class="row mt-2 mb-3">
+	    <div class="col-8 align-middle">
+	       <button type="button" onclick="sheetCompetitionTimer_setUpExtraEnd()" class="btn btn-primary btn-lg submit-target">Set Extra End Time</button>
+            </div>
+            <div class="col-3 ">
+	       <input type="text" class="form-control check-time" id="sheetCompetitionTimer-extraEndTime" value="">
+	    </div>
+         </div>
+      </div>
+   </div>
+</div>
+<script>
+ var sheetCompetitionTimerHandle = $('#sheetCompetitionTimer');
+ var sheetCompetitionTimerIP = "";
+ var sheetCompetitionTimer_team1Timeouts = 0;
+ var sheetCompetitionTimer_team2Timeouts = 0;
+ var sheetCompetitionTimer_timerTeam1 = 0;
+ var sheetCompetitionTimer_timerTeam2 = 0;
+ var sheetCompetitionTimer_colourTeam1 = 0;
+ var sheetCompetitionTimer_colourTeam2 = 0;
+ var sheetCompetitionTimer_rockSrcTeam1 = "";
+ var sheetCompetitionTimer_rockSrcTeam2 = "";
+ var sheetCompetitionTimer_idx = 0;
+
+ function sheetCompetitionTimer_showAdjust(teamNo) {
+    let time = $(`#sheetCompetitionTimer-team${teamNo}-time`).text();
+
+    overlayShow("sheetCompetitionTimerAdjust",
+                {teamNo: teamNo,
+                 rockSvg: teamNo == 1 ? sheetCompetitionTimer_rockSrcTeam1 : sheetCompetitionTimer_rockSrcTeam2,
+                 time: time},
+                "adjust");
+ }
+
+ function sheetCompetitionTimer_setNewTime(teamNo, time) {
+    let t = secondsToStr(time);
+    $(`#sheetCompetitionTimer-team${teamNo}-time`).text(t)
+ }
+ 
+ function sheetCompetitionTimer_showFromOverlay(data) {
+    if (!data) {
+       return;
+    }
+
+    if (data.key == "adjust") {
+       CompetitionSetTime(sheetCompetitionTimerIP, `team${data.teamNo}`, data.time)
+          .done(function () {
+             sheetCompetitionTimer_setNewTime(data.teamNo, data.time)
+          })
+    }
+ }
+
+ function sheetCompetitionTimer_timerTeam1Running(active, time, r) {
+    $("#sheetCompetitionTimer-btn-team1-timeout").text("TO-" + r.remainingTimeouts)
+    if (r.remainingTimeouts <= 0) {
+       $("#sheetCompetitionTimer-btn-team1-timeout").addClass("disabled");
+    }
+ }
+ 
+ function sheetCompetitionTimer_timerTeam2Running(active, time, r) {
+    $("#sheetCompetitionTimer-btn-team2-timeout").text("TO-" + r.remainingTimeouts)
+    if (r.remainingTimeouts <= 0) {
+       $("#sheetCompetitionTimer-btn-team2-timeout").addClass("disabled");
+    }
+ }
+ 
+ function sheetCompetitionTimer_pauseTeam1() {
+    CompetitionTeam1Pause(sheetCompetitionTimerIP);
+    enableField(true, ".sheetCompetitionTimer-adjust-target");
+ }
+ 
+ function sheetCompetitionTimer_pauseTeam2() {
+    CompetitionTeam2Pause(sheetCompetitionTimerIP);
+    enableField(true, ".sheetCompetitionTimer-adjust-target");
+ }
+ 
+ function sheetCompetitionTimer_exchangeTimers() {
+    CompetitionTeamExchange(sheetCompetitionTimerIP);
+    enableField(false, ".sheetCompetitionTimer-adjust-target");
+ }
+ 
+ function sheetCompetitionTimer_resumeTeam1() {
+    CompetitionTeam1Resume(sheetCompetitionTimerIP);
+    enableField(false, ".sheetCompetitionTimer-adjust-target");
+ }
+ 
+ function sheetCompetitionTimer_resumeTeam2() {
+    CompetitionTeam2Resume(sheetCompetitionTimerIP);
+    enableField(false, ".sheetCompetitionTimer-adjust-target");
+ }
+ 
+ function sheetCompetitionTimer_startTimeoutTeam1() {
+    if (sheetCompetitionTimer_team1Timeouts > 0) {
+       startCompetitionTimeout(sheetCompetitionTimerIP, "team1")
+	  .done(function (r) {
+             overlayShow("sheetCompetitionTimerUtility",
+                         {type: "team",
+                          title: `Timeout for ${sheetCompetitionTimer_colourTeam1}`,
+                          time: r.time,
+                          ip: sheetCompetitionTimerIP,
+                          timerStatusUrl: "timeout/status",
+                          colour: sheetCompetitionTimer_colourTeam1,
+                          rockSvg: sheetCompetitionTimer_rockSrcTeam1},
+                         "utility");
+	  });
+    }
+ }
+ 
+ function sheetCompetitionTimer_startTimeoutTeam2() {
+    if (sheetCompetitionTimer_team2Timeouts > 0) {
+       startCompetitionTimeout(sheetCompetitionTimerIP, "team2")
+	  .done(function (r) {
+             overlayShow("sheetCompetitionTimerUtility",
+                         {type: "team",
+                          title: `Timeout for ${sheetCompetitionTimer_colourTeam2}`,
+                          ip: sheetCompetitionTimerIP,
+                          time: r.time,
+                          timerStatusUrl: "timeout/status",
+                          colour: sheetCompetitionTimer_colourTeam1,
+                          rockSvg: sheetCompetitionTimer_rockSrcTeam2},
+                         "utility");
+	  });
+    }
+ }
+
+ function sheetCompetitionTimer_setUpExtraEnd() {
+    let extraEndTime = strToSeconds($("#sheetCompetitionTimer-extraEndTime").val());
+    CompetitionSetTime(sheetCompetitionTimerIP, "team1", extraEndTime)
+       .done(function ()
+	  {sheetCompetitionTimer_setNewTime("1", extraEndTime)});
+    CompetitionSetTime(sheetCompetitionTimerIP, "team2", extraEndTime)
+       .done(function ()
+	  {sheetCompetitionTimer_setNewTime("2", extraEndTime)});
+ }
+
+ function sheetCompetitionTimer_startBetweenEndTimer() {
+    let betweenEndTime = strToSeconds($("#sheetCompetitionTimer-betweenEndTime").val());
+    
+    CompetitionPause(sheetCompetitionTimerIP);
+
+    jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/intermission/start`, 
+             {intermissionLength: betweenEndTime}, {})
+       .done(function(res) {
+          overlayShow("sheetCompetitionTimerUtility",
+                      {type: "between",
+                       title: "Rock Clear Time",
+                       time: betweenEndTime, 
+                       ip: sheetCompetitionTimerIP,
+                       timerStatusUrl: "intermission/status"},
+                      "utility");
+       })
+ }
+ 
+ function sheetCompetitionTimer_startIntermissionTimer() {
+    let intermissionTime = strToSeconds($("#sheetCompetitionTimer-intermissionLength").val());
+    
+    CompetitionPause(sheetCompetitionTimerIP);
+
+    jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/intermission/start`, 
+             {intermissionLength: intermissionTime}, {})
+       .done(function(res) {
+          overlayShow("sheetCompetitionTimerUtility",
+                      {type: "intermission",
+                       title: "Intermission",
+                       time: intermissionTime,
+                       ip: sheetCompetitionTimerIP,
+                       timerStatusUrl: "intermission/status"},
+                      "utility");
+       })
+ }
+ 
+ function sheetCmpetitionTimer_timerRunning(active) {
+    enableField(!active, ".sheetCountdown-submit-target");
+    enableField(!active, "#sheetCountdown-start");
+    enableField(active, "#sheetCountdown-pause");
+    enableField(true, "#sheetCountdown-lastEnd");
+ }
+
+ function sheetCompetitionTimer_normName(inS, deflt) {
+    let s = inS.trim();
+
+    if (!s) {
+       return deflt;
+    }
+
+    return s;
+ }
+ 
+ function sheetCompetitionTimer_setup() {
+    getDefaultsAjax(sheetCompetitionTimerIP, false)
+       .done(function(response) {
+          loadSettings("sheetCompetitionTimer", response);
+       })
+
+    getTeamNames(sheetCompetitionTimerIP, false)
+       .done(function(response) {
+	  $("#sheetCompetitionTimer-team1-name").text(sheetCompetitionTimer_normName(response.team1, "top"));
+	  $("#sheetCompetitionTimer-team2-name").text(sheetCompetitionTimer_normName(response.team2, "bottom"));
+
+	  sheetCompetitionTimer_colourTeam1 = response.topColour;
+	  sheetCompetitionTimer_colourTeam2 = response.bottomColour;
+	  sheetCompetitionTimer_rockSrcTeam1 = `/static/images/Curling-Rock-${response.topColour}-sm.png`;
+          sheetCompetitionTimer_rockSrcTeam2 = `/static/images/Curling-Rock-${response.bottomColour}-sm.png`;
+
+          $("#sheetCompetitionTimer-modalAdjustTime1-rock").attr("src", sheetCompetitionTimer_rockSrcTeam1);
+          $("#sheetCompetitionTimer-modalAdjustTime2-rock").attr("src", sheetCompetitionTimer_rockSrcTeam2);
+          $("#sheetCompetitionTimer-team1-rock").attr("src", sheetCompetitionTimer_rockSrcTeam1);
+          $("#sheetCompetitionTimer-team2-rock").attr("src", sheetCompetitionTimer_rockSrcTeam2);
+          $("#sheetCompetitionTimer-btn-team1-timeout").text("TO-" + response.timeouts1);
+          $("#sheetCompetitionTimer-btn-team2-timeout").text("TO-" + response.timeouts2);
+          $("#sheetCompetitionTimer-team1-time").text(timer_secsToTime(response.time1));
+          $("#sheetCompetitionTimer-team2-time").text(timer_secsToTime(response.time2));
+          sheetCompetitionTimer_team1Timeouts = response.timeouts1;
+          sheetCompetitionTimer_team2Timeouts = response.timeouts2;
+       })
+
+    sheetCompetitionTimer_timerTeam1 = timer_tracker(sheetCompetitionTimerIP,
+                                                     "#sheetCompetitionTimer-team1-time",
+                                                     "competition/team1/status",
+                                                     sheetCompetitionTimer_timerTeam1Running)
+    sheetCompetitionTimer_timerTeam2 = timer_tracker(sheetCompetitionTimerIP,
+                                                     "#sheetCompetitionTimer-team2-time",
+                                                     "competition/team2/status",
+                                                     sheetCompetitionTimer_timerTeam2Running)
+    
+    DisplayBlank(sheetCompetitionTimerIP, false); // false means reset idle
+ }
+
+ function sheetCompetitionTimer_teardown() {
+    timer_cancel(sheetCompetitionTimer_timerTeam1)
+    timer_cancel(sheetCompetitionTimer_timerTeam2)
+ }
+
+ function sheetCompetitionTimer_showFromOverlay(data) {
+    if (data.complete == "yes" && data.type == "team") {
+       jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/timeout/done`, {}, {})
+    } else {
+       if (data.type == "team") {
+          jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/timeout/cancel`, {}, {})
+       } else {
+          jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/intermission/cancel`, {}, {})
+       }
+    }
+ }
+ 
+ {% for s in sheets %}
+ function sheetCompetitionTimer{{loop.index0}}_enter() {
+    sheetCompetitionTimer_idx = {{loop.index0}};
+    sheetCompetitionTimerIP = "{{s.ip}}"    
+    updateNavPanel(sheetCompetitionTimerHandle, "sheetCompetitionTimer{{loop.index0}}", "{{s.name}} - Competition")
+    sheetCompetitionTimer_setup()
+ }
+ 
+ function sheetCompetitionTimer{{loop.index0}}_exit() {
+    sheetCompetitionTimer_teardown();
+ }
+
+ function sheetCompetitionTimer{{loop.index0}}_showFromOverlay(data) {
+    sheetCompetitionTimer_showFromOverlay(data);
+ }
+ 
+ {% endfor %}
+</script>

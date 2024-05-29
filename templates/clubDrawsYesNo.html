@@ -1,0 +1,42 @@
+<div id="clubDrawsYesNo" class="display-view d-none">
+   {{ overlayNav("clubDrawsYesNo", "Delete Draws?") }}   
+   <div class="container">
+      <div class="row justify-content-center">
+         <div class="col-auto">
+            <table class="table fs-4" >
+               <thead>
+                  <tr>
+                     <th>Date</th>
+                     <th>Time</th>
+                     <th>Name/League</th>
+                  </tr>
+               </thead>
+               <tbody id="clubDrawsYesNo-table-body">
+               </tbody> 
+            </table>
+         </div>
+      </div>
+      <div class="row mt-4 justify-content-center">
+         <div class="col-auto mt-3">
+            <button type="button" class="btn btn-secondary" onclick="overlayHide('clubDrawsYesNo')">Cancel</button>
+         </div>
+         <div class="col-auto mt-3">
+            <button type="button" class="btn btn-primary" id="clubDrawsYesNo-yes-btn" onclick="overlayHide('clubDrawsYesNo', true)">Yes</button>
+         </div>
+      </div>
+   </div>
+</div>
+<script>
+ function clubDrawsYesNo_show(deletedDraws) {
+    $("#clubDrawsYesNo-table-body").children().remove();
+    deletedDraws.map(function(dd) {
+       $("#clubDrawsYesNo-table-body").append(`
+<tr>
+  <td>${htmlToText(dd.date)}</td>
+  <td>${htmlToText(dd.time)}</td>
+  <td>${htmlToText(dd.name)}</td>
+</tr>`);
+    });
+ }
+ 
+</script>

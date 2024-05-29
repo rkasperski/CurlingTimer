@@ -1,0 +1,82 @@
+<div id="adminUsersAdd" class="display-view d-none">
+   {{ overlayNav("adminUsersAdd", "Add User") }}   
+   <div class="row justify-content-center">
+      <div class="col-3">
+	 <label for="adminUsersAdd-newUser">User:</label>
+      </div>
+      <div class="col-auto" >
+	 <input type="text" class="form-control adminUsersAdd-verify-user" id="adminUsersAdd-newUser" value="">
+      </div>
+   </div>
+   <div class="row justify-content-center mt-4">
+      <div class="col-3">
+	 <label for="adminUsersAdd-password">Password:</label>
+      </div>
+      <div class="col-auto" >
+	 <input type="password" class="form-control adminUsersAdd-verify-user" id="adminUsersAdd-newPassword" placeholder="min 5 chars" value="">
+      </div>
+   </div>
+   <div class="row justify-content-center mt-4">
+      <div class="col-3">
+	 <label for="adminUsersAdd-rpassword">Verify Password:</label>
+      </div>
+      <div class="col-auto" >
+	 <input type="password" class="form-control adminUsersAdd-verify-user" id="adminUsersAdd-rnewPassword"  placeholder="min 5 chars" value="">
+      </div>
+   </div>
+   <div class="row justify-content-center mt-4">
+      <div class="col-3" >
+         <label for="adminUsersAdd-isadmin">Administrator</label>
+      </div>
+      <div class="col-auto">
+         <input type="checkbox" class="form-check-input" id="adminUsersAdd-isadmin">
+      </div>
+   </div>
+   <div class="row justify-content-center mt-4">
+      <div class="col-3">
+	 <button type="button" class="btn btn-secondary" onclick="overlayHide('adminUsersAdd')">Cancel</button>
+      </div>
+      <div class="col-auto">
+	 <button type="button" class="btn btn-primary adminUsersAdd-submit-target" id="adminUsersAdd-btn-addUser"  onclick="adminUsersAdd_addUser()">Add</button>
+      </div>
+   </div>
+</div>
+<script>
+ $('.adminUsersAdd-verify-user').on('keyup', function(e) {
+    let newUser = $("#adminUsersAdd-newUser").val().trim();
+    let p1 = $("#adminUsersAdd-newPassword").val().trim();
+    let p2 = $("#adminUsersAdd-rnewPassword").val().trim();
+    let goodUser = true;
+    
+    if (goodUser && p1 == p2 && p1.length >= 5) {
+       $(".adminUsersAdd-submit-target").removeClass("disabled")	     
+    } else {
+       $(".adminUsersAdd-submit-target").addClass("disabled")
+    }
+ })
+ 
+ function adminUsersAdd_addUser() {
+    overlayHide("adminUsersAdd",
+                {user: $("#adminUsersAdd-newUser").val(),
+                 password: $("#adminUsersAdd-newPassword").val(),
+                 isAdmin: $("#adminUsersAdd-isAdmin").val(), });
+ }
+ 
+ function adminUsersAdd_clear(data) {
+    $("#adminUsersAdd-newUser").val("");
+    $("#adminUsersAdd-newPassword").val("");
+    $("#adminUsersAdd-rnewPassword").val("");
+    $("#adminUsersAdd-isadmin").prop("checked", false);
+ }
+
+ function adminUsersAdd_show(data) {
+    adminUsersAdd_clear()
+ }
+
+
+ function adminUsersAdd_hide(data) {
+    adminUsersAdd_clear()
+ }
+
+ 
+</script>

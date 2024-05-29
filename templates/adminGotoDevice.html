@@ -1,0 +1,38 @@
+<div class="display-view d-none" id="adminGotoDevice">
+   {{ navPanel("adminGotoDevice", "admin" , "Admin - Go To Device") }}
+
+   <div class="container">
+      <div class="row justify-content-evenly mt-3" id="adminGotoDevice-deviceIcons">
+      </div>
+   </div>
+</div>
+<script>
+ function  adminGotoDevice_onclick(ip)  {
+    goto(`${scheme}://${ip}/`);
+ }
+ 
+ function adminGotoDevice_addDevice(p, i) {
+    addActionIcon("#adminGotoDevice-deviceIcons",
+                  i,
+                  `${p.name}\n${p.ip}`,
+                  p.type == "display" ? "display.svg" : "stopwatch.svg",
+                  `adminGotoDevice_onclick('${p.ip}')`,
+                  p, 
+                  i > 0 && (i % 2 == 0))
+ }
+
+ function  adminGotoDevice_getDevices() {
+    $('#adminGotoDevice-selectableIcons').empty();
+    getDevicesAjax()
+       .done(function(response) {
+          response.displays.concat(response.sensors).forEach(adminGotoDevice_addDevice);
+       })
+ }
+ 
+ function adminGotoDevice_enter(iconBtn) {
+    adminGotoDevice_getDevices();
+ }
+
+ function adminGotoDevice_exit() {
+ }
+</script>

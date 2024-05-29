@@ -1,0 +1,33 @@
+<div id="sheetElapsedSetTime" class="display-view d-none">
+   {{ overlayNav("sheetElapsedSetTime", "Countdown - Set Time") }}   
+   <div class="container mt-4 justify-content-center">
+      <div class="row justify-content-md-center">
+	 <div class="col-auto">
+	    <label for="sheetElapsedSetTime-time">Time</label>
+         </div>
+	 <div class="col-auto">
+	    <input type="text" class="form-control check-time" id="sheetElapsedSetTime-time">
+	 </div>
+      </div>
+      <div class="row justify-content-center mt-4">
+	 <div class="col-auto">
+	    <button type="button" class="btn btn-secondary" onclick="overlayHide('sheetElapsedSetTime')"><i class="fas fa-times"></i></button>
+         </div>
+         <div class="col-auto">
+	    <button type="button" class="btn btn-primary sheetCountdown-submit-target" onclick="sheetElapsedSetTime_setTime()"><i class="fas fa-external-link-alt"></i></button>
+         </div>
+      </div>
+   </div>
+</div>
+
+<script>
+ function sheetElapsedSetTime_setTime() {
+    overlayHide("sheetElapsedSetTime",
+                {time: $("#sheetElapsedSetTime-time").val()});
+ }
+ 
+ function sheetElapsedSetTime_show(data) {
+    $("#sheetElapsedSetTime-time").val(data.time)
+ }
+
+</script>

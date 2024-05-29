@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+    <head>
+	{% include 'head.html' %}
+	<title>Curling - Help</title>
+    </head>
+    <body>
+	<input type="hidden" id="pageName" value="Help - Clock(date-time) Battery">
+        
+	{% include 'navbar.html' %}
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h3>Help - Clock(date-time) Battery</h3>
+                    <p>
+                        The battery icon has shown up on the nav bar, what does it mean?
+                        <br>
+                        <br>
+                        One of the displays has a real time clock in it that keeps track of the date and time.
+                        When it fails to initilize properly it is almost always because the battery that provides the energy to keep
+                        the pesistent backup is suffciently dead and needs to be replaced. There are other reasons why the clock
+                        doesn't initialize and to eliminate that as a possbility please restart the display <b>{{clockServer}}</b>. If the
+                        battery icon goes away the battery is probably fine. If the battery icon has not gone away then halt the display <b>{{clockServer}}</b>,  unplug it for 30 seconds and
+                        then plug it back. If the battery icon goes away then the battery is probably good. When the battery icon is persistently showing up or it shows up intermitently and doesn't go away with a full
+                        reset then you will need to replace the battery. If you have doubts replace the battery.
+                    </p>
+                    
+                    <h3>Replacing the battery </h3>
+                    <ol>
+                        <li>get a new cr1225 battery.</li>
+                        <li>take the clock display down off the wall </li>
+                        <li>take the back off the clock display</li>
+                        <li>locate the processor board which is in the middle of the clock</li>
+                        <li>remove the four small screws which holds the clock/display driver board to the main processor board</li>
+                        <li>located the small coin cell batter holder. Don't take out the battery yet</li>
+                        <li>pry the end of the daughter board that has the coin cell up so that that battery holder clears the shiny usb ports on the end</li>
+                        <li>using a toothpick or a paper clip push the old battery out</li>
+                        <li>put the new battery in</li>
+                        <li>push the daughter board down</li>
+                        <li>replace the four small screws on the daughter board</li>
+                        <li>replace the back and the screws</li>
+                        <li>put it back on the wall and plug it in</li>
+                    </ol>
+                    <br>
+                    After the display has restarted the battery should have dissappeared.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+

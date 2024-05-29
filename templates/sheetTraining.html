@@ -1,0 +1,337 @@
+<div class="display-view d-none h-100" id="sheetTraining">
+   {{ navPanel("sheetTraining", "club" , "Sheet - Training ") }}
+      <ul class="nav nav-tabs col-md-8" id="myTab" role="tablist">
+         <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="sheetTraining-tab-events" data-bs-toggle="tab" data-bs-target="#sheetTraining-tab-content-events" type="button" role="tab" aria-controls="home" aria-selected="true">Throws</button>
+         </li>
+         <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sheetTraining-tab-raw" data-bs-toggle="tab" data-bs-target="#sheetTraining-tab-content-raw" type="button" role="tab" aria-controls="profile" aria-selected="false">Timers</button>
+         </li>
+         <li class="nav-item ms-auto" role="presentation">
+	    <button type="button" class="btn btn-primary" id="sheetTraining-downloadTimes" onclick="sheetTraining_saveTimes();">
+	       Save
+	    </button>
+         </li>
+         <li class="nav-item ms-2 me-4" role="presentation">
+	    <button type="button" id="btn_reset" class="btn btn-success submit-target" onclick="sheetTraining_resetBreakTimes();">Clear</button>
+         </li>
+      </ul>
+      <div class="tab-content col-md-8 h-inherit">
+         <div class="tab-pane active h-inherit" id="sheetTraining-tab-content-events" role="tabpanel" aria-labelledby="sheetTraining-tab-events">
+            <div id="sheetTraining-event" class="overflow-auto h-inherit">
+            </div>
+         </div>
+         <div class="tab-pane h-inherit" id="sheetTraining-tab-content-raw" role="tabpanel" aria-labelledby="sheetTraining-tab-raw">
+            <div class="col-12 ps-3 col-md-auto ps-md-0 display-table h-inherit" id=sheetTraining-raw">
+	       <table class="table table-striped no-more-tables h-inherit">
+	          <thead class="thead-light">
+	             <tr>
+		        <th>Timer</th>
+		        <th class="text-right">Rock</th>
+		        <th class="text-right">Diff</th>
+		        <th class="text-right">When</th>
+		        <th class="text-left">Comment</th>
+	             </tr>
+	          </thead>
+	          <tbody id="sheetTraining-breakTimeTable" class="h-inherit overflow-y-auto">
+	          </tbody>
+	       </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<script>
+ var sheetTrainingIP = ""
+ var sheetTrainingHandle = $('#sheetTraining');
+
+ var sheetTraining_minTime = Number.MAX_VALUE;
+ var sheetTraining_index = 0;
+ var sheetTraining_sensorToColour = new Map();
+ var sheetTraining_rowId = 1;
+ var sheetTraining_rebaseTime = 0;
+ var sheetTraining_timeOrder = null;
+ var sheetTraining_commentMap = new Map()
+ var sheetTraining_activeSensors = null;
+ var sheetTraining_ws = null;
+ 
+ 
+ function sheetTraining_clockTime(s) {
+    let strTime = s.toLocaleTimeString('en-US', { hour12: false });
+    return strTime;
+ }
+
+ function sheetTraining_rebaseStartTimes() {
+    let table = document.getElementById('sheetTraining-breakTimeTable');
+    let rows = table.rows;
+    let nRows = rows.length;
+
+    for(let i = 1; i < nRows; i++) {
+       let r = rows[i];
+       let curTime = parseFloat(r.cells[5].innerHTML);
+
+       r.cells[3].innerHTML = (curTime - sheetTraining_minTime).toFixed(4);
+
+       let nextTime = curTime;
+       if (i + 1 < nRows) {
+	  nextTime = parseFloat(rows[i + 1].cells[5].innerHTML);
+       }
+
+       r.cells[2].innerHTML = (curTime - nextTime).toFixed(4);
+    }
+ }
+
+ function sheetTraining_insertTimeRow(rowId, snsrDescr, time, prevRowId) {
+    let comment = sheetTraining_commentMap.get(sheetTraining_rowId);
+    if (!comment) {
+       comment = "";
+    }
+
+    let markup = `
+<tr class="sheetTraining-ordinal-${snsrDescr.ordinal}" id="sheetTraining-row-id-${rowId}"> 
+  <td class="text${snsrDescr.colour}" data-title="Timer">
+    ${snsrDescr.name}
+  </td>
+  <td class="text-right" data-title="Rock">
+    ${time[2].toFixed(4)}
+  </td>
+  <td class="text-right" data-title="Diff"></td>
+  <td class="text-right" data-title="When">
+    ${(time[0] - sheetTraining_rebaseTime).toFixed(4)}
+  </td>
+  <td data-title="Comment">
+    <div class="col-auto">
+      <input type="text" class="w-100" value="${htmlToText(comment)}" onchange="sheetTraining_textChange(this, '${sheetTraining_rowId}')" onkeyup="sheetTraining_textChange(this, '${sheetTraining_rowId}')" placeholder="add comment ...">
+    </div>
+  </td>
+</tr>`;
+    if (prevRowId == 0) {
+       $('#sheetTraining-breakTimeTable').prepend(markup);
+    } else {
+       $(`#sheetTraining-row-id-${prevRowId}`).after(markup);
+    }
+ }
+
+ function csvQuote(s) {
+    if (s.replace(/ /g, '').match(/[\s,"]/)) {
+       return '"' + s.replace(/"/g, '""') + '"';
+    }
+
+    return s
+ }
+
+ function sheetTraining_saveTimes() {
+    let data = [];
+    let table = document.getElementById('sheetTraining-breakTimeTable');
+
+    // first add data in event form
+    data.push("When,Event,Interval,Speed,Comment");
+    for(let thrw of sheetTraining_rockThrows.throws) {
+       let tm = new Date(thrw[0] * 1000).toLocaleTimeString();
+       let comment = sheetTraining_commentMap.get(tm);
+
+       comment = comment ? comment : "";
+
+       thrw[1].forEach(function(evt) {
+          data.push(`${tm},${evt[2]},${evt[0].toFixed(3)}s,${evt[3].toFixed(3)} m/s,${csvQuote(comment)}`);
+          tm = "";
+          comment = "";
+       })
+
+       data.push("");
+    }
+
+    // now add raw sensor data
+    data.push("");
+    data.push("Time,Sensor,Break,Interval,Start,End,Comments");
+    let prevTime = sheetTraining_rebaseTime;
+    for(let i = sheetTraining_timeOrder.length - 1; i >= 0; i--) {
+       let r = sheetTraining_timeOrder[i];
+       let comment = sheetTraining_commentMap.get(r.id.toString());
+       let tm = new Date(r.time[0] * 1000).toLocaleTimeString();
+
+       comment = comment ? comment : "";
+
+       data.push(`${tm},${r.sensor.name},${r.time[2]},${r.time[0] - prevTime},${r.time[0]-sheetTraining_rebaseTime},${r.time[1]-sheetTraining_rebaseTime},${csvQuote(comment)}`);
+       prevTime = r.time[0];
+    }
+    
+    let d = new Date();
+    let td = d.toLocaleDateString() + ' ' + d.toLocaleTimeString('en-US', { hour12: false, hour: 'numeric',minute: 'numeric'});
+    td = td.replace(/\//g, '-');
+    let file = new File([data.join('\n')], `timerdata-${td}.csv`, {type: 'text/csv;charset=utf-8'});	     
+    saveAs(file);
+ }
+ 
+ function sheetTraining_resetBreakTimes() {
+    sheetTraining_rebaseTime = 0;
+    $('#sheetTraining-breakTimeTable').empty();
+    $('#sheetTraining-event').empty();
+    sheetTraining_commentMap.clear();
+    sheetTraining_timeOrder = [];
+    sheetTraining_activeSensors.forEach(snsr => snsr.sendMsg("reset", {filterTime: 5}));
+ }
+ 
+ function sheetTraining_textChange(inField, id) {
+    sheetTraining_commentMap.set(id, inField.value);
+ }
+
+ function sheetTraining_updateDisplay() {
+    sheetTraining_timeOrder.sort((a, b) => b.time[0] - a.time[0]);
+
+    let prevRowId = 0;
+    for (idx = 0; idx < sheetTraining_timeOrder.length; idx++) {
+       let e = sheetTraining_timeOrder[idx];
+       if ($(`#sheetTraining-row-id-${e.id}`).length == 0) {
+          sheetTraining_insertTimeRow(e.id, e.sensor, e.time, prevRowId);
+       }
+       prevRowId = e.id;
+    }
+ }
+
+ var sheetTraining_eventSourceCounter = 0;
+ function sheetTraining_updateEvents() {
+    sheetTraining_eventSourceCounter--;
+    if (sheetTraining_eventSourceCounter > 0) { 
+       return;
+    }
+
+    let event = null;
+    // assumes that update display has been which means that times are in sortted
+    // order from current to far past
+    sheetTraining_rockThrows.clear();
+    
+    for (let idx = sheetTraining_timeOrder.length - 1; idx >= 0; idx--) {
+       event = sheetTraining_rockThrows.checkForEvent(sheetTraining_timeOrder[idx].time);
+       sheetTraining_renderEvent(event);
+    }
+ }
+
+ function sheetTraining_renderEvent(event) {
+    if (event) {
+       let tm = new Date(event[0] * 1000).toLocaleTimeString();
+       let what = event[1];
+       let comment = sheetTraining_commentMap.get(tm);
+       
+       let myDiv = $(`<div class="mt-3 mb-1">${tm}</div>`);
+       what.forEach(function(evt) {
+          myDiv.append(`<div class="row">
+<div class="col-6 col-xs-5 col-sm-5 col-md-4 offset-1 h4">
+  ${evt[2]}:
+</div>
+<div class="col-4 col-sm-2 col-md-2 h4">
+  ${evt[0].toFixed(3)}s
+</div>
+<div class="offset-7 offset-sm-0 col-4 col-xs-3 col-sm-3 col-md-3 h4">
+  ${evt[3].toFixed(3)} m/s
+</div>
+</div>
+          `);
+       });
+
+       myDiv.append(`<div class="offset-1 col-10">
+      <input type="text" class="w-100" value="${htmlToText(comment)}" onchange="sheetTraining_textChange(this, '${tm}')" onkeyup="sheetTraining_textChange(this, '${tm}')" placeholder="add comment ...">
+</div>`);
+
+       $('#sheetTraining-event').prepend(myDiv);
+    }
+ }
+
+ function sheetTraining_newTime(snsr, time) {
+    sheetTraining_appendTime(snsr, time);
+
+    let event = sheetTraining_rockThrows.checkForEvent(time);
+    sheetTraining_renderEvent(event);
+ }
+ 
+ function sheetTraining_appendTime(snsr, time) {
+    time.push(snsr.name)
+    if (sheetTraining_rebaseTime == 0 || time[0] < sheetTraining_rebaseTime) {
+       sheetTraining_rebaseTime = time[0];
+       $('#sheetTraining-breakTimeTable').empty();
+    }
+    sheetTraining_rowId++;
+    let timeEntry = {id: sheetTraining_rowId, sensor: snsr, time:time};
+    sheetTraining_timeOrder.push(timeEntry);
+ }
+ 
+ class WSSheetBreakTimer extends WSBreakTimer {
+    appendTime(cbData, time) {
+       sheetTraining_appendTime(cbData, time);
+    }
+    
+    newTime(cbData, time) {
+       sheetTraining_newTime(cbData, time);
+    }
+
+    updateDisplay() {
+       sheetTraining_updateDisplay();
+    }
+
+    updateEvents() {
+       sheetTraining_updateEvents();
+    }
+ }
+ 
+ function sheetTraining_enter(displayInfo) {
+    let sensorToPlacementMap = new Map();
+    let placementToColourMap = new Map();
+
+    sheetTraining_eventSourceCounter = displayInfo.sensors.length;
+
+    for (let sensor of displayInfo.sensors) {
+       sensorToPlacementMap.set(sensor.name, sensor.placement);
+       placementToColourMap.set(sensor.placement, sensor.colour);
+    }
+
+    sheetTraining_rockThrows = new RockTimingEvents(sensorToPlacementMap, 
+                                                    placementToColourMap, 
+                                                    displayInfo.style,
+                                                    0.910, 
+                                                    6.401);
+
+    $('#sheetTraining-event').empty();
+    $('#sheetTraining-breakTimeTable').empty();
+    
+    sheetTrainingIP = displayInfo.ip;
+    
+    sheetTraining_timeOrder = [];
+    sheetTraining_activeSensors = [];
+    
+    global_timingStyle = displayInfo.style; 
+    
+    if (displayInfo.hasDisplay) {
+       sheetTraining_ws = connectToBreakTimerDisplay(displayInfo.ip, displayInfo.sensors);
+       if (loginInfo && loginInfo.pinSheetID) {
+          updateNavPanel(sheetTrainingHandle, "sheetTraining", `${displayInfo.name} - Training`, null, "sheet" + loginInfo.pinSheetID);
+       } else {
+          updateNavPanel(sheetTrainingHandle, "sheetTraining", `${displayInfo.name} - Training`, null, "club");
+       }
+    } else {
+       updateNavPanel(sheetTrainingHandle, "sheetTraining", `${displayInfo.name} - Training`, null, "Timer - " + displayInfo.name);
+       sheetTraining_ws = null;
+    }
+    
+    for (let x = 0; x < displayInfo.sensors.length; x++) {
+       let sensor = displayInfo.sensors[x];
+       sensor.ordinal = x;
+       
+       let bt = new WSSheetBreakTimer()
+       bt.connect(`ws://${sensor.ip}:80/ws/gettimes`, sensor);
+       sheetTraining_activeSensors[x] = bt;
+    }
+    
+    // $(`#sheetTraining${idx} .nav-up`).show()
+ }
+ 
+ function sheetTraining_exit() {
+    if (sheetTraining_ws) {
+       sheetTraining_ws.close();
+    }
+    
+    sheetTraining_activeSensors.forEach(snsr => snsr.close());
+    sheetTraining_activeSensors = [];
+    sheetTraining_timeOrder = null;
+ }
+ 
+</script>

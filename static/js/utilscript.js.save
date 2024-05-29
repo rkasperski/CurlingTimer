@@ -1,0 +1,744 @@
+var accessToken = '';
+
+var peers = [];
+
+var scheme = '';
+
+var serverPort = ''
+
+var origUrl = location.href;
+var origSearch = window.location.search;
+var splitUrl = location.href.split('?');
+var newURL = splitUrl[0];
+window.history.pushState('object', document.title, newURL);
+
+var params={};
+origSearch
+    .replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str,key,value) {
+	params[key] = value;
+    });
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+var ajaxTimeout = 5000;
+
+var csrftoken = 'not yet set';
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+$.ajax = (($oldAjax) => {
+    // on fail, retry by creating a new Ajax deferred
+    function check(a,b,c){
+        let shouldRetry = b != 'success' && b != 'parsererror';
+        if( shouldRetry && --this.retries > 0 ) {
+	    // console.log("retry: ", b, this.retries, c);
+            setTimeout(() => { $.ajax(this) }, this.retryInterval || 100);
+	}
+    }
+
+    return settings => $oldAjax(settings).always(check)
+})($.ajax);
+
+function jsonCall(funcName, url=null, data=null, params=null, method="POST", contentType="application/json", dataType="json", animation=null, timeout=ajaxTimeout) {
+    request = { type          : method,
+                contentType   : contentType + "; charset=utf-8",
+                timeout       : timeout,
+                retries       : 3,     //       <-------- Optional
+                retryInterval : 1000   //       <-------- Optional
+              };
+
+    if (method == "GET") {
+        if (data) {
+            url += '?' + $.param(data);
+	    if (params) {
+		url += '&' + $.param(params);
+	    }
+        }
+    } else {
+	if (params) {
+	    url += '?' + $.param(params);
+	}
+	
+        if (!data) {
+           data = {};
+        }
+
+	data.access_token = accessToken
+        request.data = (dataType == "json") ? JSON.stringify(data) : data;
+        request.dataType = dataType
+    }
+
+    request.url = url;
+
+    // request = { type          : method,
+  	// 	        url           : url,
+    // 		    contentType   : contentType + "; charset=utf-8",
+    // 		    data          : (data && dataType == "json") ? JSON.stringify(data) : data,
+    // 		    dataType      : dataType,
+    // 		    timeout       : timeout,
+    // 		    retries       : 3,     //       <-------- Optional
+    // 		    retryInterval : 1000   //       <-------- Optional
+    // 		  };
+
+    if (animation) {
+        request.animation = "spinner";
+    }
+
+    return $.ajax(request)
+      	.fail(function (jqXHR, textStatus, errorThrown) {
+                  console.log(funcName, ": failed to contact", url, textStatus, errorThrown);
+                  // alert(textStatus + errorThrown);
+                  return false;
+        });
+}
+
+function zeroPad(i) {
+    if (i < 10) {
+	i = '0' + i;
+    };
+    
+    return i;
+}
+
+// need to adjust for network latency.
+// simple model is composed of set amount and dynamic amount
+// need to skew in different directions depending upon whether the
+// timers is counting up or counting down.
+var skewAdjustment = 0.100;
+var skewDirection = 1;
+var timeOffset = 0;
+var timeSkew = 0.040;
+var timeSkewDecay = 0.9;
+
+function clockTime(s, active, hasHours) {
+    if (active) {
+	s = s + (timeSkew + skewAdjustment) * skewDirection;
+    }
+
+    s += timeOffset;
+    
+    let hours = Math.trunc(s / 3600);
+    let seconds = zeroPad(Math.trunc(s) % 60);
+
+    if (hours || hasHours) {
+	let minutes = zeroPad(Math.trunc((s % 3600) / 60));
+	return hours + ':' + minutes + ':' + seconds;
+    } else {
+        let minutes = Math.trunc(s / 60);
+	return minutes + ':' + seconds;
+    }
+}
+
+function Status(ip, who, data) {
+    statusStartTime = new Date().getTime();
+    return jsonCall('Status', scheme + '://' + ip + ':' + serverPort + '/' + who + '/status', data)
+	.done(function(response) {
+            timeSkew = (new Date().getTime() - statusStartTime) / 1000.0;
+	});
+}
+
+function secondsToStr(s) {
+    days = '';
+    if (s > 86400) {
+        days = Math.trunc(s/86400.0) + ' day(s) ';
+    	s = s % 86400;
+    }
+
+    hrs = '';
+    if (s > 3600) {
+        hrs = Math.trunc(s/3600.0) + ':';
+        s = s % 3600.0;
+    }
+        
+    return days + hrs + Math.trunc(s / 60) + ':' + zeroPad(Math.trunc(s) % 60);
+}
+
+function strToSeconds(s) {
+    timeLimit = s.split(':');
+    seconds = parseFloat(timeLimit[timeLimit.length - 1]);
+    if (timeLimit.length >= 2) {
+        seconds += parseFloat(timeLimit[timeLimit.length - 2]) * 60;
+        if (timeLimit.length >= 3) {
+            seconds += parseFloat(timeLimit[timeLimit.length - 3]) * 3600;
+	}
+    }
+
+    return seconds;
+}
+
+function peerList() {
+    let validPeers = peers.filter(p => p[0] != "Unassigned");
+    let peerlist = validPeers.map(p => p[0]);
+    return peers.filter(p => p[0] != "Unassigned").map(p => p[0]).join(",");
+}
+
+function Message(msg, colour) {
+    if ( !colour) {
+	colour = 'white';
+    }
+    
+    return jsonCall('Message',
+		    scheme + '://' + myIP + ':' + serverPort + '/text',
+		    { text: msg,
+		      colour: colour
+		    });
+}
+
+function MessageAll(msg, colour) {
+    return jsonCall('MessageAll',
+		    scheme + '://' + myIP + ':' + serverPort + '/text',
+		    { text: msg,
+		      colour: colour
+		    },
+		    {peerList: peerList()})
+}
+
+function Shutdown() {
+    return jsonCall('Shutdown', scheme + '://' + myIP + ':' + serverPort + '/shutdown', {})
+}
+
+function ShutdownAll(msg, colour) {
+    return jsonCallAll('ShutdownAll', scheme + '://' + myIP + ':' + serverPort + '/shutdown', {}, {peerList: peerList()})
+}
+
+function Restart(ip) {
+    return jsonCall('Restart', scheme + '://' + ip + ':' + serverPort + '/restart', {})
+}
+
+function RestartAll(msg, colour) {
+    return jsonCall('RestartAll', scheme + '://' + ip + ':' + serverPort + '/restart', {})
+}
+
+function DisplayBlank(ip) {
+    return jsonCall('DisplayBlank', scheme + '://' + ip + ':' + serverPort + '/blank', {});
+}
+
+function DisplayBlankAll(msg, colour) {
+    for (p in peers) {
+	peer = peers[p][0];
+	if (peer != 'Unassigned') {
+	    DisplayBlank(peer);
+	}
+    }
+}
+
+function ClockShow(ip) {
+    return jsonCall('ClockShow', scheme + '://' + ip + ':' + serverPort + '/clock/show', {});
+}
+
+function ClockShowAll() {
+    for (p in peers) {
+	peer = peers[p][0];
+	if (peer != 'Unassigned') {
+	    ClockShow(peer);
+	}
+    }
+}
+
+function ElapsedShow(ip) {
+    return jsonCall('ElapsedShow', scheme + '://' + ip + ':' + serverPort + '/elapsed/show', {});
+}
+
+function ElapsedShowAll() {
+    for (p in peers) {
+	peer = peers[p][0];
+	if (peer != 'Unassigned') {
+	    ElapsedShow(peer);
+	}
+    }
+}
+
+function ElapsedStart(ip) {
+    return jsonCall('ElapsedStart', scheme + '://' + ip + ':' + serverPort + '/elapsed/start', {})
+}
+
+function ElapsedStartAll() {
+    for (p in peers) {
+	peer = peers[p][0];
+	if (peer != 'Unassigned') {
+	    ElapsedStart(peer);
+	}
+    }
+}
+	     
+
+function ElapsedResume(ip) {
+    return jsonCall('ElapsedResume', scheme + '://' + ip + ':' + serverPort + '/elapsed/resume', {});
+ }
+
+function ElapsedResumeAll() {
+    for (p in peers) {
+	peer = peers[p][0];
+	if (peer != 'Unassigned') {
+	    ElapsedResume(peer);
+	}
+    }
+}
+	     
+function ElapsedPause(ip) {
+    return jsonCall('ElapsedPause', scheme + '://' + ip + ':' + serverPort + '/elapsed/pause', {} );
+ }
+
+function ElapsedPauseAll() {
+    for (p in peers) {
+	peer = peers[p][0];
+	if (peer != 'Unassigned') {
+	    ElapsedPause(peer);
+	}
+    }
+}
+
+function ElapsedSet(ip, startTime) {
+    if (! startTime) {
+	startTime = 0;
+    }
+
+    return jsonCall('ElapsedSet', scheme + '://' + ip + ':' + serverPort + '/elapsed/set', { time: startTime });
+}
+
+function ElapsedSetAll(startTime) {
+    for (p in peers) {
+	peer = peers[p][0];
+	if (peer != 'Unassigned') {
+	    ElapsedSet(peer, startTime);
+	}
+    }
+}
+
+function CountDownSetTime(ip, newTime, finishedMessage, finishedMessageColour, lastEndMessage, lastEndMessageColour, ) {
+    return jsonCall('SetCountDownTime',
+		    scheme + '://' + ip + ':' + serverPort + '/countdown/set', 
+		    { finishedMessage: finishedMessage,
+		      finishedMessageColour: finishedMessageColour,
+		      lastEndMessage: lastEndMessage,
+		      lastEndMessageColour: lastEndMessageColour,
+		      gameTime: newTime});
+}						
+	 
+function CountDownResume(ip) {
+    return jsonCall('CountDownResume', scheme + '://' + ip + ':' + serverPort + '/countdown/resume', {});
+}
+
+function CountDownResumeAll(show) {
+    for (p in peers) {
+	peer = peers[p][0];
+	if (peer != 'Unassigned') {
+	    $.when(CountDownResume(peer));
+	}
+    }	     
+}
+function CountDownStart(ip) {
+    return jsonCall('CountDownStart', scheme + '://' + ip + ':' + serverPort + '/countdown/start', {});
+}
+
+function CountDownStartAll(show) {
+    for (p in peers) {
+	peer = peers[p][0];
+	if (peer != 'Unassigned') {
+	    $.when(CountDownResume(peer));
+	}
+    }	     
+}
+
+function CountDownPause(ip) {
+    return jsonCall('PauseCountDown', scheme + '://' + ip + ':' + serverPort + '/countdown/pause', {});
+}
+
+function CountDownPauseAll() {
+    for (p in peers) {
+	peer = peers[p][0];
+	if (peer != 'Unassigned') {
+	    $.when(CountDownPause(peer));
+	}
+    }	     
+}
+
+function CountDownShow(ip) {
+    return jsonCall('CountDownSHow', scheme + '://' + ip + ':' + serverPort + '/countdown/show', {});
+}
+
+function CountDownLastEnd(ip) {
+    return jsonCall('CountDownLastEnd', scheme + '://' + ip + ':' + serverPort + '/countdown/lastend', {});
+}
+
+function CountDownSetup(ip, gameTime, finishedMessage, finishedMessageColour, lastEndMessage, lastEndMessageColour, teamColour, topTeam, bottomTeam) {
+    if (!teamColour) {
+	teamColour = 'default'
+    }
+    
+    return jsonCall('CountDownSetup',
+		    scheme + '://' + ip + ':' + serverPort + '/countdown/set',
+		    { team1: topTeam,
+		      team2: bottomTeam,
+		      gameTime: gameTime,
+		      finishedMessage: finishedMessage,
+		      finishedMessageColour: finishedMessageColour,
+		      lastEndMessage: lastEndMessage,
+		      lastEndMessageColour: lastEndMessageColour,
+		      teamColour: teamColour})
+}
+function CompetitionSetTime(ip, teamName, teamTime, handler) {
+    return jsonCall('CompetitionSetTime',
+		    scheme + '://' + ip + ':' + serverPort + '/competition/settime',
+		    {
+			team: teamName,
+			time: teamTime,
+		    });
+}
+
+function CompetitionResume(ip) {
+    return jsonCall('CompetitionResume', scheme + '://' + ip + ':' + serverPort + '/competition/resume', {});
+}
+
+function CompetitionPause(ip) {
+    return jsonCall('CompetitionPause', scheme + '://' + ip + ':' + serverPort + '/competition/pause', {});
+}
+
+function CompetitionTeam1Pause(ip) {
+    return jsonCall('CompetitionTeam1Pause', scheme + '://' + ip + ':' + serverPort + '/competition/team1/pause', {});
+}
+
+function CompetitionTeam2Pause(ip) {
+    return jsonCall('CompetitionTeam2Pause', scheme + '://' + ip + ':' + serverPort + '/competition/team2/pause', {});
+}     
+
+function CompetitionTeamExchange(ip) {
+    return jsonCall('CompetitionTeamExchange', scheme + '://' + ip + ':' + serverPort + '/competition/team/exchange', {});
+}
+
+function CompetitionTeam1Resume(ip) {
+    return jsonCall('CompetitionTeam2Resume', scheme + '://' + ip + ':' + serverPort + '/competition/team1/resume', {});
+}
+
+function CompetitionTeam2Resume(ip) {
+    return jsonCall('CompetitionTeam2Resume', scheme + '://' + ip + ':' + serverPort + '/competition/team2/resume', {});
+}      
+
+function CompetitionSetup(ip, msg, perTeamTime, intermissionLength, topTeam, bottomTeam) {
+    return jsonCall('CompetitionSetup',
+		    scheme + '://' + ip + ':' + serverPort + '/competition/setup',
+		    { welcomeMessage: msg,
+		      team1: topTeam,
+		      team2: bottomTeam,
+		      timeLimit: perTeamTime,
+		      intermissionLength: intermissionLength
+		    });
+}
+
+function CompetitionTimeoutStart(ip, team) {
+    return jsonCall('CompetitionTimeoutStart',
+		    scheme + '://' + ip + ':' + serverPort + '/competition/timeout/start',
+		    { team: team });
+}
+
+function TeamNamesShow(ip) {
+    return jsonCall('TeamNamesShow', scheme + '://' + ip + ':' + serverPort + '/teamnames/show', {});
+}
+
+function TeamNamesGet(ip) {
+    return jsonCall('TeamNamesGet', scheme + '://' + ip + ':' + serverPort + '/teamnames/get', {});
+}
+
+function TeamNamesSet(ip, team1, team2) {
+    return jsonCall('TeamNamesSet',
+		    scheme + '://' + ip + ':' + serverPort + '/teamnames/set',
+		    {team1: team1,
+		     team2: team2
+		    });
+}
+
+function Flash(ip, colour) {
+    return jsonCall('Flash', scheme + '://' + ip + ':' + serverPort + '/flash', {colour: colour});
+}
+
+function BreakTimerSensorSelect(ip, sensors, testId) {
+    return jsonCall('BreakTimerSensorSelect', 
+		    scheme + '://' + ip +  ':' + serverPort + '/breaktimer/sensor/select',
+		    {sensors: sensors,
+		     checkSensorId: testId});
+}
+
+function BreakTimerDisplayStyle(ip, style) {
+    return jsonCall('BreakTimerDisplayStyle', 
+		    scheme + '://' + ip +  ':' + serverPort + '/breaktimer/style',
+		    {style: style});
+}
+
+function BreakTimerSetFilter(ip, filterTime) {
+    return jsonCall("BreakTimerSetFilter", 
+		    scheme + '://' + ip + ':' + serverPort +  '/breaktimer/reset', 
+		    { reset:0,
+		      filterTime: filterTime});
+}
+
+function BreakTimerSensorFlash(ip, id, flashtime) {
+    return jsonCall('BreakTimerSensorFlash', 
+		    scheme + '://' + ip +  ':' + serverPort + '/sensor/flash',
+		    {id: id,
+		     flashtime: flashtime});
+}
+
+function BreakTimerDisplayTimes(ip) {
+    return jsonCall("BreakTimerDisplayTimes", scheme + '://' + ip + ':' + serverPort + '/breaktimer/display', {'clear': 1});
+}
+
+function BreakTimerResetTimes(ip, filterTime) {
+    let data = {}
+    
+    if (filterTime) {
+	data = {filterTime: filterTime};
+    }
+    
+    return jsonCall("BreakTimerResetTimes", scheme + '://' + ip + ':' + serverPort + '/breaktimer/reset', data);
+}
+
+function BreakTimerSetActive(ip, sensors, filterTime) {
+    let data = {sensors: sensors};
+
+    if (filterTime) {
+	data.filterTime = filterTime;
+    }
+    
+    return jsonCall("BreakTimerSetActive",
+		    scheme + '://' + ip + ':' + serverPort + '/breaktimer/active',
+		    data);
+}
+
+function BreakTimerGetTimes(ip, index, marker) {
+    return jsonCall("BreakTimerGetTimes",
+		    scheme + '://' + ip  + ':' + serverPort + '/breaktimer/get',
+		    {index: index,
+		     marker: marker});
+}
+
+function Kapow(ip, name) {
+    return jsonCall("Kapow",
+		    scheme + '://' + ip  + ':' + serverPort + '/kapow',
+		    {kapow: name});
+}
+
+function toSeconds(hms) {
+    sp = hms.split(':');
+    seconds = parseInt(sp.pop());
+    if (sp.length > 0) {
+	seconds = seconds * 60 + parseInt(sp.pop());
+	if (sp.length > 0) {
+	    seconds = seconds * 60 + parseInt(sp.pop());
+	}
+    }
+    
+    return seconds;
+}
+
+function enableField(enable, target) {
+    if (enable) {
+	$(target).removeClass('disabled')
+    } else {
+	$(target).addClass('disabled')
+    }
+}
+
+function verifyField(rePat, input, target, allowEmpty) {
+    input = $(input)
+    
+    if (!target) {
+	target = '.submit-target';
+    }
+
+    let value = input.val();
+    let isValid = rePat.test(value);
+
+    if (allowEmpty) {
+	if (!value) {
+	    isValid = true
+	}
+    }
+    
+    if (isValid) {
+	input.removeClass('invalid').addClass('valid');
+    } else {
+	input.removeClass('valid').addClass('invalid');
+    }
+
+    enableField(isValid, target);
+}
+
+function verifyTimeField(input, target, allowEmpty) {
+    verifyField(/^[0-9]{1,2}(:[0-9][0-9]){0,2}$/, input, target, allowEmpty);
+}
+
+function verifyNumberField(input, target, allowEmpty) {
+    verifyField(/^[0-9]+$/, input, target, allowEmpty);
+}
+
+function verifyUnique(input, target) {
+    input = $(input)
+    
+    if (!target) {
+	target = '.submit-target';
+    }
+
+    let isValid = true;
+
+    // not efficient but not much used either
+    $(input).each(function(index) {
+	let outer = this;
+	$(input).each(function(index) {
+	    if (outer != this && outer.value && this.value && outer.value == this.value) {
+		isValid = false;
+	    }
+	});
+    });
+
+    if (isValid) {
+	input.removeClass('invalid').addClass('valid');
+    } else {
+	input.removeClass('valid').addClass('invalid');
+    }
+
+    enableField(isValid, target);
+}
+
+function flip(a,b) {
+    let va = $('#' + a).val();
+    let vb = $('#' + b).val();
+    
+    $('#' + a).val(vb);
+    $('#' + b).val(va);
+}
+
+function cmpColumn(a, b, col) {
+    let A = $(a).children('td').eq(col[0]).text().toUpperCase();
+    let B = $(b).children('td').eq(col[0]).text().toUpperCase();
+    
+    if(A < B) {
+	return -col[1];
+    }
+    
+    if(A > B) {
+	return col[1];
+    }
+	    
+    return 0;
+}
+// 1 for ascending, -1 for descending
+function sortTable(myTable, col, dir){
+    let rows = $(myTable + ' tbody  tr').get();
+    if (!Array.isArray(col)) {
+	col = [[col, dir]]
+    }
+    
+    sortFunc = function(a, b) {
+	for (c in col) {
+	    cmp = cmpColumn(a, b, col[c], dir)
+	    if (cmp != 0) {
+		return cmp;
+	    }
+	}
+
+	return 0;
+    }
+    rows.sort(sortFunc);
+    
+    $.each(rows, function(index, row) {
+	$(myTable).children('tbody').append(row);
+    });
+}	 
+
+Date.prototype.toDateInputValue = (function() {
+    var local = new Date(this);
+    local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+    return local.toJSON().slice(0,10);
+});
+
+Date.prototype.toTimeInputValue = (function() {
+    var local = new Date(this);
+    local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+
+    return local.toJSON().slice(11,16);
+});
+
+$(document).ready(function(){
+    $('.check-number').on('input', function(e) {
+	verifyNumberField(e.target);
+    });
+    
+    $('.check-number').on('keyup', function(e) {
+	verifyNumberField(e.target);
+    });
+
+    $('.check-time').on('input', function(e) {
+	verifyTimeField(e.target);
+    });
+    
+    $('.check-time').on('keyup', function(e) {
+	verifyTimeField(e.target);
+    });
+    
+    $('.dropdown-submenu > a').on('click', function(e) {
+	let submenu = $(this);
+	$('.dropdown-submenu .dropdown-menu').removeClass('show');
+	submenu.next('.dropdown-menu').addClass('show');
+	e.stopPropagation();
+    });
+    
+    $('.dropdown').on('hidden.bs.dropdown', function() {
+	// hide any open menus when parent closes
+	$('.dropdown-menu.show').removeClass('show');
+    });
+
+});
+
+ajaxAnimationTarget = "#allOfIt";
+ajaxAnimationSpinner = {
+  //none, rotateplane, stretch, orbit, roundBounce, win8,
+  //win8_linear, ios, facebook, rotation, timer, pulse,
+  //progressBar, bouncePulse or img
+  effect: 'bounce',
+  text: '' , //place text under the effect (string).
+  bg: 'rgba(255,255,255,0.3)', //background for container (string).
+  color: '#000', //color for background animation and text (string).
+  maxSize: '',
+  waitTime: -1, //wait time im ms to close
+  source: "",
+  textPos: 'vertical',
+  fontSize: '',
+  onClose: function() {// callback
+  }
+};
+
+(function($) {
+    $.ajaxPrefilter(function( options, _, jqXHR ) {
+        if (options.animation && ajaxAnimationTarget) {
+            function stopAnimation() {
+                $(ajaxAnimationTarget).waitMe('hide');
+            }
+            $(ajaxAnimationTarget).waitMe(ajaxAnimationSpinner);
+            jqXHR.then(stopAnimation, stopAnimation);
+        }
+    });
+})( jQuery);

@@ -1,0 +1,30 @@
+<div class="display-view d-none" id="adminLogs">
+   {{ navPanel("adminLogs", "admin" , "Admin - Logs") }}
+   <div class="row justify-content-evenly" id ="adminLogs-actionIcons">
+   </div>
+</div>
+<script>
+ function adminLogs_addDevice(p, i) {
+    addActionIcon("#adminLogs-actionIcons",
+                  `adminLogs-actionIcons${i}`,
+                  p.name,
+                  p.type == "display" ? "display.svg" : "stopwatch.svg",
+                  `panelNavigate('adminLogsDisplay', this)`,
+                  p,
+                  i > 0 && (i % 2 == 0))
+ }
+ 
+
+ function adminLogs_enter() {
+    $(".iconClass-adminLogs-actionIcons").remove();
+    getDevicesAjax()
+       .done(function(response) {
+          response.displays.concat(response.sensors).forEach(adminLogs_addDevice)
+       })
+ }
+ 
+ function adminLogs_exit() {
+ }
+
+</script>
+

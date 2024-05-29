@@ -1,0 +1,33 @@
+<div class="display-view d-none" id="clubClock">
+   {{ navPanel("clubClock", "club" , "Club - Clock") }}
+   <div class="container">
+      <div class="row justify-content-center">
+         {{ actionIcon("Show&nbsp;All", "clock.svg", "ClockShowAll()", id="clubClock-btn-show-all", colAuto=true) }}
+      </div>
+      <div class="row justify-content-center">
+         <hr class="divider">
+      </div>
+      <div class="row justify-content-evenly">
+	 {% for s in sheets %}
+            {% if loop.index0 % 2 == 0 and not first %}
+               <div class="w-100"></div>
+            {% endif %}
+            {{ actionIcon(s.name, "clock.svg", "ClockShow('" + s.ip + "')", id="clubClock-btn-show" ~ loop.index0, unassigned=s.ip == "Unassigned") }}
+	 {% endfor %}
+      </div>
+   </div>
+</div>
+<script>
+ function clubClock_activeCallback(clubStatus, i , s) {
+    enableField(s.alive && !s.active, `#clubClock-btn-show${i}`);
+    enableField(clubStatus.active == -1, "#clubClock-btn-show-all");             
+ }
+ 
+ function clubClock_enter() {
+    startActivityCheckTimer(clubClock_activeCallback)
+ }
+ 
+ function clubClock_exit() {
+    stopActivityCheckTimer();
+ }
+</script>

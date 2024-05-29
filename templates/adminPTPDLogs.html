@@ -1,0 +1,44 @@
+<div class="display-view d-none" id="adminPTPDLogs">
+   {{ navPanel("adminPTPDLogs", "adminDebug" , "PTPD - Logs") }}
+   <div class="container">
+      <div class="row">
+      	 <div class="col-auto display-table" id="adminPTPDLogs-display">
+	    <table class="table table-striped">
+	       <thead class="thead-light">
+	       </thead>
+	       <tbody>
+	       </tbody>
+	    </table>
+	 </div>
+      </div>
+   </div>
+</div>
+<script>
+ function adminPTPDLogs_refresh() {
+    $("#adminPTPDLogs-display").empty();
+    jsonCall("adminPTPDLogs",
+             "{{scheme}}://{{ip}}:{{port}}/adminptpdlogs",
+             {},
+             {method:"GET",
+              animation:"spinner",
+              animationTarget:"#adminPTPDLogs"})
+       .done(function(response) {	     
+          for (let i = 0; i < response.data.length; i++) {
+             let data = response.data[i];
+             renderDynamicTableData("adminPTPDLogs-display",
+                                    "adminPTPDLogs-table" + i,
+                                    data["name"],
+                                    data["header"], 
+                                    data["tail"],
+                                    i != 0);
+          }	  
+       })      
+ }
+ 
+ function adminPTPDLogs_enter() {
+    adminPTPDLogs_refresh();
+ }
+
+ function adminPTPDLogs_exit() {
+ }
+</script>
