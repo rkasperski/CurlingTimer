@@ -1,0 +1,26 @@
+[sensor]
+# external name of sensor. important if sensor box has more than one
+# sensor
+name = "sensor1"
+
+# high turns laser and laser on indicator light on
+laserPin = 24
+
+# connected to photosensitive transitor. High when
+# light is detected
+sensorPin = 19
+
+# goes high(turns recording indicator light on) when
+# sensor is ready to record another time
+recordingPin = 27
+
+# goes high when sensor has detected light
+indicatorPin = 21
+
+# readled - set to high when software is up and running.
+# it is more typical to use a lighted power swithch
+powerLED = 0
+
+# how long for on/of when flashing laser
+laserOnFlashMS = 500
+laserOffFlashMS = 500

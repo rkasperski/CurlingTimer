@@ -1,0 +1,55 @@
+[Server]
+secretKey = "6dI_RJRknEVkhWCJ9rwScHwsq0P97fH7XT4s_J2FpRU="
+hardwareConfig = "hardware.ini"
+serverPort = "80"
+SSLCertificate = ""
+SSLKey = ""
+serverScheme = "http"
+
+[Rink]
+numberOfSheets = "4"
+
+[MyData]
+sheet = "Sheet1"
+
+[Config]
+sequenceNumber = 3
+modificationTime = "Mon Feb 10 15:44:24 2020"
+
+[Sheet1]
+name = "Sheet 1"
+scoreboardTop = "blue"
+scoreboardBottom = "yellow"
+
+[Sheet2]
+name = "Sheet 2"
+scoreboardTop = "blue"
+scoreboardBottom = "yellow"
+
+[Sheet3]
+name = "Sheet 3"
+scoreboardTop = "blue"
+scoreboardBottom = "yellow"
+
+[Sheet4]
+name = "Sheet 4"
+scoreboardTop = "blue"
+scoreboardBottom = "yellow"
+
+[Users]
+button = "$pbkdf2-sha256$29000$rPVeS.n9H6MUYgzhnNN6jw$LVUr8bVmhtXYo0j14zF3sbNpXm3qOgGY/9G4QFqICpI"
+
+[Colours]
+red = "255,0,0"
+pink2 = "160,40,80"
+blue = "120,120,255"
+pink = "255,153,153"
+yellow = "255,255,0"
+green = "0,255,0"
+white = "255,255,255"
+pinkdark = "120,30,45"
+purple = "255,0,255"
+cyan = "0,255,255"
+orange = "255,128,0"
+
+
