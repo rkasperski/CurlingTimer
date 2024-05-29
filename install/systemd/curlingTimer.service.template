@@ -1,0 +1,16 @@
+[Unit]
+Description=Curling Timer
+After=multi-user.target
+
+[Service]
+Type=idle
+User=root
+Group=pi
+WorkingDirectory=replaceworkdir
+ExecStart=replaceexedir/CurlingTimer
+Restart=always
+KillSignal=SIGQUIT
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
