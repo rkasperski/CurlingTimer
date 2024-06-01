@@ -172,8 +172,18 @@ input.valid, textarea.valid {
 }
 
 .icon-button {
-    width: calc(2.3*(1rem + 0.5vw)) !important;    
+    /* width: calc(2.3*(1rem + 0.5vw)) !important; */
+    padding-left: 8px !important;
+    padding-right: 8px !important;
     /* margin-right:1rem !important; */
+}
+
+.icon-button img{
+    height: 24px;
+}
+
+.icon-button-lg img{
+    height: 30px;
 }
 
 .unpadded-btn-group {

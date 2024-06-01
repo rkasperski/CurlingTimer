@@ -4,8 +4,8 @@
       <div class="row mb-3 mt-3 justify-content-center">
 	 <div class="col-auto">
             Add Colour
-	    <button type="button" class="btn btn-warning btn " onclick="clubColours_addNewColour()">
-               <i class="fas fa-plus"></i>
+	    <button type="button" class="btn btn-warning btn icon-button" onclick="clubColours_addNewColour()">
+               <img src="static/images/plus-lg.svg">
             </button>
 	 </div>
 	 
@@ -88,7 +88,7 @@
  }
  
  function clubColours_showFromOverlay(data) {
-    if ( data === null ) {
+    if (!data) {
        return;
     }
     clubColours_displayColour(data.name, data.red, data.green , data.blue)

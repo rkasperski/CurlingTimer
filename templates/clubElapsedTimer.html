@@ -15,7 +15,7 @@
 	    {{macros.colorSelector(colours, "clubElapsed-messageColour", "clubElapsed-messageColour")}}
 	 </div>
 	 <div class="col-2 col-md-1">
-	    <button type="button" id="btn_msg" class="icon-button btn btn-primary mb-2" onclick='MessageAll($("#clubElapsed-message").val(), $("#clubElapsed-messageColour").val())'><i class="fas fa-comments"></i></button>
+	    <button type="button" id="btn_msg" class="icon-button btn btn-primary mb-2" onclick='MessageAll($("#clubElapsed-message").val(), $("#clubElapsed-messageColour").val())'><img src="static/images/chat-dots.svg"></button>
 	 </div>
       </div>
       
@@ -29,13 +29,13 @@
 	    <input type="text" class="form-control check-time" placeholder="hh:mm:ss" id="clubElapsed-startTime" value="">
 	 </div>
 	 <div class="col-auto">
-	    <button type="button" id="clubElapsed-setAll" class="disabled icon-button btn btn-primary submit-target" onclick='ElapsedSetAll($("#clubElapsed-startTime").val())'><i class="fas fa-external-link-alt"></i></button>
+	    <button type="button" id="clubElapsed-setAll" class="disabled icon-button btn btn-primary submit-target" onclick='ElapsedSetAll($("#clubElapsed-startTime").val())'><img src="static/images/box-arrow-up-right.svg"></button>
          </div>
 	 <div class="col-auto">
-	    <button type="button" id="clubElapsed-resumeAll" class="icon-button btn btn-success" onclick='ElapsedStartAll()'><i class="fas fa-play"></i></button>
+	    <button type="button" id="clubElapsed-resumeAll" class="icon-button btn btn-success" onclick='ElapsedStartAll()'><img src="static/images/play-fill.svg"></button>
          </div>
 	 <div class="col-auto">
-	    <button type="button" id="clubElapsed-pauseAll" class="icon-button btn btn-danger" onclick='ElapsedPauseAll()'><i class="fas fa-pause"></i></button>
+	    <button type="button" id="clubElapsed-pauseAll" class="icon-button btn btn-danger" onclick='ElapsedPauseAll()'><img src="static/images/pause-fill.svg"></button>
 	 </div>
       </div>
       
@@ -65,16 +65,16 @@
 		  <input type="text" class="form-control" id="clubElapsed-startTime{{loop.index0}}" placeholder="hh:mm:ss" value="">
 	       </div>
 	       <div class="col-auto">
-		  <button type="button" id="clubElapsed-btn-set{{s.ordinal}}" class="disabled icon-button btn btn-primary submit-target" onclick='setOneTimer("{{s.ip}}", $("#clubElapsed-startTime{{s.ordinal}}").val())'><i class="fas fa-external-link-alt"></i></button>
+		  <button type="button" id="clubElapsed-btn-set{{s.ordinal}}" class="disabled icon-button btn btn-primary submit-target" onclick='setOneTimer("{{s.ip}}", $("#clubElapsed-startTime{{s.ordinal}}").val())'><img src="static/images/box-arrow-up-right.svg"></button>
 	       </div>
 	       <div class="col-auto">
-		  <button type="button" id="clubElapsed-btn-resume_{{s.ordinal}}" class="icon-button btn btn-success" onclick='ElapsedStart("{{s.ip}}")'><i class="fas fa-play"></i></button>
+		  <button type="button" id="clubElapsed-btn-resume_{{s.ordinal}}" class="icon-button btn btn-success" onclick='ElapsedStart("{{s.ip}}")'><img src="static/images/play-fill.svg"></button>
 	       </div>
 	       <div class="col-auto">
-		  <button type="button" id="clubElapsed-btn-pause{{s.ordinal}}" class="icon-button btn btn-danger" onclick='ElapsedPause("{{s.ip}}")'><i class="fas fa-pause"></i></button>
+		  <button type="button" id="clubElapsed-btn-pause{{s.ordinal}}" class="icon-button btn btn-danger" onclick='ElapsedPause("{{s.ip}}")'><img src="static/images/pause-fill.svg"></button>
 	       </div>
 	       <div class="col-auto pe-0">
-		  <button type="button" id="clubElapsed-message-show{{s.ordinal}}" class="btn btn-primary icon-button" onclick='Message("{{s.ip}}", $("#message").val(), $("#messageColour").val())'><i class="fas fa-comment"></i></button>
+		  <button type="button" id="clubElapsed-message-show{{s.ordinal}}" class="btn btn-primary icon-button" onclick='Message("{{s.ip}}", $("#message").val(), $("#messageColour").val())'><img src="static/images/chat.svg"></button>
 	       </div>
 	    </div>
 	 {% endif %}

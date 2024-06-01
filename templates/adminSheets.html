@@ -97,7 +97,7 @@ ${i != 0 ? '<hr>' : ''}
       <br>
       <button type="button" id="adminSheets-btn-flash${i}" onclick="Flash($('#adminSheets-peer${i}').val(), 'orange')" class="btn btn-warning flash">flash</button>
    </div>
-   ${(s.hwClock == 'Yes') ? '<div class="col-auto"> <i class="fa fa-clock align-middle"></i> </div>' : ''}
+   ${(s.hwClock == 'Yes') ? '<div class="col-auto"> <img src="static/images/clock.svg" class="align-middle"> </div>' : ''}
 </div>`)
     adminSheets_addRockSelector(`#adminSheets-top-holder${i}`, `adminSheets-top${i}`, s.topColour)
     adminSheets_addRockSelector(`#adminSheets-bottom-holder${i}`, `adminSheets-bottom${i}`, s.bottomColour)

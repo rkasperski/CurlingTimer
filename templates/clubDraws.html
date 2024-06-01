@@ -2,26 +2,26 @@
    {{ navPanel("clubDraws", "club" , "Club - Draws") }}
    <div class="row justify-content-center">
       <div class="col-auto pe-0 mb-2">
-	 <button class="btn btn-primary" role="button" onclick="clubDraws_download()";>
+	 <button class="btn btn-primary icon-button" role="button" onclick="clubDraws_download()";>
 	    <span class="me-1">Download Schedule</span>
-            <i class="fas fa-file-download"></i>
+            <img src="static/images/download.svg">
 	 </button>
       </div>
       <div class="col-auto pe-0" >
-         <button class="btn btn-primary" role="button" onclick="clubDraws_uploadDraws()">
+         <button class="btn btn-primary icon-button" role="button" onclick="clubDraws_uploadDraws()">
             <span class="me-1">Upload Draw</span>
-            <i class="ml-2 fas fa-file-upload"></i>
+            <img src="static/images/upload.svg">
          </button>
       </div>
       <div class="col-auto row">
          <div class="col-auto" >
-            <button type="button" class="mx-auto btn btn-warning px-3" role="button" onclick="clubDraws_addDraw()">
-               <i class="fas fa-plus"></i>
+            <button type="button" class="mx-auto btn btn-warning px-3 icon-button" role="button" onclick="clubDraws_addDraw()">
+               <img src="static/images/plus-lg.svg">
             </button>
          </div>
          <div class="col-auto d-sm-none">
-            <button type="button" class="mx-auto btn btn-warning px-3 " onclick="clubDraws_deleteDraws();">
-               <i class="fas fa-trash-alt"></i>
+            <button type="button" class="mx-auto btn btn-warning px-3 icon-button" onclick="clubDraws_deleteDraws();">
+               <img src="static/images/trash.svg">
             </button>
          </div>
       </div>
@@ -38,8 +38,8 @@
 		  <th>Before</th>
 		  <th>Start</th>
 		  <th class="text-center">
-                     <button type="button" id="clubDraws-delete-draws" class="mx-auto btn btn-warning px-3 " onclick="clubDraws_deleteDraws();">
-                        <i class="fas fa-trash-alt"></i>
+                     <button type="button" id="clubDraws-delete-draws" class="mx-auto btn btn-warning px-3 icon-button" onclick="clubDraws_deleteDraws();">
+                        <img src="static/images/trash.svg">
                      </button>
                   </th>
 	       </tr>
@@ -89,14 +89,14 @@
 <tr class="text-center align-middle" id="clubDraws-row${draw.id}">
   <td data-title="Actions">
 <div class="col-auto col-sm-1 col-md-auto">
-    <button type="button" class="icon-button btn btn-warning my-1" onclick="clubDraws_showCountdown(${draw.id});">
+    <button type="button" class="icon-button btn btn-warning my-1 icon-button" onclick="clubDraws_showCountdown(${draw.id});">
       <img src="/static/images/hourglass-top.svg">
     </button>
-    <button type="button" class="icon-button btn btn-warning my-1" onclick="clubDraws_showCompetition(${draw.id});">
+    <button type="button" class="icon-button btn btn-warning my-1 icon-button" onclick="clubDraws_showCompetition(${draw.id});">
       <img src="/static/images/stopwatch.svg">
     </button>
-    <button type="button" id="clubDraws-row-edit" class="icon-button btn btn-warning my-1" onclick="clubDraws_editDraw(${draw.id});">
-      <i class="fas fa-edit"></i>
+    <button type="button" id="clubDraws-row-edit" class="icon-button btn btn-warning my-1 icon-button" onclick="clubDraws_editDraw(${draw.id});">
+      <img src="static/images/pencil-square.svg"
     </button>
 </div>
   </td>
@@ -263,19 +263,21 @@
  }
 
  function clubDraws_showFromOverlay_clubDrawsAdd(data) {
-    if (data.type == "edit") {
-       jsonCall('SetDraw',
-	        '{{scheme}}://{{drawServer}}:{{port}}/draw/set',
-	        {id: data.id,
-	         draw: data.draw},
-                {asynce: false})
-          .done(clubDraws_updateRow);	     
-    } else {
-       jsonCall('AddDraw',
-	        '{{scheme}}://{{drawServer}}:{{port}}/draw/add',
-                data.draw,
-                {async: false})
-          .done(clubDraws_updateRow);	     
+    if (!data) {
+       if (data.type == "edit") {
+          jsonCall('SetDraw',
+	           '{{scheme}}://{{drawServer}}:{{port}}/draw/set',
+	           {id: data.id,
+	            draw: data.draw},
+                   {asynce: false})
+             .done(clubDraws_updateRow);	     
+       } else {
+          jsonCall('AddDraw',
+	           '{{scheme}}://{{drawServer}}:{{port}}/draw/add',
+                   data.draw,
+                   {async: false})
+             .done(clubDraws_updateRow);	     
+       }
     }
  }
 

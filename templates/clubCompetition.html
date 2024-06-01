@@ -14,7 +14,7 @@
 	    {{macros.colorSelector(colours, "clubCompetition-welcomeMessageColour", "clubCompetition-welcomeMessageColour")}}
          </div>
 	 <div class="col-auto">
-	    <button type="button" id="clubCompetition-btn-msg" class="btn btn-primary icon-button ml-2" onclick='MessageAll($("#clubCompetition-welcomeMessage").val(),$("#clubCompetition-welcomeMessageColour").val())'><i class="fas fa-comments"></i></button>
+	    <button type="button" id="clubCompetition-btn-msg" class="btn btn-primary icon-button ml-2" onclick='MessageAll($("#clubCompetition-welcomeMessage").val(),$("#clubCompetition-welcomeMessageColour").val())'><img src="static/images/chat-dots.svg"></button>
 	 </div>
       </div>
       <div class="row mb-1">
@@ -38,8 +38,8 @@
 	 </div>
 	 <div class="col-auto ml-1">
 	    <div class="form-control unpadded-btn-group">
-	       <button type="button" id="clubCompetition-btn-clearAll" class="icon-button btn btn-warning submit-target" onclick='clubCompetition_clearAll();'><i class="fas fa-backspace"></i></button>
-	       <button type="button" id="clubCompetition-btn-setAll" class="disabled icon-button btn btn-primary submit-target" onclick="clubCompetition_setAll()"><i class="fas fa-external-link-alt"></i></button>
+	       <button type="button" id="clubCompetition-btn-clearAll" class="icon-button btn btn-warning submit-target" onclick='clubCompetition_clearAll();'><img src="static/images/backspace.svg"></button>
+	       <button type="button" id="clubCompetition-btn-setAll" class="disabled icon-button btn btn-primary submit-target" onclick="clubCompetition_setAll()"><img src="static/images/box-arrow-up-right.svg"></button>
 	    </div>
 	 </div>
       </div>
@@ -71,11 +71,11 @@
 	       <div class="col-8 col-md-4">
                   <div class="input-group">
                      <input type="text" class="form-control border-right-0 border clubCompetition-team" placeholder="top team ..." id="clubCompetition-team-top{{loop.index0}}">
-                     <span class="input-group-text" onclick='$("#team_top_{{loop.index0}}").val("")'><i class="fa fa-times"></i></span>
+                     <span class="input-group-text" onclick='$("#team_top_{{loop.index0}}").val("")'><img src="static/images/x.svg"></span>
                   </div>
                </div>
                <div class="col-auto ml-1">
-		  <button type="button" id="btn_countdown_flip_{{loop.index0}}" class="icon-button btn btn-warning submit-target" onclick='flip("clubCompetition-team-top{{loop.index0}}","clubCompetition-team-bottom{{loop.index0}}");'><i class="fas fa-retweet"></i></button>
+		  <button type="button" id="btn_countdown_flip_{{loop.index0}}" class="icon-button btn btn-warning submit-target" onclick='flip("clubCompetition-team-top{{loop.index0}}","clubCompetition-team-bottom{{loop.index0}}");'><img src="static/images/shuffle.svg"></button>
                </div>
 	    </div>
 	    
@@ -86,12 +86,12 @@
                <div class="col-8 col-md-4">
                   <div class="input-group">
                      <input type="text" class="form-control border-right-0 border clubCompetition-team" placeholder="bottom team ..." id="clubCompetition-team-bottom{{loop.index0}}">
-                     <span class="input-group-text" onclick='$("#clubCompetition-team-bottom{{loop.index0}}").val("")'><i class="fa fa-times"></i></span>
+                     <span class="input-group-text" onclick='$("#clubCompetition-team-bottom{{loop.index0}}").val("")'><img src="static/images/x.svg"></span>
                   </div>
                </div>
 	       
 	       <div class="col-auto ml-1">
-		  <button type="button" id="clubCompetition-btn-competition{{loop.index0}}" class="disabled icon-button btn btn-primary submit-target" onclick="clubCompetition_setup('{{s.ip}}', {{loop.index0}})"><i class="fas fa-external-link-alt"></i></button>
+		  <button type="button" id="clubCompetition-btn-competition{{loop.index0}}" class="disabled icon-button btn btn-primary submit-target" onclick="clubCompetition_setup('{{s.ip}}', {{loop.index0}})"><img src="static/images/box-arrow-up-right.svg"></button>
 	       </div>
 	    </div>
 	 {% endif %}
