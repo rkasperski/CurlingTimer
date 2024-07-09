@@ -5,7 +5,7 @@
          {% if loop.index0 % 2 == 0 and not first %}
             <div class="w-100"></div>
          {% endif %}
-         {{ actionIcon(s.name, "distribute-horizontal.svg", "panelNavigate('sheet" ~loop.index0 ~ "')", unassigned=s.ip == "Unassigned") }}
+         {{ actionIcon(s.name, "distribute-horizontal", "panelNavigate('sheet" ~loop.index0 ~ "')", unassigned=s.ip == "Unassigned") }}
       {% endfor %}
    </div>
 </div>

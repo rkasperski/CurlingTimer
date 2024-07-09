@@ -5,11 +5,11 @@
       {{ navPanel("adminLogsDisplay", "breaktimerAdmin" , "Logs - " ~ name, upTop="breaktimerAdmin") }}
    {% endif %}
    <div class="row justify-content-evenly">
-      {{ actionIcon("Verbose - is off", "toggle-off.svg", "adminLogsDisplay_toggleVerbose()", idIcon="adminLogsDisplay_toggle" , idTitle="adminLogsDisplay_title") }}
-      {{ actionIcon("Refresh", "arrow-clockwise.svg", "adminLogsDisplay_refresh()") }}
-      {{ actionIcon("Clear Logs", "trash.svg", "adminLogsDisplay_clearLogs()") }}
+      {{ actionIcon("Verbose - is off", "toggle-off", "adminLogsDisplay_toggleVerbose()", idIcon="adminLogsDisplay_toggle" , idTitle="adminLogsDisplay_title") }}
+      {{ actionIcon("Refresh", "arrow-clockwise", "adminLogsDisplay_refresh()") }}
+      {{ actionIcon("Clear Logs", "trash", "adminLogsDisplay_clearLogs()") }}
    </div>
-   <div class="row justify-md-content-center">
+   <div class="row justify-md-content-center gy-2 mt-2">
       <div class="col-2 col-md-auto" >
          <label for="adminLogsDisplay-filterText">Filter:</label>
       </div>
@@ -49,8 +49,8 @@
  var adminLogsDisplay_toggleVerboseState = false;
 
  function adminLogsDisplay_setVerbose() {
-    $('#adminLogsDisplay_toggle').attr("src", adminLogsDisplay_toggleVerboseState ? "/static/images/toggle-on.svg" : "/static/images/toggle-off.svg")    
-    $('#adminLogsDisplay_title').text(adminLogsDisplay_toggleVerboseState ? "Verbose - is on" : "Verbose - is off")    
+    toggleIcon($('#adminLogsDisplay_toggle'), adminLogsDisplay_toggleVerboseState, "toggle-on", "toggle-off");
+    $('#adminLogsDisplay_title').text(adminLogsDisplay_toggleVerboseState ? "Verbose - is on" : "Verbose - is off");
  }
 
  function adminLogsDisplay_clearLogs() {

@@ -11,7 +11,7 @@
 	       <input type="text" class="form-control check-time" id="clubManagePins-defaultPINExpireTime" value="">
 	    </div>
 	    <div class="col-auto">
-	       <button type="button" id="btn_msg" class="btn btn-primary my-form-control clubManagePins-submit-target" onclick='clubManagePins_GetNewAllPINs()'>Reset All PINs</button>
+	       <button type="button" id="btn_msg" class="btn btn-outline-dark my-form-control clubManagePins-submit-target" onclick='clubManagePins_GetNewAllPINs()'>Reset All PINs</button>
 	    </div>
 	 </div>
          
@@ -34,7 +34,7 @@
 		  <input type="text" class="form-control disabled" id="clubManagePins-pin{{loop.index0}}" value="{{s.pin}}">
 	       </div>
 	       <div class="col-auto" >
-		  <button type="button" class='btn btn-primary my-form-control
+		  <button type="button" class='btn btn-outline-dark my-form-control
 				{% if s.ip == "Unassigned" %} disabled {% else %} clubManagePins-submit-target {% endif %}'
 			  onclick='clubManagePins_GetNewPIN("{{loop.index0}}", "{{s.name}}")'>New PIN</button>
 	       </div>

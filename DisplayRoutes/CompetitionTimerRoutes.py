@@ -191,7 +191,7 @@ async def competitionTimeoutStartAjax(request):
     data = await request.json()
     mySheet = Config.display.sheets.mySheet
 
-    timer = LED_RGB_Display.display.timeout
+    timer = CurlingClockManager.manager.timers.timeout
     timer.teamId = data.get("team", "team1")
     if timer.teamId == "team1":
         timer.team = CurlingClockManager.manager.timers.competition.teams[0]
@@ -206,8 +206,7 @@ async def competitionTimeoutStartAjax(request):
 
     CurlingClockManager.manager.setView(CurlingClockManager.manager.timeoutUpdate)
 
-    return aiohttp_web.json_response(timer.ajaxResponse({"operation": "start",
-                                                         "time": Config.display.defaults.timeoutLength}))
+    return aiohttp_web.json_response(timer.ajaxResponse({"operation": "start"}))
 
 
 @routes.post('/competition/timeout/done')
@@ -218,12 +217,15 @@ async def competitionTimeoutDoneAjax(request):
     timer = CurlingClockManager.manager.timers.timeout
     timer.team.remainingTimeouts -= 1
     timer.pause()
+    
     if timer.teamId == "team1":
         CurlingClockManager.manager.timers.competition.resumeTeam1()
         team = CurlingClockManager.manager.timers.competition.teams[0]
     elif timer.teamId == "team2":
         CurlingClockManager.manager.timers.competition.resumeTeam2()
-        team = CurlingClockManager.manager.timers.competition.teams[0]
+        team = CurlingClockManager.manager.timers.competition.teams[1]
+        
+    CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     return aiohttp_web.json_response(team.ajaxResponse({"operation": "done"}))
 
 
@@ -232,6 +234,7 @@ async def competitionTimeoutDoneAjax(request):
 async def competitionTimeoutCancelAjax(request):
     LED_RGB_Display.display.resetIdleTime()
     CurlingClockManager.manager.timers.timeout.pause()
+    CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     return aiohttp_web.json_response({"operation": "cancel"})
 
 
@@ -257,12 +260,15 @@ async def competitionTBetweenEndTimerAjax(request):
 @ajaxVerifyToken("pin")
 async def competitionSetTimeAjax(request):
     json = await request.json()
-    team = json["team"]
-    teamTime = json["time"]
+    team = json.get("team", None)
+    teamTime = json.get("time", None)
 
-    if team == "team1":
-        CurlingClockManager.manager.timers.competition.teams[0].setTime(teamTime)
-    else:
-        CurlingClockManager.manager.timers.competition.teams[1].setTime(teamTime)
+    if team is not None and teamTime is not None:
+        if team == "team1":
+            CurlingClockManager.manager.timers.competition.teams[0].setTime(teamTime)
+        else:
+            CurlingClockManager.manager.timers.competition.teams[1].setTime(teamTime)
+            
+        return aiohttp_web.json_response(CurlingClockManager.manager.timers.competition.ajaxResponse())
 
-    return aiohttp_web.json_response(CurlingClockManager.manager.timers.competition.ajaxResponse())
+    return aiohttp_web.json_response({"rc": "fail"})

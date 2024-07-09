@@ -14,21 +14,21 @@
 	    </div>
          </div>
          <div class="row ms-4 mt-n2">
-	    <div class="col-auto">
-	       <button type="button" class="btn btn-success btn-lg me-3 icon-button-lg" onclick="sheetCompetitionTimer_resumeTeam1(event)"><img src="static/images/play-fill.svg"></button>
-	       <button type="button" class="btn btn-danger btn-lg me-3 icon-button-lg" onclick="sheetCompetitionTimer_pauseTeam1(event)"><img src="static/images/pause-fill.svg"></button>
-	       <button type="button" class="btn btn-primary btn-lg adjust-target me-3" onclick="sheetCompetitionTimer_showAdjust(1)">+/-</button>
-	       <button type="button" class="btn btn-primary btn-lg"  id="sheetCompetitionTimer-btn-team1-timeout" onclick="sheetCompetitionTimer_startTimeoutTeam1()"> </button>
+	    <div class="col-auto px-0">
+	       <button type="button" class="btn btn-outline-dark btn-lg me-3 icon-button-lg" onclick="sheetCompetitionTimer_resumeTeam1(event)">{{icon("play-fill")}}</button>
+	       <button type="button" class="btn btn-outline-dark btn-lg me-3 icon-button-lg" onclick="sheetCompetitionTimer_pauseTeam1(event)">{{icon("pause-fill")}}</button>
+	       <button type="button" class="btn btn-outline-dark btn-lg sheetCompetitionTimer-adjust-target me-3 icon-button-lg" onclick="sheetCompetitionTimer_showAdjust(1)">{{icon("plus-slash-minus")}}</button>
+	       <button type="button" class="btn btn-outline-dark btn-lg icon-button-lg" id="sheetCompetitionTimer-btn-team1-timeout" onclick="sheetCompetitionTimer_startTimeoutTeam1()"> </button>
 	    </div>
          </div>
          <hr class="half-rule">
          
          <div class="row ms-4">
-	    <div class="col-auto">
-	       <button type="button" class="btn btn-success btn-lg me-3 icon-button-lg" onclick="sheetCompetitionTimer_resumeTeam2(event)" ><img src="static/images/play-fill.svg"></button>
-	       <button type="button" class="btn btn-danger btn-lg me-3 icon-button-lg" onclick="sheetCompetitionTimer_pauseTeam2(event)" ><img src="static/images/pause-fill.svg"></button>
-	       <button type="button" class="btn btn-primary btn-lg adjust-target me-3" onclick="sheetCompetitionTimer_showAdjust(2)">+/-</button>
-	       <button type="button" class="btn btn-primary btn-lg" id="sheetCompetitionTimer-btn-team2-timeout"  onclick="sheetCompetitionTimer_startTimeoutTeam2()"></button>
+	    <div class="col-auto px-0">
+	       <button type="button" class="btn btn-outline-dark btn-lg me-3 icon-button-lg" onclick="sheetCompetitionTimer_resumeTeam2(event)" >{{icon("play-fill")}}</button>
+	       <button type="button" class="btn btn-outline-dark btn-lg me-3 icon-button-lg" onclick="sheetCompetitionTimer_pauseTeam2(event)" >{{icon("pause-fill")}}</button>
+	       <button type="button" class="btn btn-outline-dark btn-lg sheetCompetitionTimer-adjust-target me-3 icon-button-lg" onclick="sheetCompetitionTimer_showAdjust(2)">{{icon("plus-slash-minus")}}</button>
+	       <button type="button" class="btn btn-outline-dark btn-lg icon-button-lg" id="sheetCompetitionTimer-btn-team2-timeout" onclick="sheetCompetitionTimer_startTimeoutTeam2()"></button>
 	    </div>
          </div>
          <div class="row ms-2">
@@ -47,26 +47,26 @@
          <hr class="half-rule">
          <div class="row mt-2 mb-3">
 	    <div class="col-8 align-middle">
-	       <button type="button" onclick="sheetCompetitionTimer_startBetweenEndTimer()" class="btn btn-primary btn-lg submit-target">Between End Timer</button>
+	       <button type="button" onclick="sheetCompetitionTimer_startBetweenEndTimer()" class="btn btn-outline-dark btn-lg submit-target">Between End Timer</button>
             </div>
             <div class="col-3">
-	       <input type="text" class="form-control check-time" id="sheetCompetitionTimer-betweenEndTime" value="">
+	       <input type="text" class="form-control form-control-lg check-time" id="sheetCompetitionTimer-betweenEndTime" value="">
 	    </div>
          </div>	  
          <div class="row mt-2 mb-3">
 	    <div class="col-8 align-middle">
-	       <button type="button" class="btn btn-primary btn-lg" onclick="sheetCompetitionTimer_startIntermissionTimer()" >Intermission</button>
+	       <button type="button" class="btn btn-outline-dark btn-lg" onclick="sheetCompetitionTimer_startIntermissionTimer()" >Intermission</button>
             </div>
             <div class="col-3 ">
-	       <input type="text" class="form-control check-time"  id="sheetCompetitionTimer-intermissionLength" value="">
+	       <input type="text" class="form-control form-control-lg check-time"  id="sheetCompetitionTimer-intermissionLength" value="">
 	    </div>
          </div>
          <div class="row mt-2 mb-3">
 	    <div class="col-8 align-middle">
-	       <button type="button" onclick="sheetCompetitionTimer_setUpExtraEnd()" class="btn btn-primary btn-lg submit-target">Set Extra End Time</button>
+	       <button type="button" onclick="sheetCompetitionTimer_setUpExtraEnd()" class="btn btn-outline-dark btn-lg submit-target">Set Extra End Time</button>
             </div>
             <div class="col-3 ">
-	       <input type="text" class="form-control check-time" id="sheetCompetitionTimer-extraEndTime" value="">
+	       <input type="text" class="form-control form-control-lg check-time" id="sheetCompetitionTimer-extraEndTime" value="">
 	    </div>
          </div>
       </div>
@@ -118,6 +118,7 @@
     if (r.remainingTimeouts <= 0) {
        $("#sheetCompetitionTimer-btn-team1-timeout").addClass("disabled");
     }
+    enableField(!active, ".sheetCompetitionTimer-adjust-target");
  }
  
  function sheetCompetitionTimer_timerTeam2Running(active, time, r) {
@@ -125,6 +126,7 @@
     if (r.remainingTimeouts <= 0) {
        $("#sheetCompetitionTimer-btn-team2-timeout").addClass("disabled");
     }
+    enableField(!active, ".sheetCompetitionTimer-adjust-target");
  }
  
  function sheetCompetitionTimer_pauseTeam1() {
@@ -135,11 +137,6 @@
  function sheetCompetitionTimer_pauseTeam2() {
     CompetitionTeam2Pause(sheetCompetitionTimerIP);
     enableField(true, ".sheetCompetitionTimer-adjust-target");
- }
- 
- function sheetCompetitionTimer_exchangeTimers() {
-    CompetitionTeamExchange(sheetCompetitionTimerIP);
-    enableField(false, ".sheetCompetitionTimer-adjust-target");
  }
  
  function sheetCompetitionTimer_resumeTeam1() {
@@ -159,12 +156,12 @@
              overlayShow("sheetCompetitionTimerUtility",
                          {type: "team",
                           title: `Timeout for ${sheetCompetitionTimer_colourTeam1}`,
-                          time: r.time,
+                          time: r.seconds,
                           ip: sheetCompetitionTimerIP,
                           timerStatusUrl: "timeout/status",
                           colour: sheetCompetitionTimer_colourTeam1,
                           rockSvg: sheetCompetitionTimer_rockSrcTeam1},
-                         "utility");
+                         "team");
 	  });
     }
  }
@@ -177,11 +174,11 @@
                          {type: "team",
                           title: `Timeout for ${sheetCompetitionTimer_colourTeam2}`,
                           ip: sheetCompetitionTimerIP,
-                          time: r.time,
+                          time: r.seconds,
                           timerStatusUrl: "timeout/status",
                           colour: sheetCompetitionTimer_colourTeam1,
                           rockSvg: sheetCompetitionTimer_rockSrcTeam2},
-                         "utility");
+                         "team");
 	  });
     }
  }
@@ -210,7 +207,7 @@
                        time: betweenEndTime, 
                        ip: sheetCompetitionTimerIP,
                        timerStatusUrl: "intermission/status"},
-                      "utility");
+                      "between");
        })
  }
  
@@ -228,17 +225,10 @@
                        time: intermissionTime,
                        ip: sheetCompetitionTimerIP,
                        timerStatusUrl: "intermission/status"},
-                      "utility");
+                      "intermission");
        })
  }
  
- function sheetCmpetitionTimer_timerRunning(active) {
-    enableField(!active, ".sheetCountdown-submit-target");
-    enableField(!active, "#sheetCountdown-start");
-    enableField(active, "#sheetCountdown-pause");
-    enableField(true, "#sheetCountdown-lastEnd");
- }
-
  function sheetCompetitionTimer_normName(inS, deflt) {
     let s = inS.trim();
 
@@ -295,14 +285,21 @@
  }
 
  function sheetCompetitionTimer_showFromOverlay(data) {
-    if (data.complete == "yes" && data.type == "team") {
-       jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/timeout/done`, {}, {})
-    } else {
-       if (data.type == "team") {
-          jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/timeout/cancel`, {}, {})
-       } else {
-          jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/intermission/cancel`, {}, {})
+    if (data.key == "team") {
+       if (data.complete == "yes") {
+          jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/timeout/done`, {}, {});
+       } else if (data.complete == "cancelled") {
+          jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/timeout/cancel`, {}, {});
        }
+    } else if (data.key == "adjust") {
+       if (data.teamNo) {
+          jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/settime`,
+                   {team: `team${data.teamNo}`,
+                    time: data.time},
+                   {});
+          }
+    } else {
+       jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/intermission/cancel`, {}, {});
     }
  }
  

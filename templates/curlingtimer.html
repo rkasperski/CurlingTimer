@@ -1,11 +1,12 @@
 <!doctype html>
 {% import 'macros.html' as macros %}
-{% from "macros.html" import navPanel, selectableIcon, actionIcon, overlayNav %}
+{% from "macros.html" import navPanel, actionIcon, overlayNav, selectableIcon, icon %}
 {% include 'helpers.css' %}
 <html lang="en">
    <head>
       {% include 'head.html' %}
       <script src="/static/js/fileSaver.js"></script>
+      <link rel="stylesheet" href="/static/font/bootstrap-icons.min.css">
       <title>{{organization}}</title>
    </head>
    <body class="vh-100">

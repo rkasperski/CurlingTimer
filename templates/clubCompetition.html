@@ -10,11 +10,11 @@
 	 <div class="col-6">
 	    <input type="text" class="form-control mr-sm-4" id="clubCompetition-welcomeMessage" value="">
 	 </div>
-	 <div class="col-3 col-md-2">
+	 <div class="col-4 col-md-2">
 	    {{macros.colorSelector(colours, "clubCompetition-welcomeMessageColour", "clubCompetition-welcomeMessageColour")}}
          </div>
 	 <div class="col-auto">
-	    <button type="button" id="clubCompetition-btn-msg" class="btn btn-primary icon-button ml-2" onclick='MessageAll($("#clubCompetition-welcomeMessage").val(),$("#clubCompetition-welcomeMessageColour").val())'><img src="static/images/chat-dots.svg"></button>
+	    <button type="button" id="clubCompetition-btn-msg" class="btn btn-outline-dark icon-button icon-mirror-h ml-2" onclick='MessageAll($("#clubCompetition-welcomeMessage").val(),$("#clubCompetition-welcomeMessageColour").val())'>{{icon("reply-all")}}</button>
 	 </div>
       </div>
       <div class="row mb-1">
@@ -22,7 +22,7 @@
 	    <label for="clubCompetition-teamTime" class="col-form-label">Per Team Time:</label>
 	    <input type="text" class="form-control check-time" id="clubCompetition-teamTime" value="">
 	 </div>
-	 <div class="col-auto offset-1 col-md-2  ml-2">
+	 <div class="col-4 offset-1 col-md-2  ml-2">
 	    <label for="clubCompetition-teamColour" class="col-form-label" >Team Colour:</label>
 	    {{macros.colorSelector(colours, "clubCompetition-teamColour", "clubCompetition-teamColour", extra="board", default="white")}}
 	 </div>
@@ -38,8 +38,8 @@
 	 </div>
 	 <div class="col-auto ml-1">
 	    <div class="form-control unpadded-btn-group">
-	       <button type="button" id="clubCompetition-btn-clearAll" class="icon-button btn btn-warning submit-target" onclick='clubCompetition_clearAll();'><img src="static/images/backspace.svg"></button>
-	       <button type="button" id="clubCompetition-btn-setAll" class="disabled icon-button btn btn-primary submit-target" onclick="clubCompetition_setAll()"><img src="static/images/box-arrow-up-right.svg"></button>
+	       <button type="button" id="clubCompetition-btn-clearAll" class="icon-button btn btn-outline-dark submit-target me-3" onclick='clubCompetition_clearAll();'>{{icon("backspace")}}</button>
+	       <button type="button" id="clubCompetition-btn-setAll" class="disabled icon-button btn btn-outline-dark submit-target ms-1" onclick="clubCompetition_setAll()">{{icon("box-arrow-up-right")}}</button>
 	    </div>
 	 </div>
       </div>
@@ -71,11 +71,11 @@
 	       <div class="col-8 col-md-4">
                   <div class="input-group">
                      <input type="text" class="form-control border-right-0 border clubCompetition-team" placeholder="top team ..." id="clubCompetition-team-top{{loop.index0}}">
-                     <span class="input-group-text" onclick='$("#team_top_{{loop.index0}}").val("")'><img src="static/images/x.svg"></span>
+                     <span class="input-group-text" onclick='$("#team_top_{{loop.index0}}").val("")'>{{icon("x")}}</span>
                   </div>
                </div>
                <div class="col-auto ml-1">
-		  <button type="button" id="btn_countdown_flip_{{loop.index0}}" class="icon-button btn btn-warning submit-target" onclick='flip("clubCompetition-team-top{{loop.index0}}","clubCompetition-team-bottom{{loop.index0}}");'><img src="static/images/shuffle.svg"></button>
+		  <button type="button" id="btn_countdown_flip_{{loop.index0}}" class="icon-button btn btn-outline-dark submit-target" onclick='flip("clubCompetition-team-top{{loop.index0}}","clubCompetition-team-bottom{{loop.index0}}");'>{{icon("shuffle")}}</button>
                </div>
 	    </div>
 	    
@@ -86,12 +86,12 @@
                <div class="col-8 col-md-4">
                   <div class="input-group">
                      <input type="text" class="form-control border-right-0 border clubCompetition-team" placeholder="bottom team ..." id="clubCompetition-team-bottom{{loop.index0}}">
-                     <span class="input-group-text" onclick='$("#clubCompetition-team-bottom{{loop.index0}}").val("")'><img src="static/images/x.svg"></span>
+                     <span class="input-group-text" onclick='$("#clubCompetition-team-bottom{{loop.index0}}").val("")'>{{icon("x")}}</span>
                   </div>
                </div>
 	       
 	       <div class="col-auto ml-1">
-		  <button type="button" id="clubCompetition-btn-competition{{loop.index0}}" class="disabled icon-button btn btn-primary submit-target" onclick="clubCompetition_setup('{{s.ip}}', {{loop.index0}})"><img src="static/images/box-arrow-up-right.svg"></button>
+		  <button type="button" id="clubCompetition-btn-competition{{loop.index0}}" class="disabled icon-button btn btn-outline-dark submit-target" onclick="clubCompetition_setup('{{s.ip}}', {{loop.index0}})">{{icon("box-arrow-up-right")}}</button>
 	       </div>
 	    </div>
 	 {% endif %}
@@ -109,7 +109,7 @@
                      $(`#clubCompetition-team-bottom${i}`).val())
  }
  function clubCompetition_clearAll() {
-    $(".clubCompetition-team" + p).val("");
+    $(".clubCompetition-team").val("");
  }
 
  function clubCompetition_checkActiveCallback(clubStatus, i, sheetStatus) {

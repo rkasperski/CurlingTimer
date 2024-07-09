@@ -45,23 +45,23 @@ disabled
 {% endmacro %}
 
 {% macro navPanel(me, parent, title) %}
- <div class="row justify-content-center">
+ <div class="row justify-content-center mt-2 mb-4">
    <div class="col-12 col-md-8">
-      <div class="row justify-content-evenly mt-2 mb-4 nav-panel">
+      <div class="row justify-content-evenly nav-panel">
          {% if me %}
             <div class="col-auto nav-back my-auto"
                  {% if kwargs.idBack %} id="{{kwargs.idBack}}" {% endif %}              
                  data-navto="{{parent}}"
                  {% if kwargs.backToFunc %} data-navtofunction="{{kwargs.backToFunc}}" {% endif %}                           
                  onclick="panelNavigateEv(this, true)">
-               <img class="navIcon" src="/static/images/arrow-left-square.svg">
+               <i class="navIcon bi bi-arrow-left-square"></i>
             </div>
          {% else %}
             <div class="col-2 nav-back my-auto invisible">
-               <img class="navIcon" src="/static/images/arrow-left-square.svg">
+               <i class="navIcon bi bi-arrow-left-square"></i>
             </div>        
          {% endif %}
-         <div class="col-7 col-md-auto text-center">
+         <div class="col-7 col-md-auto text-center mt-2">
             <h1 class="text-center nav-title "
                 {% if kwargs.idTitle %} id="{{kwargs.idTitle}}" {% endif %}>{{title}}</h1>
          </div>
@@ -71,38 +71,46 @@ disabled
                  {% if kwargs.upTop %} data-navto="{{kwargs.upTop}}" {% else %} data-navto="club" {% endif %}
                  {% if kwargs.upToFunc %} data-navtofunction="{{kwargs.upToFunc}}" {% endif %}                           
                  onclick="panelNavigateEv(this, true)">
-               <img class="navIcon float-end" src="/static/images/arrow-up-square.svg">
+               <i class="bi bi-arrow-up-square navIcon float-end"></i>
             </div>
          {% endif %}
       </div>
    </div>
  </div>
 {% endmacro %}
+{% macro icon(icon) %}
+      <i class="bi bi-{{icon}} {% if kwargs.class %}{{kwargs.class}}{% endif %}"{% if kwargs.id %} id="{{kwargs.id}}"{% endif %}{% if kwargs.style %} style="{{kwargs.style}}"{% endif %}></i>
+{% endmacro %}
+
 {% macro actionIcon(title, icon, action ) %}
-   <div class="col-3 col-md-2 text-center mb-2 pt-2 
+   <div class="actionIcon col-3 col-md-2 text-center mb-1 mt-2 
                {% if kwargs.unassigned %} xd-out {% endif %}
                {% if kwargs.disabled or kwargs.unassigned %} disabled {% endif %}"
         {% if kwargs.idActionIcon %} id="{{kwargs.idActionIcon}}" {% endif %}
         {% if kwargs.id %} id="{{kwargs.id}}" {% endif %}
         onclick="{{action|safe}}">
-      <img class="actionIcon" {% if kwargs.idIcon %} id="{{kwargs.idIcon}}" {% endif %} src="/static/images/{{icon}}">
-      <br>
+      <div>
+      <i class="bi bi-{{icon}}" {% if kwargs.idIcon %} id="{{kwargs.idIcon}}" {% endif %}"></i>
+</div>
+<div>
+      <!-- <span style="line-height:1px; font-size:1px;">&nbsp;<br></span> -->
       {% if kwargs.twoLineTitle %}
          <span> {{title|safe}} </span> <br>
          <span {% if kwargs.idTitle %} id="{{kwargs.idTitle}}" {% endif %}></span>
       {% else %}
          <span {% if kwargs.idTitle %} id="{{kwargs.idTitle}}" {% endif %}>{{title|safe}}</span>
       {% endif %}
+</div>
    </div>
 {% endmacro %}
 
 {% macro selectableIcon(id, checkedClass, title, icon, data) %}
-   <div class="col-auto text-center mb-4 selectable-icon-{{checkedClass}} 
+   <div class="col-auto text-center mb-4 actionIcon selectable-icon-{{checkedClass}} 
                {% if kwargs.disabled or kwargs.unassigned %} disabled {% endif %}
                {% if kwargs.unassigned %} xd-out {% endif %}"
                id="{{id}}">
       <div class="selectable-icon-wrapper">
-         <img class="selectable-icon"  id="iconId-{{id}}" src="/static/images/{{icon}}"/>
+         <i class="selectable-icon bi bi-{{icon}}" id="iconId-{{id}}"> </i>
          <input class='selectable-icon-input {{checkedClass}}' 
                 type="checkbox" 
                 id="checkId-{{id}}"
@@ -113,8 +121,9 @@ disabled
          >
          <label for="checkId-{{id}}"></label>
       </div>   
-      <br>
-      <span id="iconTitle-{{id}}" >{{title}}</span>
+      <div>
+         <span id="iconTitle-{{id}}" >{{title}}</span>
+      </div>
    </div>
 {% endmacro %}
 
@@ -124,7 +133,7 @@ disabled
          <div class="col-auto me-4 nav-back"
               {% if kwargs.idBack %} id="{{kwargs.idBack}}" {% endif %}              
               onclick="overlayHide('{{me}}', null)">
-            <img class="navIcon" src="/static/images/x-square.svg">
+            <i class="bi bi-x-square navIcon"></i>
          </div>
       {% endif %}
       <div class="col-auto text-center">

@@ -308,7 +308,6 @@ def main():
     info("startup: setup static")
     app.router.add_static('/static/css', path=myApp.app('static/css'), name='css')
     app.router.add_static('/static/js/', path=myApp.app('static/js/'), name='js')
-    app.router.add_static('/static/webfonts/', path=myApp.app('static/webfonts'), name='webfonts')
     app.router.add_static('/static/', path=myApp.app('static'), name='static')
 
     info("startup: setup templates")

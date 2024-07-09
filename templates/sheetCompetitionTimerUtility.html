@@ -1,7 +1,7 @@
 <div id="sheetCompetitionTimerUtility" class="display-view d-none">
    {{ overlayNav("sheetCompetitionTimerUtility", "Competition - Utility Timer", idTtitle="sheetCompetitionTimerUtility-title") }}   
    <div class="container mt-4 justify-content-center">
-      <div class="row justify-content-md-center">
+      <div class="row justify-content-center">
       	 <div class="col-auto align-self-center d-none" id="sheetCompetitionTimerUtility-rock">
             <img class="rock-img" src="/static/images/Curling-Rock-red-sm.png">
 	 </div>
@@ -11,10 +11,10 @@
       </div>
       <div class="row justify-content-center mt-4">
          <div class="col-auto">
-	    <button type="button" class="btn btn-primary btn-lg" id="sheetCompetitionTimerUtility-btn-done" onclick="sheetCompetitionTimerUtility_done()">Done</button>
+	    <button type="button" class="btn btn-outline-dark btn-lg" id="sheetCompetitionTimerUtility-btn-done" onclick="sheetCompetitionTimerUtility_done()">Done</button>
          </div>
          <div class="col-auto">
-	    <button type="button" class="btn btn-primary btn-lg" id="sheetCompetitionTimerUtility-btn-cancel" onclick="sheetCompetitionTimerUtility_cancel()">Cancel</button>
+	    <button type="button" class="btn btn-outline-dark btn-lg" id="sheetCompetitionTimerUtility-btn-cancel" onclick="sheetCompetitionTimerUtility_cancel()">Cancel</button>
          </div>
       </div>
    </div>
@@ -26,7 +26,9 @@
  
  function sheetCompetitionTimerUtility_timerRunning(active, time, r) {
     if (time == 0) {
-       sheetCompetitionTimerUtility_done()   ;    
+       overlayHide("sheetCompetitionTimerUtility",
+                   {type: $("#sheetCompetitionTimerUtility").data("type"),
+                    complete:"expired"});
     }
  }
  
@@ -42,7 +44,7 @@
  
  function sheetCompetitionTimerUtility_data() {
     return {type: $("#sheetCompetitionTimerUtility").data("type"),
-            complete: "no"};
+            complete: "cancelled"};
  }
 
  function sheetCompetitionTimerUtility_show(data) {

@@ -10,7 +10,7 @@
     addActionIcon("#adminHardware-actionIcons",
                   `adminHardware-actionIcons${i}`,
                   p.name,
-                  p.type == "display" ? "display.svg" : "stopwatch.svg",
+                  p.type == "display" ? 'display' : 'stopwatch',
                   `panelNavigate('adminHardwareSettings', this)`,
                   p,
                   i > 0 && (i % 2 == 0))

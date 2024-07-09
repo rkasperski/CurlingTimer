@@ -5,7 +5,7 @@
          {% if loop.index0 % 2 == 0 and not first %}
             <div class="w-100"></div>
          {% endif %}
-         {{ actionIcon(s.name, "trophy.svg", "panelNavigate('sheetTrainingSetup" ~loop.index0 ~ "')", unassigned=s.ip == "Unassigned") }}
+         {{ actionIcon(s.name, "trophy", "panelNavigate('sheetTrainingSetup" ~loop.index0 ~ "')", unassigned=s.ip == "Unassigned") }}
       {% endfor %}
    </div>
    <div class="row justify-content-evenly" id="clubTraining-deviceIcons">
@@ -21,7 +21,7 @@
     addActionIcon("#clubTraining-deviceIcons",
                   i,
                   `${p.name}`,
-                  isDisplay ? "display.svg" : "stopwatch.svg",
+                  isDisplay ? "display" : "stopwatch",
                   `clubTraining_onclick('${p.ip}', '${p.name}', ${isDisplay})`,
                   p, 
                   i > 0 && (i % 2 == 0))

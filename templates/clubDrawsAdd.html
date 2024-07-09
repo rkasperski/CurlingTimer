@@ -1,19 +1,19 @@
 <div id="clubDrawsAdd" class="display-view d-none">
    {{ overlayNav("clubDrawsAdd", "Add Draw") }}
    <div class="container">
-      <div class="row">
+      <div class="row gy-3">
          <div class="col-auto">
 	    <span id="clubDrawsAdd-title">Add Draw</span>:
          </div>
          <div class="col-auto">
-	    <input type="text" class="verify-draw" id="clubDrawsAdd-draw-name" value="">
+	    <input type="text" class="form-control verify-draw" id="clubDrawsAdd-draw-name" value="">
          </div>
          
          <div class="col-auto">
-	    <button type="button" class="btn btn-primary submit-target" id="clubDrawsAdd-btn-add" onclick="clubDrawsAdd_save();">Add</button>
+	    <button type="button" class="btn btn-outline-dark submit-target" id="clubDrawsAdd-btn-add" onclick="clubDrawsAdd_save();">Add</button>
          </div>
          <div class="col-auto">
-	    <button type="button" class="btn btn-secondary" onclick="overlayHide('clubDrawsAdd');" >Cancel</button>
+	    <button type="button" class="btn btn-outline-dark" onclick="overlayHide('clubDrawsAdd');" >Cancel</button>
          </div>
       </div>
       <div class="row">
@@ -47,7 +47,7 @@
          </div>
          
          <div class="col-4">
-	    <label for="clubDrawsAdd-draw-show">Before Draw Show:</label>
+	    <label for="clubDrawsAdd-draw-show">Before Show:</label>
 	    <select class="form-control" id="clubDrawsAdd-draw-show">
 	       <option value="blank">Blank</option>
 	       <option value="5">Teams 5m</option>
@@ -57,7 +57,7 @@
 	    </select>
          </div>			
          <div class="col-4">
-	    <label for="clubDrawsAdd-at-start">At Draw Start:</label>
+	    <label for="clubDrawsAdd-at-start">At Start:</label>
 	    <select class="form-control" id="clubDrawsAdd-at-start">
 	       <option value="blank">Blank</option>
 	       <option value="countdown">Start CountDown</option>
@@ -79,7 +79,7 @@
 	    <div class="col-2">
 	       {{s.name}}
 	    </div>
-	    <div class="col-1 my-auto">
+	    <div class="col-auto my-auto">
 	       <div class="sm-rock my-auto bg-{{s.topColour}}"></div>
 	    </div>
 	    <div class="col-auto ml-2">
@@ -89,7 +89,7 @@
          <div class="row mt-2">
 	    <div class="col-2">
 	    </div>
-	    <div class="col-1 my-auto">
+	    <div class="col-auto my-auto">
 	       <div class="sm-rock my-auto  bg-{{s.bottomColour}}"></div>
 	    </div>
 	    <div class="col-auto ml-2">

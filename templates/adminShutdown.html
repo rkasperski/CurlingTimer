@@ -2,9 +2,9 @@
    {{ navPanel("adminShutdown", "admin" , "Shutdown / Restart / Reboot") }}
    <div class="container mb-3">
       <div class="row justify-content-around">
-         {{ actionIcon("Halt", "sign-stop.svg", "adminShutdown_halt()", colAuto=true) }}
-         {{ actionIcon("Restart", "arrow-clockwise.svg", "adminShutdown_restart()", colAuto=true) }}
-         {{ actionIcon("Reboot", "bootstrap-reboot.svg", "adminShutdown_reboot()", colAuto=true) }}
+         {{ actionIcon("Halt", "sign-stop", "adminShutdown_halt()", colAuto=true) }}
+         {{ actionIcon("Restart", "arrow-clockwise", "adminShutdown_restart()", colAuto=true) }}
+         {{ actionIcon("Reboot", "bootstrap-reboot", "adminShutdown_reboot()", colAuto=true) }}
       </div>
       <div class="d-flex justify-content-evenly align-items-center mt-2">
          <hr class="flex-grow-1 mt-1 divider" />
@@ -56,7 +56,7 @@
                       `adminShutdown-selectableIcons${i}`,
                       "adminShutdown-iconChecked",
                       p.name,
-                      p.type == "display" ? "display.svg" : "stopwatch.svg",
+                      p.type == "display" ? 'display' : 'stopwatch',
                       p,
                       i > 0 && (i % 2 == 0))
  }

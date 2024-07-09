@@ -20,19 +20,19 @@
          </div>
          <div class="row justify-content-evenly">
             <div class="col-auto px-0 mt-3">
-	       <button class="btn btn-primary disabled" id="adminUpdate-btn-install" type="button" onclick="adminUpdate_doInstall();">Install</button>
+	       <button class="btn btn-outline-dark disabled" id="adminUpdate-btn-install" type="button" onclick="adminUpdate_doInstall();">Install</button>
             </div>
             <div class="col-auto px-0 mt-3">
-	       <button class="btn btn-primary disabled" id="adminUpdate-btn-restart" type="button" onclick="adminUpdate_doRestart();">Restart</button>
+	       <button class="btn btn-outline-dark disabled" id="adminUpdate-btn-restart" type="button" onclick="adminUpdate_doRestart();">Restart</button>
             </div>
             <div class="col-auto px-0 mt-3">
-	       <button class="btn btn-primary disabled" id="adminUpdate-btn-clean" type="button" onclick="panelNavigate('adminUpdateClean')">Clean Updates</button>
+	       <button class="btn btn-outline-dark disabled" id="adminUpdate-btn-clean" type="button" onclick="panelNavigate('adminUpdateClean')">Clean Updates</button>
             </div>
             <div class="col-auto px-0 mt-3">
-	       <button class="btn btn-primary disabled" id="adminUpdate-btn-ptpd" type="button" onclick="adminUpdate_doPTPDRestarts();">Restart PTPD</button>
+	       <button class="btn btn-outline-dark disabled" id="adminUpdate-btn-ptpd" type="button" onclick="adminUpdate_doPTPDRestarts();">Restart PTPD</button>
             </div>
             <div class="col-auto px-0 mt-3">
-	       <button class="btn btn-primary disabled" id="adminUpdate-btn-reboot" type="button" onclick="adminUpdate_doReboot();">Reboot</button>
+	       <button class="btn btn-outline-dark disabled" id="adminUpdate-btn-reboot" type="button" onclick="adminUpdate_doReboot();">Reboot</button>
             </div>
          </div>
          <div class="d-flex justify-content-evenly align-items-center mt-4">
@@ -94,10 +94,11 @@
                       `adminUpdate-selectableIcons${i}`,
                       "adminUpdate-iconChecked",
                       d.name,
-                      d.type == "display" ? "display.svg" : "stopwatch.svg",
+                      d.type == "display" ? 'display' : 'stopwatch',
                       d,
                       i > 0 && (i % 2 == 0))
 
+    let dataIp = `data-ip="${d.ip}"`;
     $("#adminUpdate-devicesTableBody").append(`
 <tr id="adminUpdate-device-msg-row${i}" style="display:none">
   <td> ${d.name}: ${d.ip} <br>
@@ -105,11 +106,12 @@
     <div id="adminUpdate-msg${i}"></div>
   </td>
 
-  <td align="center"><img id="adminUpdate-install${i}" style="display:none" src="/static/images/check.svg" data-ip="${d.ip}"></td>
-  <td align="center"><img id="adminUpdate-restart${i}" style="display:none" src="/static/images/check.svg" data-ip="${d.ip}"></td>
-  <td align="center"><img id="adminUpdate-clean{i}" style="display:none" src="/static/images/check.svg" data-ip="${d.ip}"></td>
-  <td align="center"><img id="adminUpdate-ptpd${i}" style="display:none" src="/static/images/check.svg" data-ip="${d.ip}"></td>
-  <td align="center"><img id="adminUpdate-reboot${i}" style="display:none" src="/static/images/check.svg" data-ip="${d.ip}"></td>
+// EYE !!!!
+  <td align="center">${renderIcon("check", id="adminUpdate-install", null, "display:none", dataIp)}}</td>
+  <td align="center">${renderIcon("check", id="adminUpdate-restart" + i, null, "display:none", dataIp)}}</td>
+  <td align="center">${renderIcon("check", id="adminUpdate-clean" + i, null, "display:none", dataIp)}}</td>
+  <td align="center">${renderIcon("check", id="adminUpdate-ptpd + i", null, "display:none", dataIp)}}</td>
+  <td align="center">${renderIcon("check", id="adminUpdate-reboot" + i, null, "display:none", dataIp)}}</td>
 </tr>`);
  }
 

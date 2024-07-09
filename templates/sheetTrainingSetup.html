@@ -21,7 +21,7 @@
          </div>
          
          <div class="col-auto">
-	    <button type="submit" id="sheetTrainingSetup-btn-next" onclick="sheetTrainingSetup_gotoTiming()" class="btn btn-primary sheetTrainingSetup-submit-target">Go To Timing</button>
+	    <button type="submit" id="sheetTrainingSetup-btn-next" onclick="sheetTrainingSetup_gotoTiming()" class="btn btn-outline-dark sheetTrainingSetup-submit-target">Go To Timing</button>
          </div>
       </div>
       
@@ -174,7 +174,7 @@
   <div class="col-3 col-md-auto" id="sheetTrainingSetup-color-container${idx}">
   </div>
   <div class="col-2 col-md-auto">
-     <button type="button" class="btn btn-primary icon-button mb-2" onclick="BreakTimerSensorFlash('${sensor.ip}', '${sensor.name}', 30)"><img src="static/images/sun.svg"></button>
+     <button type="button" class="btn btn-outline-dark icon-button mb-2" onclick="BreakTimerSensorFlash('${sensor.ip}', '${sensor.name}', 30){{icon("sun")}}</button>
   </div>
 </div>`
 

@@ -1,14 +1,14 @@
 <div id="sheetMessage" class="display-view d-none">
    {{ navPanel("sheetMessage", "sheet", "sheet - message") }}   
-   <div class="row mt-4 justify-content-center">
-      <div class="col-auto">
+   <div class="row justify-content-center">
+      <div class="col-auto mt-4">
 	 <input type="text" class="form-control" id="sheetMessageText">
       </div>
-      <div class="col-auto">
+      <div class="col-auto mt-4">
 	 {{macros.colorSelector(colours, "sheetMessageColour", "sheetMessageColour")}}
       </div>
-      <div class="col-auto">
-	 <button type="button" onclick="sheetMessageSend('#sheetMessageText', '#sheetMessageColour')" class="icon-button btn btn-primary"><img src="static/images/chat.svg"></button>
+      <div class="col-auto mt-4">
+	 <button type="button" onclick="sheetMessageSend('#sheetMessageText', '#sheetMessageColour')" class="icon-button icon-mirror-h btn btn-outline-dark{{icon("reply")}}</button>
       </div>
    </div>
 </div>

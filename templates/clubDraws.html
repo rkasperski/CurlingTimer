@@ -2,26 +2,26 @@
    {{ navPanel("clubDraws", "club" , "Club - Draws") }}
    <div class="row justify-content-center">
       <div class="col-auto pe-0 mb-2">
-	 <button class="btn btn-primary icon-button" role="button" onclick="clubDraws_download()";>
+	 <button class="btn btn-outline-dark icon-button" role="button" onclick="clubDraws_download()";>
 	    <span class="me-1">Download Schedule</span>
-            <img src="static/images/download.svg">
+          {{icon("download")}}
 	 </button>
       </div>
       <div class="col-auto pe-0" >
-         <button class="btn btn-primary icon-button" role="button" onclick="clubDraws_uploadDraws()">
+         <button class="btn btn-outline-dark icon-button" role="button" onclick="clubDraws_uploadDraws()">
             <span class="me-1">Upload Draw</span>
-            <img src="static/images/upload.svg">
+            {{icon("upload")}}
          </button>
       </div>
       <div class="col-auto row">
          <div class="col-auto" >
-            <button type="button" class="mx-auto btn btn-warning px-3 icon-button" role="button" onclick="clubDraws_addDraw()">
-               <img src="static/images/plus-lg.svg">
+            <button type="button" class="mx-auto btn btn-outline-dark px-3 icon-button" role="button" onclick="clubDraws_addDraw()">
+               {{icon("plus-lg")}}
             </button>
          </div>
          <div class="col-auto d-sm-none">
-            <button type="button" class="mx-auto btn btn-warning px-3 icon-button" onclick="clubDraws_deleteDraws();">
-               <img src="static/images/trash.svg">
+            <button type="button" class="mx-auto btn btn-outline-dark px-3 icon-button" onclick="clubDraws_deleteDraws();">
+               {{icon("trash")}}
             </button>
          </div>
       </div>
@@ -38,8 +38,8 @@
 		  <th>Before</th>
 		  <th>Start</th>
 		  <th class="text-center">
-                     <button type="button" id="clubDraws-delete-draws" class="mx-auto btn btn-warning px-3 icon-button" onclick="clubDraws_deleteDraws();">
-                        <img src="static/images/trash.svg">
+                     <button type="button" id="clubDraws-delete-draws" class="mx-auto btn btn-outline-dark px-3 icon-button" onclick="clubDraws_deleteDraws();">
+                        {{icon("trash")}}
                      </button>
                   </th>
 	       </tr>
@@ -86,17 +86,17 @@
 
  function clubDraws_addDrawDescription(draw) {
     $('#clubDraws-draw-table-body').append(`
-<tr class="text-center align-middle" id="clubDraws-row${draw.id}">
+<tr class="text-center align-middle" id="clubDraws-row-${draw.id}">
   <td data-title="Actions">
 <div class="col-auto col-sm-1 col-md-auto">
-    <button type="button" class="icon-button btn btn-warning my-1 icon-button" onclick="clubDraws_showCountdown(${draw.id});">
-      <img src="/static/images/hourglass-top.svg">
+    <button type="button" class="icon-button btn btn-outline-dark my-1 icon-button" onclick="clubDraws_showCountdown(${draw.id});">
+      {{icon("hourglass-top")}}
     </button>
-    <button type="button" class="icon-button btn btn-warning my-1 icon-button" onclick="clubDraws_showCompetition(${draw.id});">
-      <img src="/static/images/stopwatch.svg">
+    <button type="button" class="icon-button btn btn-outline-dark my-1 icon-button" onclick="clubDraws_showCompetition(${draw.id});">
+      {{icon("stopwatch")}}
     </button>
-    <button type="button" id="clubDraws-row-edit" class="icon-button btn btn-warning my-1 icon-button" onclick="clubDraws_editDraw(${draw.id});">
-      <img src="static/images/pencil-square.svg"
+    <button type="button" id="clubDraws-row-edit" class="icon-button btn btn-outline-dark my-1 icon-button" onclick="clubDraws_editDraw(${draw.id});">
+      {{icon("pencil-square")}}
     </button>
 </div>
   </td>
@@ -196,7 +196,7 @@
        .done(function(response) {
 	  clubDraws_dbHash = response.hash;
 	  
-	  $('#clubDraws-row_' + response.id).remove();
+	  $('#clubDraws-row-' + response.id).remove();
 	  clubDraws_addDrawDescription(response);
 	  sortTable("#clubDraws-draw-table", [[1, 1],[2,1]]);
        });	     
@@ -250,7 +250,7 @@
  }
 
  function clubDraws_updateRow(draw) {
-    $(`#clubDraws-row_${draw.id}`).remove();
+    $(`#clubDraws-row-${draw.id}`).remove();
     clubDraws_addDrawDescription(draw);
     sortTable("#clubDraws-draw-table", [[1, 1],[2,1]]);
  }
@@ -263,7 +263,7 @@
  }
 
  function clubDraws_showFromOverlay_clubDrawsAdd(data) {
-    if (!data) {
+    if (data) {
        if (data.type == "edit") {
           jsonCall('SetDraw',
 	           '{{scheme}}://{{drawServer}}:{{port}}/draw/set',

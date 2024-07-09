@@ -2,19 +2,19 @@
    <div id="sheet{{loop.index0}}" class="display-view d-none">
       {{ navPanel("sheet" ~ loop.index0, "sheets", s.name, idBack="sheet-back", idUp="sheet-up" ) }}   
       <div class="row justify-content-evenly">
-         {{ actionIcon("Training", "trophy.svg", "panelNavigate('sheetTrainingSetup" ~loop.index0 + "')" ) }}
-         {{ actionIcon("Message", "chat-text.svg", "panelNavigate('sheetMessage" ~loop.index0 + "')" ) }}
+         {{ actionIcon("Training", "trophy", "panelNavigate('sheetTrainingSetup" ~loop.index0 + "')" ) }}
+         {{ actionIcon("Message", "chat-text", "panelNavigate('sheetMessage" ~loop.index0 + "')" ) }}
          <div class="w-100"></div>
-         {{ actionIcon("Count Down", "hourglass-top.svg", "panelNavigate('sheetCountdown" ~loop.index0 + "')" ) }}
-         {{ actionIcon("Competition", "stopwatch.svg", "panelNavigate('sheetCompetitionSetup" ~loop.index0 + "')" ) }}
+         {{ actionIcon("Count Down", "hourglass-top", "panelNavigate('sheetCountdown" ~loop.index0 + "')" ) }}
+         {{ actionIcon("Competition", "stopwatch", "panelNavigate('sheetCompetitionSetup" ~loop.index0 + "')" ) }}
          <div class="w-100"></div>
-         {{ actionIcon("Elapsed", "clock-history.svg", "panelNavigate('sheetElapsed" ~loop.index0 + "')") }}
-         {{ actionIcon("Blank", "toggle-off.svg", "sheet_toggleIdleState()", idIcon="sheetIdleToggle" ~ loop.index0 , idTitle="sheetBlankTitle" ~ loop.index0 ) }}
+         {{ actionIcon("Elapsed", "clock-history", "panelNavigate('sheetElapsed" ~loop.index0 + "')") }}
+         {{ actionIcon("Blank", "toggle-off", "sheet_toggleIdleState()", idIcon="sheetIdleToggle" ~ loop.index0 , idTitle="sheetBlankTitle" ~ loop.index0 ) }}
          <div class="w-100"></div>
-         {{ actionIcon("Clock", "clock.svg", "ClockShow('" ~ s.ip ~ "')" ) }}
-         {{ actionIcon("Kapow", "star.svg", "panelNavigate('sheetKapow" ~ loop.index0 ~ "')" ) }}
+         {{ actionIcon("Clock", "clock", "ClockShow('" ~ s.ip ~ "')" ) }}
+         {{ actionIcon("Kapow", "star", "panelNavigate('sheetKapow" ~ loop.index0 ~ "')" ) }}
          <div class="w-100"></div>
-         {{ actionIcon("Logout", "shield-slash.svg", "panelNavigate('clubLogout')" ,idActionIcon="sheet-action-icon" ) }}
+         {{ actionIcon("Logout", "shield-slash", "panelNavigate('clubLogout')" ,idActionIcon="sheet-action-icon" ) }}
          
       </div>   
    </div>
@@ -30,8 +30,8 @@
     Status(sheetIp, "status")
        .done(function(res) {
           sheet_idleState = res.idle;
-          $(sheet_toggle).attr("src", res.idle ? "/static/images/toggle-off.svg" : "/static/images/toggle-on.svg")
-          $(sheet_blankTitle).text(res.idle ? "Display - is off" : "Display - is on")
+          toggleIcon($(sheet_toggle), res.idle, "toggle-off", "toggle-on");
+          $(sheet_blankTitle).text(res.idle ? "Display - is off" : "Display - is on");
        })
  }
 

@@ -18,6 +18,7 @@ class Timers():
                                          defaults.lastEndMessageColour)
         self.elapsedTime = ElapsedTimeTimer(0)
         self.intermission = CountDownTimer(8 * 60)
+        self.intermission.colour = "white"
         self.timeout = CountDownTimer(2 * 60)
         self.timeout.colour = "white"
         self.timeout.teamId = "unknown"

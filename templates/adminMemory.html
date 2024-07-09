@@ -9,7 +9,7 @@
     addActionIcon("#adminMemory-actionIcons",
                   `adminMemory-actionIcons${i}`,
                   p.name,
-                  p.type == "display" ? "display.svg" : "stopwatch.svg",
+                  p.type == "display" ? "display" : "stopwatch",
                   `panelNavigate('adminMemoryDisplay', this)`,
                   p,
                   i > 0 && (i % 2 == 0))

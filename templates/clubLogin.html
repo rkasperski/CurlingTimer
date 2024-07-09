@@ -30,7 +30,7 @@
       </div>
       <div class="row justify-content-center mt-3">
          <div class="col-auto">
-            <button type="submit" class="btn btn-primary" onclick="clubLogin_loginUser()"> Login </button>
+            <button type="submit" class="btn btn-outline-dark" onclick="clubLogin_loginUser()"> Login </button>
          </div>
       </div>
       {% if type == "display" %}      
@@ -52,7 +52,7 @@
                <select id="clubLogin-sheets">
                   {% for s in sheets %}
                      <option value="{{s.ip}}|{{loop.index0}}" {% if s.ip =='Unassigned' %} disabled {% endif %}> {{s.name}} </option>
-                     {{ actionIcon(s.name, "distribute-horizontal.svg", "panelNavigate('sheet" ~loop.index0 ~ "')", unassigned=s.ip == "Unassigned") }}
+                     {{ actionIcon(s.name, "distribute-horizontal", "panelNavigate('sheet" ~loop.index0 ~ "')", unassigned=s.ip == "Unassigned") }}
                   {% endfor %}
                </select>
             </div>
@@ -66,7 +66,7 @@
          
          <div class="row justify-content-center mt-3">
             <div class="col-auto">
-               <button type="submit" class="btn btn-primary" onclick="clubLogin_loginWithPIN()"> Login With Pin </button>
+               <button type="submit" class="btn btn-outline-dark" onclick="clubLogin_loginWithPIN()"> Login With Pin </button>
             </div>
          </div>
       {% endif %}

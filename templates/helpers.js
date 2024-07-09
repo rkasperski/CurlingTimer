@@ -16,13 +16,30 @@ function updateNavPanel(panelHandle, newId, title, back, up) {
     panelHandle.attr("id", newId);
 }
 
+function toggleIcon(who, state, trueIcon, falseIcon) {
+    who.removeClass(`bi-${trueIcon}`).removeClass(`bi-${falseIcon}`);
+    who.addClass(state ? `bi-${trueIcon}` : `bi-${falseIcon}`);
+}
+
+function renderIcon(icon, id, clss, style, extra) {
+    let rId = id ? ` id="${id}"` : "";
+    let rClass = clss ? clss : "";
+    let rStyle = style ? `style=" ${style}"` : "";
+    let rExtra = extra ? extra : "";
+
+    return `<i class="bi bi-${icon} ${rClass}"${rId}${rStyle} ${rExtra}></i>`;
+}
+
 function addActionIcon(parent, id, title, icon, action, data, addBreak) {
     let parentId = $(parent)[0].id;
     let newIcon =
-        `<div class="col-3 col-md-2 text-center mb-4 iconClass-${parentId}" onclick="${action}" id="${id}">
-    <img class="actionIcon" id="iconId-${id}" src="/static/images/${icon}">
-    <br>
+        `<div class="actionIcon col-3 col-md-2 text-center mb-1 mt-2 iconClass-${parentId}" onclick="${action}" id="${id}">
+<div>
+      <i class="bi bi-${icon}" id="iconId-${id}"></i>
+</div
+<div>
     <span id="iconTitle-${id}" >${htmlToText(title).replace(/(?:\r\n|\r|\n)/g, '<br>')}</span>
+</div>
     </div>`;
     
     $(parent).append(newIcon)
@@ -40,14 +57,15 @@ function addActionIcon(parent, id, title, icon, action, data, addBreak) {
 function addSelectableIcon(parent, id, checkedClass, title, icon, data) {
     let parentId = $(parent)[0].id;
     let newIcon =
-        `<div class="col-auto text-center mb-4 selectable-icon-class-${parentId}" id="${id}">
+        `<div class="col-auto text-center mb-4 actionIcon selectable-icon-class-${parentId}" id="${id}">
        <div class="selectable-icon-wrapper">
-    <img class="selectable-icon"  id="iconId-${id}" src="/static/images/${icon}"/>
-    <input class='selectable-icon-input ${checkedClass}' type="checkbox" id="checkId-${id}">
-    <label for="checkId-${id}"></label>
-</div>   
-    <br>
-    <span id="iconTitle-${id}" >${htmlToText(title).replace(/(?:\r\n|\r|\n)/g, '<br>')}</span>
+         <i class="bi bi-${icon}" id="iconId-${id}"> </i>
+         <input class='selectable-icon-input ${checkedClass}' type="checkbox" id="checkId-${id}">
+         <label for="checkId-${id}"></label>
+       </div>   
+       <div>
+         <span id="iconTitle-${id}" >${htmlToText(title).replace(/(?:\r\n|\r|\n)/g, '<br>')}</span>
+       </div>
     </div>
           `;
     

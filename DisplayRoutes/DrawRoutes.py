@@ -125,11 +125,12 @@ async def drawAddAjax(request):
 
     try:
         jsonschema.validate(json, drawJSONSchema)
-        draw = Draws.drawDB.addDraw(json)
+        draw, msg = Draws.drawDB.addDraw(json)
 
         return aiohttp_web.json_response(drawToResponse(json, {"added": True,
                                                                "hash": Draws.drawDB.getHash(),
                                                                "draw": draw,
+                                                               "msg": msg,
                                                                "id": draw["id"]}))
     except jsonschema.exceptions.ValidationError:
         error("draws: invalid data received")

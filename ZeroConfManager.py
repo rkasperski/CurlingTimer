@@ -58,6 +58,9 @@ class ServiceListener(ServiceListener):
     def services(self):
         return self.found_services.values()
 
+    def update_service(self, zc, type, name):
+        pass
+
     def add_gather(self, zc, service_type, name):
         zc = getZc()
 

@@ -1,23 +1,26 @@
 <div id="sheetCompetitionTimerAdjust" class="display-view d-none">
    {{ overlayNav("sheetCompetitionTimerAdjust", "Competition - Adjust Time") }}   
-   <div class="container mt-4 justify-content-center">
+   <div class="container mt-4 justify-content-center px-1">
       <div class="row justify-content-md-center">
       	 <div class="col-auto align-self-center">
             <img class="rock-img" id="sheetCompetitionTimerAdjust-rock-colour" src="/static/images/Curling-Rock-red-sm.png">
 	 </div>
-	 <div class="col-auto ml-3 align-self-center">
-	    <img src="static/images/up_arrow.png" alt="increase team time" height="50" onclick="sheetCompetitionTimerAdjust_increment('sheetCompetitionTimerAdjust-team-time')">
-	    <br>
-	    <br>
-	    <img src="static/images/down_arrow.png" alt="decrease team time"height="50" onclick="sheetCompetitionTimerAdjust_decrement('sheetCompetitionTimerAdjust-team-time')">
+	 <div class="col-auto ml-3 align-self-center px-0">
+            <button type="button" class="btn submit-target btn-lg arrow-button-lg" onclick="sheetCompetitionTimerAdjust_increment('sheetCompetitionTimerAdjust-team-time')">
+             {{icon("caret-up-fill")}}
+            </button>
+            <br>
+            <button type="button" class="btn submit-target btn-lg arrow-button-lg" onclick="sheetCompetitionTimerAdjust_decrement('sheetCompetitionTimerAdjust-team-time')">
+               {{icon("caret-down-fill")}}
+            </button>
 	 </div>
-      	 <div class="col-auto ml-3  align-self-center">
+      	 <div class="col-auto ml-3 align-self-center px-0">
 	    <span class="timeDisplay" id="sheetCompetitionTimerAdjust-team-time"></span>
 	 </div>				    
       </div>
       <div class="row justify-content-center mt-4">
          <div class="col-auto">
-	    <button type="button" class="btn btn-primary submit-target btn-lg" id="sheetCompetitionTimerAdjust-btn" onclick="sheetCompetitionTimerAdjust_newTeamTime();"><img src="static/images/box-arrow-up-right.svg"></button>
+	    <button type="button" class="btn btn-outline-dark submit-target btn-lg icon-button-lg" id="sheetCompetitionTimerAdjust-btn" onclick="sheetCompetitionTimerAdjust_newTeamTime();">{{icon("box-arrow-up-right")}}</button>
          </div>
       </div>
    </div>

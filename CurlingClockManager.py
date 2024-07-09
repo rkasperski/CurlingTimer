@@ -236,40 +236,44 @@ class CurlingClockManager:
                                                           twoLineOK=False)
 
     async def intermissionUpdate(self):
-        if self.clockTimerDisplay.intermission.active():
+        timer = self.timers.intermission
+
+        if timer.active():
             self.clockTimerDisplay.resetIdleTime()
 
-        if self.clockTimerDisplay.intermission.timeRemaining() == 0:
+        if timer.timeRemaining() == 0:
             self.setView(self.competitionUpdate)
             return 0
 
-        self.clockTimerDisplay.intermissionUpdate()
+        self.clockTimerDisplay.timerUpdate(timer)
         return 0.05
 
     async def betweenEndTimerUpdate(self):
-        self.clockTimerDisplay.intermissionUpdate()
+        timer = self.timers.intermission
+        self.clockTimerDisplay.timerUpdate(timer)
 
-        if self.clockTimerDisplay.intermissionUpdate.active():
+        if timer.active():
             self.clockTimerDisplay.resetIdleTime()
 
-        if self.clockTimerDisplay.intermissionUpdate.timeRemaining() == 0:
+        if timer.timeRemaining() == 0:
             self.setView(self.competitionUpdate)
 
         return 0.05
 
     async def timeoutUpdate(self):
-        self.clockTimerDisplay.timeoutUpdate()
+        timer = self.timers.timeout
+        self.clockTimerDisplay.timerUpdate(timer)
 
-        if self.clockTimerDisplay.timeout.active():
+        if timer.active():
             self.clockTimerDisplay.resetIdleTime()
 
-        if self.clockTimerDisplay.timeout.timeRemaining() == 0:
-            self.clockTimerDisplay.timeout.team.remainingTimeouts -= 1
-            self.clockTimerDisplay.timeout.pause()
-            if self.clockTimerDisplay.timeout.teamId == "team1":
-                self.clockTimerDisplay.competition.resumeTeam1()
-            elif self.clockTimerDisplay.timeout.teamId == "team2":
-                self.clockTimerDisplay.competition.resumeTeam2()
+        if timer.timeRemaining() == 0:
+            timer.team.remainingTimeouts -= 1
+            timer.pause()
+            if timer.teamId == "team1":
+                self.timers.competition.resumeTeam1()
+            elif timer.teamId == "team2":
+                self.timers.competition.resumeTeam2()
 
             self.setView(self.competitionUpdate)
 

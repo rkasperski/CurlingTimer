@@ -34,50 +34,50 @@
    </div>
    <div class="row mt-2 justify-content-center">
       <div class="col-auto">
-	 <button type="button" class="btn btn-primary btn btn-lg sheetCountdown-submit-target" onclick="sheetCountdown_showSetTime()">
-	    <img src="static/images/plus-minus-slash.svg">
+	 <button type="button" class="btn btn-outline-dark btn btn-lg icon-button-lg sheetCountdown-submit-target" onclick="sheetCountdown_showSetTime()">
+	  {{icon("plus-slash-minus")}} 
 	 </button>	      
       </div>
       <div class="col-auto">
-	 <button type="button" id="sheetCountdown-start" class="btn btn-lg btn-success" onclick="sheetCountdown_start()"><img src="static/images/play-fill.svg"></button>
+	 <button type="button" id="sheetCountdown-start" class="btn btn-lg icon-button-lg btn-outline-dark" onclick="sheetCountdown_start()">{{icon("play-fill")}}</button>
       </div>
       <div class="col-auto">
-	 <button type="button" id="sheetCountdown-pause" class="btn btn-lg btn-danger" onclick="sheetCountdown_pause()"><img src="static/images/pause-fill.svg"></button>
+	 <button type="button" id="sheetCountdown-pause" class="btn btn-lg icon-button-lg btn-outline-dark" onclick="sheetCountdown_pause()">{{icon("pause-fill")}}</button>
       </div>
       <div class="col-auto">
-	 <button type="button" id="sheetCountdown-lastEnd" class="btn btn-lg btn-danger" onclick="sheetCountdown_lastEnd()">LE</button>
+	 <button type="button" id="sheetCountdown-lastEnd" class="btn btn-lg icon-button-lg btn-outline-dark" onclick="sheetCountdown_lastEnd()">LE</button>
       </div>
    </div>
    
    <div class="row mt-3 justify-content-center">
-      <div class="col-auto my-auto">
+      <div class="col-auto my-auto ps-2">
          <img class="rock-img" id="sheetCountdown-top-rock" src="/static/images/Curling-Rock-red-sm.png">
       </div>
       <div class="col-7 col-md-3 ml-3 my-auto">
 	 <div class="input-group">
 	    <input type="text" class="form-control border-right-0 border" id="sheetCountdown-team1" placeholder="top team ...">
             <span class="input-group-text" onclick='$("#sheetCountdown-team1").val("")'>
-               <img src="static/images/x.svg">
+               {{icon("x")}}
             </span>
          </div>
       </div>
       <div class="col-auto ml-1 my-auto ">
-	 <button type="button" class="icon-button btn btn-warning sheetCountdown-submit-target" onclick='flip("sheetCountdown-team1","sheetCountdown-team2");'><img src="static/images/repeat.svg"></button>
+	 <button type="button" class="btn icon-button-lg btn-lg btn-outline-dark sheetCountdown-submit-target" onclick='flip("sheetCountdown-team1","sheetCountdown-team2");'>{{icon("shuffle")}}</button>
       </div>			    
    </div>
    <div class="row mt-2 justify-content-center">
-      <div class="col-auto my-auto"><img class="rock-img" id="sheetCountdown-bottom-rock" src="/static/images/Curling-Rock-yellow-sm.png">
+      <div class="col-auto my-auto ps-2"><img class="rock-img" id="sheetCountdown-bottom-rock" src="/static/images/Curling-Rock-yellow-sm.png">
       </div>
       <div class="col-7 col-md-3 ml-3 my-auto">
 	 <div class="input-group">
 	    <input type="text" class="form-control border-right-0 border" id="sheetCountdown-team2" placeholder="bottom team ...">
             <span class="input-group-text" onclick='$("#sheetCountdown-team2").val("")'>
-               <img src="static/images/x.svg">
+               {{icon("x")}}
             </span>
          </div>
       </div>
       <div class="col-auto ml-1 my-auto ">
-	 <button type="button" class="icon-button btn btn-primary sheetCountdown-submit-target" id="sheetCountdown_set" onclick="sheetCountdown_setTeamNames()"><img src="static/images/box-arrow-up-right.svg"></button>			
+	 <button type="button" class="btn icon-button-lg btn-lg btn-outline-dark sheetCountdown-submit-target" id="sheetCountdown_set" onclick="sheetCountdown_setTeamNames()">{{icon("box-arrow-up-right")}}</button>			
       </div>
    </div>
 </div>

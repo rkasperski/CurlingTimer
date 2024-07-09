@@ -394,7 +394,7 @@ function CountDownSetup(prmIp, gameTime, finishedMessage, finishedMessageColour,
 		      teamColour: teamColour},
                     {})
 }
-function CompetitionSetTime(prmIp, teamName, teamTime, handler) {
+function CompetitionSetTime(prmIp, teamName, teamTime) {
     return jsonCall('CompetitionSetTime',
 		   `${scheme}://${prmIp}:${port}/competition/settime`,
 		    {

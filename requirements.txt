@@ -29,12 +29,13 @@ pigpio==1.78
 pillow==10.3.0
 psutil==5.9.8
 pycparser==2.22
-pyinstaller==6.7.0
+pyinstaller==5.13.1
 pyinstaller-hooks-contrib==2024.6
 PyMCP2221A==1.4.0
 pyOpenSSL==24.1.0
 python-dateutil==2.9.0.post0
 referencing==0.35.1
+rgbmatrix==0.0.1
 rpds-py==0.18.1
 six==1.16.0
 smbus==1.1.post2

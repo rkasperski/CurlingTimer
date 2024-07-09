@@ -1,4 +1,4 @@
- #!/usr/bin/env python
+#!/usr/bin/env python
 from Logger import error, info, debug
 import os
 import sys
@@ -339,11 +339,10 @@ def main():
     info("startup: setup static")
     app.router.add_static('/static/css', path=myApp.app('static/css'), name='css')
     app.router.add_static('/static/js/', path=myApp.app('static/js/'), name='js')
-    app.router.add_static('/static/webfonts/', path=myApp.app('static/webfonts'), name='webfonts')
     app.router.add_static('/static/', path=myApp.app('static'), name='static')
 
     info("startup: setup templates")
-    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(myApp.app('templates')), filters={"nl2br": nl2br})
+    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(myApp.app('templates')), enable_async=True, filters={"nl2br": nl2br})
     info("startup: setup common routes")
 
     # setup_routes_common(app)

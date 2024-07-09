@@ -2,7 +2,7 @@
    {{ navPanel("clubClock", "club" , "Club - Clock") }}
    <div class="container">
       <div class="row justify-content-center">
-         {{ actionIcon("Show&nbsp;All", "clock.svg", "ClockShowAll()", id="clubClock-btn-show-all", colAuto=true) }}
+         {{ actionIcon("Show&nbsp;All", "clock", "ClockShowAll()", id="clubClock-btn-show-all", colAuto=true) }}
       </div>
       <div class="row justify-content-center">
          <hr class="divider">
@@ -12,7 +12,7 @@
             {% if loop.index0 % 2 == 0 and not first %}
                <div class="w-100"></div>
             {% endif %}
-            {{ actionIcon(s.name, "clock.svg", "ClockShow('" + s.ip + "')", id="clubClock-btn-show" ~ loop.index0, unassigned=s.ip == "Unassigned") }}
+            {{ actionIcon(s.name, "clock", "ClockShow('" + s.ip + "')", id="clubClock-btn-show" ~ loop.index0, unassigned=s.ip == "Unassigned") }}
 	 {% endfor %}
       </div>
    </div>

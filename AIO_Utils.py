@@ -50,8 +50,7 @@ async def renderTemplate(template, request, iContext={}, verbose=False):
     context["ip"] = myIp if request is None else request.query.get("ip", myIp)
     context["sheet"] = myName if request is None else request.query.get("sheet", myName)
 
-    context.update(iContext)
-    response = aiohttp_jinja2.render_template(template, request, context)
+    response = await aiohttp_jinja2.render_template_async(template, request, context)
     return response
 
 

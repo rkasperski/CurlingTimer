@@ -15,7 +15,7 @@
     addActionIcon("#adminGotoDevice-deviceIcons",
                   i,
                   `${p.name}\n${p.ip}`,
-                  p.type == "display" ? "display.svg" : "stopwatch.svg",
+                  p.type == "display" ? 'display' : 'stopwatch',
                   `adminGotoDevice_onclick('${p.ip}')`,
                   p, 
                   i > 0 && (i % 2 == 0))

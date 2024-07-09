@@ -143,6 +143,8 @@ class DrawManager:
             e = draw
         else:
             e = draw.asDict()
+
+        msg = None
         
         try:
             t = date_parser(e['time'])
@@ -150,7 +152,7 @@ class DrawManager:
             ds = e['date']
             if len(e.get("sheets")) == 0:
                 if e.get('date', None) == "none" or e.get('time', None):
-                    return None
+                    return (-1, "didn't add; bad time")
                 
                 return (-1, "didn't add; empty draw", e)
             if ds and ds.strip() and len(e.get("sheets")):
@@ -166,7 +168,7 @@ class DrawManager:
         if drawName:
             e["name"] = drawName
 
-        self.normalizeSheetNumbers(e)
+        msg = self.normalizeSheetNumbers(e)
         self.hashIsDirty = True
         
         entry = tinydb.Query()
@@ -179,12 +181,7 @@ class DrawManager:
                 self.drawsStarted.discard(dd.doc_id)
                 
         id = self.dbInsert(e)
-        return self.getDrawById(id)
-        
-        #if docsToDelete:
-        #    return (id, f"updated; {e['name']} d={e['date']} t={e['time']}", "")
-        #else:
-        #    return (id, f"added; {e['name']} d={e['date']} t={e['time']}", "")
+        return (self.getDrawById(id), msg)
 
     def updateDraw(self, id, e):
         self.normalizeSheetNumbers(e)
@@ -246,7 +243,10 @@ class DrawManager:
 
             for draw in draws:
                 await asyncio.sleep(0.001)
-                draw = self.addDraw(draw, drawName=drawName)
+                draw, msg = self.addDraw(draw, drawName=drawName)
+                if msg:
+                    msgs.append(msg)
+                    
                 if not draw:
                     continue
                 
@@ -276,8 +276,9 @@ class DrawManager:
 
     def normalizeSheetNumbers(self, draw):
         if draw.get("normalized", False):
-            return
-        
+            return None
+
+        msg = None
         sheets = draw["sheets"]
         nSheets = len(Config.display.sheets)
         
@@ -291,10 +292,14 @@ class DrawManager:
         else:
             for sheetNo, sheet in enumerate(sheets):
                 sheet["sheet"] = sheetNo + 1
-                norm[sheetNo] = sheet
+                try:
+                    norm[sheetNo] = sheet
+                except IndexError:
+                    msg = "Too many sheets in draw"
 
         draw["sheets"] = norm
         draw["normalized"] = 1
+        return msg
 
     def deleteDraw(self, id):
         if self.dbContains(doc_id=id):
@@ -308,10 +313,11 @@ class DrawManager:
         if draws is None:
             draws = self.getAllDraws()
 
+        msg = None
         with open(fileName, "w", newline='') as csvFile:
             worksheet = csv.writer(csvFile)
             for draw in draws:
-                self.normalizeSheetNumbers(draw)
+                msg = self.normalizeSheetNumbers(draw)
             
                 worksheet.writerow([draw.get("date", "unknown"), draw.get("name", "unknown")])
 
@@ -325,6 +331,8 @@ class DrawManager:
                 worksheet.writerow(["autoDelete", draw.get("autoDelete", str(48*60))])
                 worksheet.writerow(["atStart", draw.get("atStart", "120")])
                 worksheet.writerow([])
+
+        return msg
 
     async def blankSheets(self, sheets):
         activeBlankTasks = []

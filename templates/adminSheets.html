@@ -11,7 +11,7 @@
 	 <div class="col-auto">
 	    <label for="adminSheets-btn-set-n"></label>
 	    <button type="submit"
-                    class="btn btn-primary form-control adminSheets-submit-target"
+                    class="btn btn-outline-dark form-control adminSheets-submit-target"
                     id="adminSheets-btn-set-n"
                     onclick="adminSheets_save(false)">Save</button>
 	 </div>
@@ -41,7 +41,7 @@
       <div class="row mt-2">
 	 <div class="col-auto">
 	    <button type="submit"
-                    class="btn btn-primary form-control adminSheets-submit-target"
+                    class="btn btn-outline-dark form-control adminSheets-submit-target"
                     id="adminSheets-btn-save"
                     onclick="adminSheets_save(true)">Save</button>
 	 </div>
@@ -72,6 +72,8 @@
  }
  
  function adminSheets_addSheet(s, i, peers) {
+    let hwclock = (s.hwClock == 'Yes') ? `<div class="col-auto">{{icon("clock", class="align-middle")}} </div>` : "";
+    
     $("#adminSheets-sheets").append(`
 ${i != 0 ? '<hr>' : ''}
 <div class="row">
@@ -95,9 +97,9 @@ ${i != 0 ? '<hr>' : ''}
    </div>
    <div class="col-auto">
       <br>
-      <button type="button" id="adminSheets-btn-flash${i}" onclick="Flash($('#adminSheets-peer${i}').val(), 'orange')" class="btn btn-warning flash">flash</button>
+      <button type="button" id="adminSheets-btn-flash${i}" onclick="Flash($('#adminSheets-peer${i}').val(), 'orange')" class="btn btn-outline-dark flash">flash</button>
    </div>
-   ${(s.hwClock == 'Yes') ? '<div class="col-auto"> <img src="static/images/clock.svg" class="align-middle"> </div>' : ''}
+   ${hwclock}
 </div>`)
     adminSheets_addRockSelector(`#adminSheets-top-holder${i}`, `adminSheets-top${i}`, s.topColour)
     adminSheets_addRockSelector(`#adminSheets-bottom-holder${i}`, `adminSheets-bottom${i}`, s.bottomColour)

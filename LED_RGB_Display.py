@@ -501,12 +501,8 @@ class ClockTimerDisplaySingleton(SampleBase):
         
         self.offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
 
-    def intermissionUpdate(self, timer):
-        self.displayText(str(timer).strip(), "white")
-        return 0.005
-
-    def timeoutUpdate(self, timer):
-        self.displayText(str(timer).strip(), self.timeout.colour)
+    def timerUpdate(self, timer):
+        self.displayText(str(timer).strip(), timer.colour)
         return 0.005
 
     async def displayScrollingText(self, my_text, colour="white", startTime=None, twoLineOK=False, displayTime=0):
@@ -532,6 +528,7 @@ class ClockTimerDisplaySingleton(SampleBase):
         
         lengthT, heightT = ft.getsize()
         yOffset = int((self.height - heightT) / 2)
+
         if lengthT < canvasWidth:
             if self.lastDisplay == prevDisplay:
                 return

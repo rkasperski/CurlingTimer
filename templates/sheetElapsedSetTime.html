@@ -1,5 +1,5 @@
 <div id="sheetElapsedSetTime" class="display-view d-none">
-   {{ overlayNav("sheetElapsedSetTime", "Countdown - Set Time") }}   
+   {{ overlayNav("sheetElapsedSetTime", "Elapsed - Set Time") }}   
    <div class="container mt-4 justify-content-center">
       <div class="row justify-content-md-center">
 	 <div class="col-auto">
@@ -11,10 +11,10 @@
       </div>
       <div class="row justify-content-center mt-4">
 	 <div class="col-auto">
-	    <button type="button" class="btn btn-secondary" onclick="overlayHide('sheetElapsedSetTime')"><img src="static/images/x.svg"></button>
+	    <button type="button" class="btn btn-outline-dark" onclick="overlayHide('sheetElapsedSetTime'){{icon("x")}}</button>
          </div>
          <div class="col-auto">
-	    <button type="button" class="btn btn-primary sheetCountdown-submit-target" onclick="sheetElapsedSetTime_setTime()"><img src="static/images/box-arrow-up-right.svg"></button>
+	    <button type="button" class="btn btn-outline-dark sheetCountdown-submit-target" onclick="sheetElapsedSetTime_setTime()">{{icon("box-arrow-up-right")}}</button>
          </div>
       </div>
    </div>
