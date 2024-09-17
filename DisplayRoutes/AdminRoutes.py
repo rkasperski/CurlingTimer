@@ -9,7 +9,6 @@ from aiohttp import web as aiohttp_web
 
 from AccessVerification import ajaxVerifyToken
 import Config
-import LED_RGB_Display
 import CurlingClockManager
 from Timers import strToSeconds
 from HardwareClock import updateClockTime, setHardwareClock
@@ -26,7 +25,7 @@ routes = aiohttp_web.RouteTableDef()
 @ajaxVerifyToken("admin")
 async def restartAjax(request):
     info("app: restart...")
-    LED_RGB_Display.display.setScrollingText("Restarting ...")
+    CurlingClockManager.manager.setScrollingText("Restarting ...")
     CurlingClockManager.manager.setView(CurlingClockManager.manager.displayText)
     asyncio.ensure_future(delayedRestart(delay=5))
     return aiohttp_web.json_response({"restart": 1})
@@ -36,8 +35,8 @@ async def restartAjax(request):
 @ajaxVerifyToken("admin")
 async def rebootAjax(request):
     info("app: reboot...")
-    LED_RGB_Display.display.setScrollingText("Rebooting ...")
-    CurlingClockManager.manager.setView(CurlingClockManager.manager.scrollingText)
+    CurlingClockManager.manager.setScrollingText("Rebooting ...")
+    CurlingClockManager.manager.setView(CurlingClockManager.manager.displayScrollingText)
     asyncio.ensure_future(delayedRestart(delay=5, reboot=True))
     return aiohttp_web.json_response({"reboot": 1})
 
@@ -98,9 +97,10 @@ async def PINgetAllAjax(request):
 async def flashTextAjax(request):
     json = await request.json()
     if CurlingClockManager.manager:
-        LED_RGB_Display.display.resetIdleTime()
-        LED_RGB_Display.display.setFlashText(json.get("text", myIPAddress()), json.get("colour", "red"))
-        CurlingClockManager.manager.setView(CurlingClockManager.manager.flashText)
+        print("here")
+        CurlingClockManager.manager.resetIdleTime()
+        CurlingClockManager.manager.setFlashText(json.get("text", myIPAddress()), json.get("colour", "red"))
+        CurlingClockManager.manager.setView(CurlingClockManager.manager.displayFlashText)
 
     return aiohttp_web.json_response({"operation": "flashtext"})
 
@@ -113,7 +113,7 @@ async def clockSetHtmlPost(request):
     if Config.display.rink.clockServer.strip() != myIPAddress():
         return aiohttp_web.json_response({"msg": "trying to set time on a clock that doesn't have a hardware clock"})
         
-    LED_RGB_Display.display.abort()
+    CurlingClockManager.manager.abort()
     
     data = await request.json()
     warning("timedate: request data=%s", data.items())
@@ -157,7 +157,7 @@ async def clockSetHtmlPost(request):
 
     if permanent:
         setHardwareClock()
-        LED_RGB_Display.display.setScrollingText("Restarting ...", "red")
+        CurlingClockManager.manager.setScrollingText("Restarting ...", "red")
         CurlingClockManager.manager.setView(CurlingClockManager.manager.displayText)
 
         asyncio.ensure_future(delayedRestart(delay=5))

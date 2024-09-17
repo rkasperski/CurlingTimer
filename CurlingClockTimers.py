@@ -1,9 +1,7 @@
 from Timers import CountDownTimer, ElapsedTimeTimer, CompetitionTimer
-import LED_RGB_Display
-
 
 class Timers():
-    def __init__(self, defaults, mySheetData):
+    def __init__(self, defaults, mySheetData, isIdle):
         self.competition = CompetitionTimer()
         self.competition.teams[0].colour = mySheetData.topColour
         self.competition.teams[0].scoreboardColour = mySheetData.topColour
@@ -23,6 +21,7 @@ class Timers():
         self.timeout.colour = "white"
         self.timeout.teamId = "unknown"
         self.timeout.team = None
+        self.isIdle = isIdle
 
     def isActive(self):
         return self.competition.active() or self.countDown.active() or self.elapsedTime.active() or self.intermission.active() or self.timeout.active()
@@ -34,7 +33,6 @@ class Timers():
                          "elapsedtime": self.elapsedTime.ajaxResponse(),
                          "intermission": self.intermission.ajaxResponse(),
                          "timeout": self.timeout.ajaxResponse(),
-                         "idle": LED_RGB_Display.display.isIdle()})
+                         "idle": self.isIdle()})
+
         return response
-    
-    

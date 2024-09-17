@@ -177,6 +177,9 @@
     settings = gatherSettings("clubSettings");
     
     setDefaultsAjax(settings)
+       .done(function() {
+          panelNavigate("clubMore", null, true)
+       })
  }
  
  function clubSettings_enter() {

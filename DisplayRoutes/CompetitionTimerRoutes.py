@@ -1,7 +1,6 @@
 from aiohttp import web as aiohttp_web
 from AccessVerification import ajaxVerifyToken
 import Config
-import LED_RGB_Display
 import CurlingClockManager
 from Timers import strToSeconds
 
@@ -11,7 +10,7 @@ routes = aiohttp_web.RouteTableDef()
 @routes.post('/competition/pause')
 @ajaxVerifyToken("pin")
 async def competitionPauseAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.pause()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "pause"}))
@@ -20,15 +19,15 @@ async def competitionPauseAjax(request):
 @routes.post('/competition/show')
 @ajaxVerifyToken("pin")
 async def competitionShowAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
-    return aiohttp_web.json_response(LED_RGB_Display.display.ajaxResponse({"operation": "show"}))
+    return aiohttp_web.json_response(CurlingClockManager.manager.ajaxResponse({"operation": "show"}))
 
 
 @routes.post('/competition/resume')
 @ajaxVerifyToken("pin")
 async def competitionResumeAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.resume()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "resume"}))
@@ -37,7 +36,7 @@ async def competitionResumeAjax(request):
 @routes.post('/competition/exchange')
 @ajaxVerifyToken("pin")
 async def competitionTeamExchangeAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.exchangeTeams()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "flip"}))
@@ -46,7 +45,7 @@ async def competitionTeamExchangeAjax(request):
 @routes.post('/competition/team1/resume')
 @ajaxVerifyToken("pin")
 async def competitionTeam1ResumeAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.resumeTeam1()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "start team 1"}))
@@ -55,7 +54,7 @@ async def competitionTeam1ResumeAjax(request):
 @routes.post('/competition/team2/resume')
 @ajaxVerifyToken("pin")
 async def competitionTeam2ResumeAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.resumeTeam2()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "start team 2"}))
@@ -64,7 +63,7 @@ async def competitionTeam2ResumeAjax(request):
 @routes.post('/competition/team1/pause')
 @ajaxVerifyToken("pin")
 async def competitionTeam1PauseAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.pauseTeam1()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "pause team 1"}))
@@ -73,7 +72,7 @@ async def competitionTeam1PauseAjax(request):
 @routes.post('/competition/team2/pause')
 @ajaxVerifyToken("pin")
 async def competitionTeam2PauseAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.pauseTeam2()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "pause team 2"}))
@@ -106,8 +105,8 @@ def gameSetup(teamTime, teamColour, team1Name, team2Name, intermissionTime):
 @routes.post('/competition/setup')
 @ajaxVerifyToken("pin")
 async def competitionSetupAjax(request):
-    LED_RGB_Display.display.abort()
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.abort()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.timers.competition.pause()
 
     json = await request.json()
@@ -161,7 +160,7 @@ async def intermissionStatusAjax(request):
 @ajaxVerifyToken("pin")
 async def competitionIntermissionStartPost(request):
     CurlingClockManager.manager.timers.competition.pause()
-    LED_RGB_Display.display.abort()
+    CurlingClockManager.manager.abort()
 
     data = await request.json()
 
@@ -186,7 +185,7 @@ async def intermissionCancelAjax(request):
 @ajaxVerifyToken("pin")
 async def competitionTimeoutStartAjax(request):
     CurlingClockManager.manager.timers.competition.pause()
-    LED_RGB_Display.display.abort()
+    CurlingClockManager.manager.abort()
 
     data = await request.json()
     mySheet = Config.display.sheets.mySheet
@@ -212,7 +211,7 @@ async def competitionTimeoutStartAjax(request):
 @routes.post('/competition/timeout/done')
 @ajaxVerifyToken("pin")
 async def competitionTimeoutDoneAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
 
     timer = CurlingClockManager.manager.timers.timeout
     timer.team.remainingTimeouts -= 1
@@ -232,7 +231,7 @@ async def competitionTimeoutDoneAjax(request):
 @routes.post('/competition/timeout/cancel')
 @ajaxVerifyToken("pin")
 async def competitionTimeoutCancelAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.timers.timeout.pause()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     return aiohttp_web.json_response({"operation": "cancel"})
@@ -242,12 +241,12 @@ async def competitionTimeoutCancelAjax(request):
 @ajaxVerifyToken("pin")
 async def competitionTBetweenEndTimerAjax(request):
     CurlingClockManager.manager.timers.competition.pause()
-    LED_RGB_Display.display.abort()
+    CurlingClockManager.manager.abort()
 
     data = await request.json()
     betweenEndTime = int(data.get("betweenEndTime", Config.display.defaults.betweenEndTime))
 
-    LED_RGB_Display.display.intermission.setTime(betweenEndTime)
+    CurlingClockManager.manager.intermission.setTime(betweenEndTime)
     CurlingClockManager.manager.timers.intermission.setState("intermission")
     CurlingClockManager.manager.setView(CurlingClockManager.manager.intermissionUpdate)
     CurlingClockManager.manager.timers.timeout.resume()

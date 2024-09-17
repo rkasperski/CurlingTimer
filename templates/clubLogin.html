@@ -51,8 +51,9 @@
 	       <label for="clubLogin-sheets">Choose Sheet</label>
                <select id="clubLogin-sheets">
                   {% for s in sheets %}
-                     <option value="{{s.ip}}|{{loop.index0}}" {% if s.ip =='Unassigned' %} disabled {% endif %}> {{s.name}} </option>
-                     {{ actionIcon(s.name, "distribute-horizontal", "panelNavigate('sheet" ~loop.index0 ~ "')", unassigned=s.ip == "Unassigned") }}
+                     <option value="{{s.ip}}|{{loop.index0}}" {% if s.ip =='Unassigned' %} disabled {% endif %}> {{s.name}}
+                        {{s.name}}
+                     </option>
                   {% endfor %}
                </select>
             </div>

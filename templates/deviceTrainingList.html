@@ -1,0 +1,37 @@
+<div id="deviceTrainingList" class="display-view d-none">
+   {{ navPanel("deviceTrainingList", "breaktimerAdmin", "Training Devices") }}
+   <div class="row justify-content-evenly mt-3" id="deviceTrainingList-deviceIcons">
+   </div>
+</div>
+<script>
+ function  deviceTrainingList_onclick(ip, name, isDisplay)  {
+    panelNavigate("sheetTrainingSetup", {ip:ip, name:name, isDisplay: isDisplay});
+ }
+ 
+ function deviceTrainingList_addDevice(p, i) {
+    let isDisplay = p.type == "display";
+    addActionIcon("#deviceTrainingList-deviceIcons",
+                  i,
+                  `${p.name}`,
+                  isDisplay ? "display" : "stopwatch",
+                  `deviceTrainingList_onclick('${p.ip}', '${p.name}', ${isDisplay})`,
+                  p, 
+                  i > 0 && (i % 2 == 0))
+ }
+
+ function  deviceTrainingList_getDevices() {
+    $('#deviceTrainingList-deviceIcons').empty();
+    getDevicesAjax()
+       .done(function(response) {
+          response.displays.concat(response.sensors).forEach(deviceTrainingList_addDevice);
+       })
+ }
+ 
+ function deviceTrainingList_enter(iconBtn) {
+    deviceTrainingList_getDevices();
+ }
+
+ function deviceTrainingList_exit() {
+ }
+</script>
+

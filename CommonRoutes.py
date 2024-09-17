@@ -260,7 +260,7 @@ async def logFilePost(testIp, port, filename=None, nlines=5, timeout=None):
     if filename:
         data["filename"] = filename
 
-    res = await httpUtils.postUrlJSONResponse("ptpd",
+    res = await httpUtils.postUrlJSONResponse("logs",
                                               f"{httpUtils.scheme}://{testIp}:{port}/logfile",
                                               timeout=timeout,
                                               jsonData=data,
@@ -270,10 +270,42 @@ async def logFilePost(testIp, port, filename=None, nlines=5, timeout=None):
 
     return {"header": [], "tail": []}
 
+@routes.post('/logfile')
+@ajaxVerifyToken("peer")
+async def logFileHtmlPost(request):
+    json = await request.json()
+
+    nLines = json.get("nlines", 3)
+    fileName = json.get("filename", "ptpd2.stats")
+
+    path = None
+    if fileName in ["ptpd2.stats", "ptpd2.log"]:
+        path = "/var/log"
+    elif fileName in ["ptpd2.status"]:
+        path = "/run"
+
+    if not path:
+        return aiohttp_web.HTTPUnauthorized()
+    
+    head, tail = headTail(os.path.join(path, fileName), headLines=1, tailLines=nLines)
+
+    header = None
+    if len(head):
+        if head[0].startswith("#"):
+            header = head[0][2:].split(",")
+            
+    if header:
+        tail = [l.split(",") for l in tail]
+    else:
+        header = ["Time", "Message"]
+        tail = [splitDateTime(l) for l in tail]
+
+    return aiohttp_web.json_response({"tail": tail, "header": header})
+
 
 @routes.get('/logfile')
 @ajaxVerifyToken("user")
-async def logFileHtmlGet(request, filename=None):
+async def logFileHtmlGet(request):
     return await logFileGet(request)
 
 
@@ -312,12 +344,12 @@ def mapPTPD2Status(status):
     return res
 
 
-async def logFileGet(request, filename=None):
+async def logFileGet(request, filename=None, nLines=None):
     logFileData = []
     if not filename:
         filename = request.rel_url.query.get("filename", "ptpd2.status")
-        
-    nlines = int(request.rel_url.query.get("nlines", 10))
+
+    nlines = int(request.rel_url.query.get("nlines", 100))
     
     for sheet in Config.display.sheets:
         if sheet.ip == "Unassigned":
@@ -335,7 +367,7 @@ async def logFileGet(request, filename=None):
 
         sensorServersInspected.add(sensorIP)
         logFile = await logFilePost(sensorIP, httpUtils.port, filename=filename, nlines=nlines)
-        logFileData.append({"ip": sensorIP, "name": sensorName, "header": logFile["header"], "tail": logFile["tail"]})
+        logFileData.append({"ip": sensorIP, "name": sensor["name"], "header": logFile["header"], "tail": logFile["tail"]})
 
     return logFileData
 
@@ -376,7 +408,7 @@ mapState = {"PTP_SLAVE": "secondary",
 
 @routes.get('/ajax/ptp/status')
 @ajaxVerifyToken("user")
-async def logFileAjaxGet(request):
+async def logFileAjaxPTPStatus(request):
     logFileData = await logFileGet(request, "ptpd2.status")
 
     mappedData = [mapPTPD2Status(lt) for lt in logFileData]
@@ -602,15 +634,17 @@ async def setSecretKeyAjaxPost(request):
     info("security: secret key generated")
     Config.display.server.secretKey = encryptedKey
 
-    print(curlingClockManager)
     if curlingClockManager:
-        curlingClockManager.scrollingText("restarting", 300*60)
         Config.display.server.setup = 1
     else:
         # running a break timer so record as being fully setup
         Config.display.server.setup = 4
         
     Config.display.save()
+
+    if curlingClockManager:
+        curlingClockManager.displayScrollingText("restarting", 300*60)
+        
     asyncio.ensure_future(waitForRestart())
 
     return aiohttp_web.json_response({"msg": "set secret key succeeded; restarting ...", "rc": True})

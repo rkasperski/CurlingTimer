@@ -5,7 +5,7 @@ import shutil
 
 
 class AppSetup:
-    def __init__(self, appName, user=None, group=None, configDir="config", dataDir="data", configOnExternalMedia=False, dataOnExternalMedia=False, externalPath=None):
+    def __init__(self, appName, user=None, group=None, configDir="config", dataDir="data", updateDir="update", configOnExternalMedia=False, dataOnExternalMedia=False, updateOnExternalMedia=False, externalPath=None):
         self.__appName = appName.replace('/', '-')
         self.__user = user
         self.__group = group
@@ -15,6 +15,19 @@ class AppSetup:
         self.__workingPath = self.__getWorkingPath()
         self.__dataPath = self.__getPath(dataDir, dataOnExternalMedia, externalPath)
         self.__configPath = self.__getPath(configDir, configOnExternalMedia, externalPath)
+        self.__updatePath = self.__getPath(updateDir, updateOnExternalMedia, externalPath)
+
+    def dump(self):
+        print(f"""AppSetup
+        appName={self.name}
+        user={self.user}
+        group={self.group}
+        appDir={self.appDir}
+        homeDir={self.homeDir}
+        workinDir={self.workingDir}
+        dataDir={self.dataDir}
+        configDir={self.configDir}
+        updateDir={self.updateDir}""")
 
     @property
     def name(self):
@@ -48,6 +61,10 @@ class AppSetup:
     def configDir(self):
         return self.__configPath
     
+    @property
+    def updateDir(self):
+        return self.__updatePath
+    
     def __join(self, dir, fn, createDir=True):
         path = os.path.join(dir, fn) if fn else dir
 
@@ -69,6 +86,9 @@ class AppSetup:
     
     def data(self, dir=None, createDir=True):
         return self.__join(self.__dataPath, dir, createDir=createDir)
+    
+    def update(self, dir=None, createDir=True):
+        return self.__join(self.__updatePath, dir, createDir=createDir)
     
     def config(self, dir=None, createDir=True):
         return self.__join(self.__configPath, dir, createDir=createDir)

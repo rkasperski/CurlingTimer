@@ -22,7 +22,7 @@ import ssl
 
 import Config
 import Identify
-import LED_RGB_Display
+import LED_RGB_Display 
 import CurlingClockManager
 import Utils
 import AIO_Utils
@@ -48,7 +48,7 @@ displayConfig = None
 
 httpUtils.HEADERS["user-agent"] = "Curling Timer/1.0"
 
-ledRGBDisplay = None
+displayDevice = None
 curlingClockManager = None
 
 displayBreakTimeTracker = None
@@ -244,7 +244,7 @@ async def mainLoopTask(loop, app):
         
 def gatherDisplayInfo(info):
     info["application"] = "DisplayTimer"
-    info["idle"] = str(ledRGBDisplay.getIdleTime()) + " " + ledRGBDisplay.getIdleResetter()
+    info["idle"] = str(curlingClockManager.getIdleTime()) + " " + curlingClockManager.getIdleResetter()
     info["hwClock"] = "Yes" if HardwareClock.hasHardwareClock else "No"
     info["drawServer"] = Config.display.defaults.drawServer
     info["display"] = "Yes"
@@ -258,7 +258,7 @@ def gatherDisplayInfo(info):
 def main():
     global myApp, serverTask
     global displayConfig
-    global ledRGBDisplay, curlingClockManager, startTime
+    global displayDevice, curlingClockManager, startTime
     global displayBreakTimeTracker
     global tokenAuthenticator
 
@@ -269,7 +269,7 @@ def main():
 
     Utils.ConfigureWifi()
     
-    myApp = SetupApp.AppSetup("curling-timer", user=runUser, group=runGroup, configOnExternalMedia=True, dataOnExternalMedia=True)
+    myApp = SetupApp.AppSetup("curling-timer", user=runUser, group=runGroup, configOnExternalMedia=True, dataOnExternalMedia=True, updateOnExternalMedia=True)
     SetupApp.setApp(myApp)
 
     Identify.setApp(myApp)
@@ -292,18 +292,17 @@ def main():
     
     info("startup: init display")
     hardwareConfigFN = myApp.config("display.toml")
-    ledRGBDisplay = LED_RGB_Display.create([], hardwareConfigFN=hardwareConfigFN, fontPath=[myApp.app("fonts")])
-    args = ledRGBDisplay.parseArgs()
+    displayDevice = LED_RGB_Display.create([], hardwareConfigFN=hardwareConfigFN, fontPath=[myApp.app("fonts")])
+    args = displayDevice.parseArgs()
 
     if args.port:
         displayConfig.server.serverPort = int(args.port)
         
-    CommonRoutes.registerHardwareConfig(ledRGBDisplay.hardwareConfig)
+    CommonRoutes.registerHardwareConfig(displayDevice.hardwareConfig)
     CommonRoutes.registerHardwareClock(HardwareClock.hasHardwareClock)
-    ledRGBDisplay.setColours(displayConfig.colours.getColours())
 
     info("startup: start display")
-    ledRGBDisplay.process()
+    displayDevice.startDisplay()
 
     ssl_context = None
   
@@ -352,7 +351,7 @@ def main():
     from UpdateSoftware import routes as httpUpdateSoftware
     app.add_routes(httpUpdateSoftware)
     
-    AIO_Utils.registerGetColours(ledRGBDisplay.getColours)
+    AIO_Utils.registerGetColours(displayDevice.getColours)
     
     from DisplayRoutes.AdminRoutes import routes as httpAdminRoutes
     from DisplayRoutes.DisplayRoutes import routes as httpDisplayRoutes
@@ -378,13 +377,16 @@ def main():
     app.add_routes(httpTeamsRoutes)
        
     info("startup: create display manager")
-    curlingClockManager = CurlingClockManager.create(ledRGBDisplay, displayConfig,
+
+    myApp.dump()
+    curlingClockManager = CurlingClockManager.create(displayDevice, displayConfig,
                                                      port=httpUtils.port,
                                                      tokenAuthenticator=tokenAuthenticator,
-                                                     isIdle=ledRGBDisplay.isIdle,
                                                      user=runUser,
                                                      group=runGroup)
 
+    displayDevice.setIsIdle(curlingClockManager.isIdle)
+    curlingClockManager.setColours(displayConfig.colours.getColours())
     CommonRoutes.registerCurlingClockManager(curlingClockManager)
     info("startup: start clock trackers")
 

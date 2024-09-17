@@ -5,7 +5,6 @@ from aiohttp import web as aiohttp_web
 from AccessVerification import ajaxVerifyToken, verifyToken
 from Utils import myHostName
 import Config
-import LED_RGB_Display
 import CurlingClockManager
 import RockThrow
 from WebSocket import WebSocketBase
@@ -19,11 +18,11 @@ async def breakTimerDisplayTimesAjax(request):
     json = await request.json()
 
     if json.get("clear", False):
-        LED_RGB_Display.display.clearBreakTimeDisplay()
+        CurlingClockManager.manager.clearBreakTimeDisplay()
     else:
         times = json.get("times", [])
         for t, c in reversed(times):
-            LED_RGB_Display.display.setBreakTimeDisplay(float(t), c)
+            CurlingClockManager.manager.setBreakTimeDisplay(float(t), c)
             
     return aiohttp_web.json_response({"action": "display"})
 
@@ -43,7 +42,7 @@ class BreakTimerMonitor(WebSocketBase):
         self.webSocketDisplay = None
 
     async def cmd_time(self, time):
-        LED_RGB_Display.display.resetIdleTime()
+        CurlingClockManager.manager.resetIdleTime()
         name = self.sensor["name"]
         self.webSocketDisplay.addTime(name, time)        
 

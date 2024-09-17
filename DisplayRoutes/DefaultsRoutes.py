@@ -6,7 +6,6 @@ from HTTP_Utils import CLOCK_HDR
 
 import Config
 from Utils import toInt
-import LED_RGB_Display
 import CurlingClockManager
 from ConfigurationManager import updateAllConfigs
 
@@ -22,7 +21,7 @@ async def colourShowAjax(request):
     green = toInt(json.get("green", 255))
     blue = toInt(json.get("blue", 255))
 
-    LED_RGB_Display.display.setSplashColour(colour=(red, green, blue))
+    CurlingClockManager.manager.setSplashColour(colour=(red, green, blue))
     CurlingClockManager.manager.setView(CurlingClockManager.manager.splashColour)
     CurlingClockManager.manager.resetIdleTime()
     
@@ -145,7 +144,7 @@ async def ajaxPasswordPost(request):
 @routes.get('/ajax/colours')
 @ajaxVerifyToken("pin")
 async def hardwareAjaxGet(request):
-    return aiohttp_web.json_response({"colours": LED_RGB_Display.display.getColours()})
+    return aiohttp_web.json_response({"colours": CurlingClockManager.manager.getColours()})
 
 
 @routes.post('/ajax/colours')
@@ -153,8 +152,8 @@ async def hardwareAjaxGet(request):
 async def hardwareAjaxPost(request):
     json = await request.json()
 
-    LED_RGB_Display.display.setColours({n: [int(rgb[0]), int(rgb[1]), int(rgb[2])] for n, rgb in json["colours"]})
-    Config.display.colours.addColours(LED_RGB_Display.display.getColours(), clear=True)
+    CurlingClockManager.manager.setColours({n: [int(rgb[0]), int(rgb[1]), int(rgb[2])] for n, rgb in json["colours"]})
+    Config.display.colours.addColours(CurlingClockManager.manager.getColours(), clear=True)
     asyncio.ensure_future(updateAllConfigs())
     
     return aiohttp_web.json_response({"msg": "colours saved"})

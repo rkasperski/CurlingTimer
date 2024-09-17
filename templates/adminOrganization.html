@@ -76,6 +76,9 @@
     settings = gatherSettings("adminOrganization");
     
     setOrganization(settings)
+       .done(function() {
+          panelNavigate("clubAdmin", null, true);
+       });
  }
  function adminOrganization_enter() {
     getOrganization()

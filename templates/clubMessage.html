@@ -48,10 +48,13 @@
 	             <input type="text" class="form-control" name="message_{{loop.index0}}" id="clubMessage-message_{{loop.index0}}">
 	          </div>
 	          <div class="col-3 col-md-auto" >
-	             {{macros.colorSelector(colours, "clubMessage-msgColour_{{loop.index0}}", "clubMessage-msgColour_{{loop.index0}}")}}
+	             {{macros.colorSelector(colours, "clubMessage-msgColour_" ~ loop.index0, "clubMessage-msgColour_" ~ loop.index0)}}
 	          </div>
 	          <div class="col-auto" >
-	             <button type="button" id="clubMessage-btn_message_show_{{loop.index0}}" class="btn btn-outline-dark icon-button icon-mirror-h" onclick='Message("{{s.ip}}", $("#clubMessage-message_{{loop.index0}}").val(), $("#clubMessage-msgColour_{{loop.index0}}").val())'>{{icon("reply")}}</button>
+	             <button type="button" id="clubMessage-btn_message_show_{{loop.index0}}" 
+                             class="btn btn-outline-dark icon-button icon-mirror-h" 
+                             onclick='Message("{{s.ip}}", $("#clubMessage-message_{{loop.index0}}").val(), $("#clubMessage-msgColour_{{loop.index0}}").val())'>
+                        {{icon("reply")}}</button>
 	          </div>
 	       </div>
             {% endif %}

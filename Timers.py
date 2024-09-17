@@ -243,7 +243,7 @@ class CompetitionTimer:
 
         return True
 
-    
+
 class BreakTimes:
     def __init__(self, name="?", filterTime=0):
         self.times = []

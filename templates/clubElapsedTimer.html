@@ -15,7 +15,10 @@
 	    {{macros.colorSelector(colours, "clubElapsed-messageColour", "clubElapsed-messageColour")}}
 	 </div>
 	 <div class="col-2 col-md-1">
-	    <button type="button" id="btn_msg" class="icon-button icon-mirror-h btn btn-outline-dark mb-2" onclick='MessageAll($("#clubElapsed-message").val(), $("#clubElapsed-messageColour").val()){{icon("reply-all")}}</button>
+	    <button type="button"
+                    id="btn_msg"
+                    class="icon-button icon-mirror-h btn btn-outline-dark mb-2"
+                    onclick="MessageAll($('#clubElapsed-message').val(), $('#clubElapsed-messageColour').val())">{{icon("reply-all")}}</button>
 	 </div>
       </div>
       
@@ -29,13 +32,13 @@
 	    <input type="text" class="form-control check-time" placeholder="hh:mm:ss" id="clubElapsed-startTime" value="">
 	 </div>
 	 <div class="col-auto">
-	    <button type="button" id="clubElapsed-setAll" class="disabled icon-button btn btn-outline-dark submit-target" onclick='ElapsedSetAll($("#clubElapsed-startTime").val())'>{{icon("box-arrow-up-right")}}</button>
+	    <button type="button" id="clubElapsed-setAll" class="disabled icon-button btn btn-outline-dark submit-target" onclick="ElapsedSetAll($('#clubElapsed-startTime').val())">{{icon("box-arrow-up-right")}}</button>
          </div>
 	 <div class="col-auto">
-	    <button type="button" id="clubElapsed-resumeAll" class="icon-button btn btn-outline-dark" onclick='ElapsedStartAll()'>{{icon("play-fill")}}</button>
+	    <button type="button" id="clubElapsed-resumeAll" class="icon-button btn btn-outline-dark" onclick="ElapsedStartAll()">{{icon("play-fill")}}</button>
          </div>
 	 <div class="col-auto">
-	    <button type="button" id="clubElapsed-pauseAll" class="icon-button btn btn-outline-dark" onclick='ElapsedPauseAll()'>{{icon("pause-fill")}}</button>
+	    <button type="button" id="clubElapsed-pauseAll" class="icon-button btn btn-outline-dark" onclick="ElapsedPauseAll()">{{icon("pause-fill")}}</button>
 	 </div>
       </div>
       
@@ -65,7 +68,7 @@
 		  <input type="text" class="form-control" id="clubElapsed-startTime{{loop.index0}}" placeholder="hh:mm:ss" value="">
 	       </div>
 	       <div class="col-auto">
-		  <button type="button" id="clubElapsed-btn-set{{s.ordinal}}" class="disabled icon-button btn btn-outline-dark submit-target" onclick='setOneTimer("{{s.ip}}", $("#clubElapsed-startTime{{s.ordinal}}").val())'>{{icon("box-arrow-up-right")}}</button>
+		  <button type="button" id="clubElapsed-btn-set{{s.ordinal}}" class="disabled icon-button btn btn-outline-dark submit-target" onclick='clubElapsed_setOneTimer("{{s.ip}}", $("#clubElapsed-startTime{{s.ordinal}}").val())'>{{icon("box-arrow-up-right")}}</button>
 	       </div>
 	       <div class="col-auto">
 		  <button type="button" id="clubElapsed-btn-resume_{{s.ordinal}}" class="icon-button btn btn-outline-dark" onclick='ElapsedStart("{{s.ip}}")'>{{icon("play-fill")}}</button>
@@ -86,6 +89,10 @@
  function  clubElapsed_activeCallback(clubStatus, i, sheetStatus) {
     enableField(!sheetStatus.active, `#clubElapsed-btn-set${i}`);
     enableField(clubStatus.active == -1, "#clubElapsed-setAll");             
+ }
+
+ function clubElapsed_setOneTimer(ip, time) {
+    ElapsedSet(ip, time);
  }
  
  function clubElapsed_enter() {

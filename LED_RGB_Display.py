@@ -130,6 +130,7 @@ class FancyTextSegment:
 class FancyText:
     def __init__(self, displayWidth, *args):
         self.displayWidth = displayWidth
+
         self.segments = args
         self.largestAscender = max([s.ascender for s in self.segments])
         self.height = max([s.height for s in self.segments])
@@ -259,37 +260,19 @@ class ClockTimerDisplaySingleton(SampleBase):
         self.parser.add_argument("--start-message", help="message to display at the start", type=str, default=None)
         self.parser.add_argument("--port", help="start in given port", type=str, default=None)
 
-        self.scrollingText = displayString if displayString else "Welcome"
-
-        self.nextBlankTime = None
-        self.lastInteractionTime = time.monotonic()
-        self.lastInteractionResetter = "main"
         self.mirrored = False
         self.scrollDelay = 0.050
 
         self.setColours()
         self.colourCache = {}
-        self.blankTime = 300
+        self.isIdle = lambda : False
 
+
+    def setIsIdle(self, isIdle):
+        self.isIdle = isIdle
+        
     def clearDrawable(self):
         self.drawable.rectangle((0, 0, self.width, self.height), fill=(0, 0, 0, 0))
-
-    def resetIdleTime(self, activeUntil=None):
-        self.nextBlankTime = activeUntil
-        self.lastInteractionTime = time.monotonic()
-        self.lastInteractionResetter = sys._getframe().f_back.f_code.co_name
-
-    def forceIdle(self):
-        self.lastInteractionTime = 0
-        
-    def adjustIdleTime(self, amt):
-        self.lastInteractionTime += amt
-
-    def getIdleTime(self):
-        return time.monotonic() - self.lastInteractionTime
-
-    def getIdleResetter(self):
-        return self.lastInteractionResetter
 
     def _colour(self, c):
         if isinstance(c, list):
@@ -319,21 +302,7 @@ class ClockTimerDisplaySingleton(SampleBase):
             if n not in self.colours:
                 self.colours[n] = rgb
 
-    def setBlankTime(self, blankTime):
-        self.blankTime = blankTime
-            
-    def isIdle(self):
-        curTime = time.monotonic()
-        if self.nextBlankTime:
-            if self.nextBlankTime >= curTime:
-                return False
-
-            self.nextBlankTime = None
-
-        idle = self.lastInteractionTime + self.blankTime < curTime
-        return idle
-        
-    def process(self):
+    def startDisplay(self):
         if self.initMatrix():
             self.offscreen_canvas = self.matrix.CreateFrameCanvas()
 
@@ -350,26 +319,18 @@ class ClockTimerDisplaySingleton(SampleBase):
 
             self.offscreen_canvas = self.matrix.CreateFrameCanvas()
 
-            self.white = (255, 255, 255)
-            self.sofWhite = (180, 180, 180)
             self.pos = 1
             self.mirrored = self.args.mirrored
             if self.mirrored:
                 self.width = int(self.width / 2)
 
-        self.welcomeMessage = self.scrollingText
         self.lastDisplay = ""
 
         self.firstTime = True
 
-        self.scrollingTextColour = "white"
-
         self._splashColour = None
 
         self.sequenceNumber = 0
-
-        if self.args.start_message is not None:
-            self.scrollingText = self.args.start_message
 
         self.breakTimes = []
         self.drawableImage = Image.new("RGB", (self.width, self.height))
@@ -379,23 +340,10 @@ class ClockTimerDisplaySingleton(SampleBase):
     def abort(self):
         self.sequenceNumber += 1
         
-    def setScrollingText(self, text, colour="white"):
-        self.scrollingText = text.rstrip()
-        self.scrollingTextColour = colour
-        self.sequenceNumber += 1
-
-    def setFlashText(self, text, colour="white"):
-        self.flashText = text
-        self.flashTextColour = colour
-        self.sequenceNumber += 1
-
-    def competitionUpdate(self, competition):
+    def competitionUpdate(self, displayTime1 , colour1, displayTime2, colour2):
         self.sequenceNumber += 1
         
-        teams = competition.teams
-        displayTime1 = str(teams[0])
-        displayTime2 = str(teams[1])
-        curDisplay = teams[competition.activeTeam].scoreboardColour + ":" + displayTime1 + ":" + displayTime2
+        curDisplay = f"{colour1}:{displayTime1}:{colour2}:{displayTime2}"
 
         if self.lastDisplay == curDisplay:
             return
@@ -403,26 +351,25 @@ class ClockTimerDisplaySingleton(SampleBase):
         self.lastDisplay = curDisplay
 
         self.clearDrawable()
-
         w1 = self.twoTimeFont.font.getlength(displayTime1)
         w2 = self.twoTimeFont.font.getlength(displayTime2)
         wmax = max(w1, w2)
         xoffset = int((self.width - wmax) / 2)
         xend = xoffset + wmax
-        self.drawable.text((xend - w1, 0), displayTime1, font=self.twoTimeFont.font, fill=self._colour(teams[0].scoreboardColour.lower()), anchor="lt")
-        self.drawable.text((xend - w2, self.height), displayTime2, font=self.twoTimeFont.font, fill=self._colour(teams[1].scoreboardColour.lower()), anchor="lb")
+        self.drawable.text((xend - w1, 0), displayTime1, font=self.twoTimeFont.font, fill=self._colour(colour1.lower()), anchor="lt")
+        self.drawable.text((xend - w2, self.height), displayTime2, font=self.twoTimeFont.font, fill=self._colour(colour2.lower()), anchor="lb")
         self.swapCanvas()
 
-    async def displayTeamNames(self, teams, scrollTeamsSeparator):
+    async def displayTeamNames(self, team1, colour1, team2, colour2, scrollTeamsSeparator):
         if scrollTeamsSeparator:
-            separatorColour = self._colour("white") if teams[0].colour != teams[1].colour else self._colour("yellow")
+            separatorColour = self._colour("white") if colour1 != colour2 else self._colour("yellow")
             ft = FancyText(self.width,
-                           FancyTextSegment(teams[0].name, self.textFont, self._colour(teams[0].colour)),
+                           FancyTextSegment(team1, self.textFont, self._colour(colour1)),
                            FancyTextSegment(f" {scrollTeamsSeparator} ", self.twoLineFont, separatorColour, vertical="middle"),
-                           FancyTextSegment(teams[1].name, self.textFont, self._colour(teams[1].colour)))
+                           FancyTextSegment(team2, self.textFont, self._colour(colour2)))
             await self.displayScrollingText(ft)
         else:
-            await self.twoLineText(teams[0].name, teams[1].name, colour1=teams[0].colour, colour2=teams[1].colour, centre=True)
+            await self.twoLineText(team1, team2, colour1=colour1, colour2=colour2, centre=True)
 
     def setSplashColour(self, colour="white"):
         self.sequenceNumber += 1
@@ -476,23 +423,6 @@ class ClockTimerDisplaySingleton(SampleBase):
 
         self.swapCanvas()
 
-    def countDownUpdate(self, timer):
-        self.sequenceNumber += 1
-
-        displayTime = str(timer)
-        self.updateTimer(displayTime, self.white, "cdt:")
-        return 0.005
-
-    def elapsedTimeUpdate(self, timer):
-        self.sequenceNumber += 1
-
-        t = timer.parts()
-
-        displayTime = timer.format(t)
-
-        self.updateTimer(displayTime, self.white, "elt:")
-        return 0.005
-
     def swapCanvas(self):
         self.offscreen_canvas.SetImage(self.drawableImage)
         
@@ -501,8 +431,8 @@ class ClockTimerDisplaySingleton(SampleBase):
         
         self.offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
 
-    def timerUpdate(self, timer):
-        self.displayText(str(timer).strip(), timer.colour)
+    def timerUpdate(self, time, colour):
+        self.displayText(time.strip(), colour)
         return 0.005
 
     async def displayScrollingText(self, my_text, colour="white", startTime=None, twoLineOK=False, displayTime=0):
@@ -759,14 +689,13 @@ class ClockTimerDisplaySingleton(SampleBase):
 
         return 0.005
         
-    def clockUpdate(self, showTenths=False):
+    def clockUpdate(self, showTenths=False, colour="white"):
         self.sequenceNumber += 1
 
         curTime = time.time()
         localTime = time.localtime(curTime)
         tenths = (int(curTime * 10) % 10) if showTenths else 0
         displayTime = time.strftime("%H:%M", localTime)
-        colour = self.white
 
         curDisplay = f"localTime:{localTime}.{tenths}"
 
@@ -777,6 +706,8 @@ class ClockTimerDisplaySingleton(SampleBase):
 
         self.clearDrawable()
         pos = -1
+
+        colour=self._colour(colour)
 
         for offset, c in enumerate(displayTime):
             self.drawable.text((pos - offset, 0), c, font=self.clockFont.font, fill=colour, anchor="lt")

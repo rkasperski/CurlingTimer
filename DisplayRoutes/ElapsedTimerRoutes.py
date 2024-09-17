@@ -1,6 +1,5 @@
 from aiohttp import web as aiohttp_web
 from AccessVerification import ajaxVerifyToken
-import LED_RGB_Display
 import CurlingClockManager
 
 routes = aiohttp_web.RouteTableDef()
@@ -9,7 +8,7 @@ routes = aiohttp_web.RouteTableDef()
 @routes.post('/elapsed/set')
 @ajaxVerifyToken("pin")
 async def elapsedSetAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.timers.elapsedTime.pause()
     json = await request.json()
     CurlingClockManager.manager.timers.elapsedTime.setInitialTime(json["time"])
@@ -28,7 +27,7 @@ async def elapsedStatusAjax(request):
 @routes.post('/elapsed/show')
 @ajaxVerifyToken("pin")
 async def elapsedShowAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.elapsedTimeUpdate)
 
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "elapsedtime:show"}))
@@ -37,7 +36,7 @@ async def elapsedShowAjax(request):
 @routes.post('/elapsed/pause')
 @ajaxVerifyToken("pin")
 async def elapsedPauseAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.elapsedTimeUpdate)
     CurlingClockManager.manager.timers.elapsedTime.pause()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "elapsedtime:pause"}))
@@ -46,7 +45,7 @@ async def elapsedPauseAjax(request):
 @routes.post('/elapsed/resume')
 @ajaxVerifyToken("pin")
 async def elapsedResumeAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.elapsedTimeUpdate)
     CurlingClockManager.manager.timers.elapsedTime.resume()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "elapsedtime:start"}))
@@ -55,7 +54,7 @@ async def elapsedResumeAjax(request):
 @routes.post('/elapsed/start')
 @ajaxVerifyToken("pin")
 async def elapsedStartAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.elapsedTimeUpdate)
     CurlingClockManager.manager.timers.elapsedTime.resume()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "elapsedtime:start"}))

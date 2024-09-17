@@ -1,7 +1,6 @@
 from aiohttp import web as aiohttp_web
 from AccessVerification import ajaxVerifyToken
 import Config
-import LED_RGB_Display
 import CurlingClockManager
 
 routes = aiohttp_web.RouteTableDef()
@@ -10,7 +9,7 @@ routes = aiohttp_web.RouteTableDef()
 @routes.post('/countdown/show')
 @ajaxVerifyToken("pin")
 async def countDownShowAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownUpdate)
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "countdown:show"}))
 
@@ -18,7 +17,7 @@ async def countDownShowAjax(request):
 @routes.post('/countdown/lastend')
 @ajaxVerifyToken("pin")
 async def countDownLastEndAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.timers.countDown.pause()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownLastEnd)
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "countdown:last end"}))
@@ -27,7 +26,7 @@ async def countDownLastEndAjax(request):
 @routes.post('/countdown/pause')
 @ajaxVerifyToken("pin")
 async def countDownPauseAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownUpdate)
     CurlingClockManager.manager.timers.countDown.pause()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "countdown:pause"}))
@@ -36,7 +35,7 @@ async def countDownPauseAjax(request):
 @routes.post('/countdown/resume')
 @ajaxVerifyToken("pin")
 async def countDownResumeAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownUpdate)
     CurlingClockManager.manager.timers.countDown.resume()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "countdown:resume"}))
@@ -45,7 +44,7 @@ async def countDownResumeAjax(request):
 @routes.post('/countdown/start')
 @ajaxVerifyToken("pin")
 async def countDownStartAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownUpdate)
     CurlingClockManager.manager.timers.countDown.resume()
 
@@ -63,7 +62,7 @@ async def countDownStatusAjax(request):
 @routes.post('/countdown/set')
 @ajaxVerifyToken("pin")
 async def countDownSetAjax(request):
-    LED_RGB_Display.display.resetIdleTime()
+    CurlingClockManager.manager.resetIdleTime()
 
     CurlingClockManager.manager.timers.countDown.pause()
     json = await request.json()

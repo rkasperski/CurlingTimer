@@ -15,7 +15,7 @@ routes = aiohttp_web.RouteTableDef()
 
 def listUpdates():
     myApp = SetupApp.getApp()
-    updatePath = myApp.data("updates")
+    updatePath = myApp.updateDir
     updates = [f for f in os.listdir(updatePath) if f.endswith(".tgz") and os.path.isfile(os.path.join(updatePath, f))]
     return updates
 
@@ -50,7 +50,7 @@ async def updateCleanAjax(request):
                                           "updates": listUpdates(),
                                           "msg": "clean refused"})
 
-    tgzPathName = myApp.data(os.path.join("updates", rmFileName))
+    tgzPathName = myApp.update(rmFileName)
     sp = os.path.splitext(tgzPathName)
     if sp[-1] != ".tgz":
         warning(f"update: clean; not a build {fileName}")
@@ -129,7 +129,7 @@ async def updateUploadAjax(request):
             ext = pfilename.rsplit(".", 1)[-1]
             if ext in ["tgz"]:
                 fileUploaded = True
-                fileName = myApp.data(os.path.join("updates", pfilename))
+                fileName = myApp.update(pfilename)
 
                 with open(fileName, "wb+") as f:
                     while not part.at_eof():
@@ -166,9 +166,13 @@ def delPath(path):
 async def updateUnpackAjax(request):
     json = await request.json()
     myApp = SetupApp.getApp()
-    
-    currentInstallDirectory = os.path.dirname(os.path.realpath(__file__))
-    parentDir = os.path.dirname(currentInstallDirectory)
+
+    if myApp.user != "root":
+        parentDir = myApp.homeDir
+    else:
+        currentInstallDirectory = myApp.appDir
+        parentDir = os.path.dirname(currentInstallDirectory)
+        
     oldDir = os.path.join(parentDir, "CurlingTimer.old")
     installDir = os.path.join(parentDir, "CurlingTimer")
     inactiveDir = os.path.join(parentDir, "CurlingTimer.new")
@@ -177,7 +181,7 @@ async def updateUnpackAjax(request):
     installFile = json.get("file")
     digest = json.get("digest")
 
-    updateTarFileName = myApp.data(os.path.join("updates", installFile))
+    updateTarFileName = myApp.update(installFile)
 
     cmd = f"sha512sum '{updateTarFileName}'"
     runTest = subprocess.run(cmd, shell=True, capture_output=True, universal_newlines=True)

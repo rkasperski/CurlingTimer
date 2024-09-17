@@ -1,3 +1,4 @@
+import sys
 from Logger import exception, error, info
 import asyncio
 
@@ -19,10 +20,17 @@ manager = None
 
 
 class CurlingClockManager:
-    def __init__(self, clockTimerDisplay, config, port=80, tokenAuthenticator=None, isIdle=lambda: False, user="pi", group="pi"):
+    def __init__(self, display, config, port=80, tokenAuthenticator=None, user="pi", group="pi"):
         self.displayF = self.startUp
-        self.isIdle = isIdle
         self.port = port
+
+        self.blankTime = 300
+        self.nextBlankTime = None
+        self.lastInteractionTime = time.monotonic()
+        self.lastInteractionResetter = "main"
+
+        #if self.args.start_message is not None:
+        #    self.scrollingText = self.args.start_message
 
         self.publish(port=port)
         self.breakTimeDataVersion = None
@@ -30,7 +38,7 @@ class CurlingClockManager:
         self.checkSelectedSensorInfo = None
         self.pleaseDropPriviledgesNow = True
         self.kapow = None
-        self.clockTimerDisplay = clockTimerDisplay
+        self.display = display
         self.user = user
         self.group = group
         self.config = config
@@ -39,8 +47,14 @@ class CurlingClockManager:
         self.drawManager = Draws.createDrawManager()
         self.startTime = time.monotonic()
         self.breakTimeUpdateTime = 0
-        self.timers = Timers(self.config.defaults, self.config.sheets.mySheet)
+        self.timers = Timers(self.config.defaults, self.config.sheets.mySheet, self.isIdle)
         self.rockThrowListener = None
+        self.welcomeMessage = "welcome unset"
+        self.scrollingText = "scrolling unset"
+        self.scrollingTextColour = "white"
+        self.flashText = "flash unset"
+        self.flashTextColour = "white"
+        self.white = (255, 255, 255)
 
     async def startTasks(self, app):
         await ConfigurationManager.startTasks(app)
@@ -67,6 +81,43 @@ class CurlingClockManager:
         await app['display_text']
         info("CurlingClockManager: stop tasks - done")
 
+    def setColours(self, colours):
+        self.display.setColours(colours)
+
+    def getColours(self):
+        return self.display.getColours()
+
+    def isIdle(self):
+        curTime = time.monotonic()
+        if self.nextBlankTime:
+            if self.nextBlankTime >= curTime:
+                return False
+
+            self.nextBlankTime = None
+
+        idle = self.lastInteractionTime + self.blankTime < curTime
+        return idle
+
+    def setBlankTime(self, blankTime):
+        self.blankTime = blankTime
+
+    def resetIdleTime(self, activeUntil=None):
+        self.nextBlankTime = activeUntil
+        self.lastInteractionTime = time.monotonic()
+        self.lastInteractionResetter = sys._getframe().f_back.f_code.co_name
+
+    def adjustIdleTime(self, amt):
+        self.lastInteractionTime += amt
+
+    def forceIdle(self):
+        self.lastInteractionTime = 0
+
+    def getIdleTime(self):
+        return time.monotonic() - self.lastInteractionTime
+
+    def getIdleResetter(self):
+        return self.lastInteractionResetter
+
     def publish(self, port=80):
         ZeroConfManager.publish("_clockdisplay._tcp.local.", port)
 
@@ -77,10 +128,14 @@ class CurlingClockManager:
         oldView = self.displayF
         self.displayF = func
 
-        self.clockTimerDisplay.abort()
+        self.abort()
+        #info("set view=%s", self.displayF, stack_info=True)
         info("set view=%s", self.displayF)
 
         return oldView
+
+    def abort(self):
+        self.display.abort()
 
     def registerRockThrowListener(self, listener):
         self.rockThrowListener = listener
@@ -89,29 +144,31 @@ class CurlingClockManager:
         if name not in Kapow.registered:
             name = "life"
 
-        self.kapow = Kapow.registered[name](self.clockTimerDisplay.drawableImage)
+        self.kapow = Kapow.registered[name](self.display.drawableImage)
         self.setView(self.kapowNext)
 
     async def kapowNext(self):
         delay = self.kapow.next()
-        self.clockTimerDisplay.swapCanvas()
+        self.display.swapCanvas()
         return delay
 
-    def resetIdleTime(self, until=None):
-        self.clockTimerDisplay.resetIdleTime(until)
-
-    def forceIdle(self):
-        self.clockTimerDisplay.forceIdle()
-
     def isActive(self):
-        return self.clockTimerDisplay.isActive()
+        return self.display.isActive()
+
+    def setFlashText(self, text, colour="white"):
+        self.flashText = text.strip()
+        self.flashTextColour = colour
+        
+    def setScrollingText(self, text, colour="white"):
+        self.scrollingText = text.rstrip()
+        self.scrollingTextColour = colour
 
     async def startUp(self):
         hostIp = myIPAddress()
 
         mySheet = self.config.sheets.mySheet
-        self.setView(self.scrollingText)
-        self.clockTimerDisplay.resetIdleTime()
+        self.setView(self.displayScrollingText)
+        self.resetIdleTime()
 
         if mySheet and mySheet.ip == hostIp:
             if hostIp == self.config.rink.clockServer:
@@ -119,9 +176,9 @@ class CurlingClockManager:
 
             if self.config.server.setup == 0:
                 if self.config.server.isDefaultSecretKey():
-                    self.clockTimerDisplay.setScrollingText("setup: secretkey")
+                    self.setScrollingText("setup: secretkey")
                 else:
-                    self.clockTimerDisplay.setScrollingText("setup: sheets")
+                    self.setScrollingText("setup: sheets")
 
                 activeUntil = 300*60 + time.monotonic()
                 self.resetIdleTime(activeUntil)
@@ -132,87 +189,96 @@ class CurlingClockManager:
                 else:
                     info("CurlingClockManager - clock - Check battery on %s", self.config.rink.clockServer)
                     
-                self.clockTimerDisplay.setScrollingText(f"Check battery on {self.config.rink.clockServer}")
+                self.setScrollingText(f"Check battery on {self.config.rink.clockServer}")
                 activeUntil = 30 + time.monotonic()
                 self.resetIdleTime(activeUntil)
             else:
-                self.clockTimerDisplay.setScrollingText(self.clockTimerDisplay.welcomeMessage)
+                self.setScrollingText(self.display.welcomeMessage)
 
             if self.config.defaults.ipOnStart:
                 self.setView(self.showIpAtStart)
         else:
-            self.clockTimerDisplay.setScrollingText(f"{hostIp}:{self.port}", colour="red")
+            self.setScrollingText(f"{hostIp}:{self.port}", colour="red")
 
     async def competitionUpdate(self):
         competition = self.timers.competition
         if competition.active():
-            self.clockTimerDisplay.resetIdleTime()
+            self.resetIdleTime()
 
+        teams = competition.teams
         if self.config.defaults.largeActiveTeamTimer:
-            teams = competition.teams
             activeTeam = teams[competition.activeTeam]
             if self.config.defaults.largeStoppedTeamTimer or activeTeam.active():
-                self.clockTimerDisplay.updateTimer(str(activeTeam),
-                                                   activeTeam.scoreboardColour,
-                                                   f"team-{competition.activeTeam}")
-                return 0.05
-
-        self.clockTimerDisplay.competitionUpdate(competition)
+                self.display.updateTimer(str(activeTeam),
+                                         activeTeam.scoreboardColour,
+                                         f"team-{competition.activeTeam}")
+        else:
+            displayTime1 = str(teams[0])
+            displayTime2 = str(teams[1])
+            colour = teams[competition.activeTeam].scoreboardColour
+            self.display.competitionUpdate(displayTime1, teams[0].scoreboardColour, displayTime2, teams[1].scoreboardColour)
 
         return 0.05
 
-    async def scrollingText(self, text=None, howLong=None):
+    async def displayScrollingText(self, text=None, howLong=None):
         if text is not None:
-            self.clockTimerDisplay.setScrollingText(text)
+            self.setScrollingText(text)
 
         if howLong is not None:
             activeUntil = howLong + time.monotonic()
             self.resetIdleTime(activeUntil)
 
-        self.clockTimerDisplay.abort()
-        await self.clockTimerDisplay.displayScrollingText(self.clockTimerDisplay.scrollingText, colour=self.clockTimerDisplay.scrollingTextColour)
+        self.abort()
+        await self.display.displayScrollingText(self.scrollingText, colour=self.scrollingTextColour)
 
     async def showIpAtStart(self, showTime=60):
         curTime = time.monotonic()
 
         if curTime - self.startTime > showTime:
-            self.setView(self.scrollingText)
+            self.setView(self.displayScrollingText)
         else:
             hostIp = myIPAddress()
 
-            await self.clockTimerDisplay.twoLineText(hostIp, str(self.port), endTime=self.startTime + showTime)
+            await self.display.twoLineText(hostIp, str(self.port), endTime=self.startTime + showTime)
 
     async def displayText(self, text=None, howLong=None):
         if text is not None:
-            self.clockTimerDisplay.setScrollingText(text)
+            self.setScrollingText(text)
 
         if howLong is not None:
             activeUntil = howLong + time.monotonic()
             self.resetIdleTime(activeUntil)
 
-        self.clockTimerDisplay.displayText(self.clockTimerDisplay.scrollingText, colour=self.clockTimerDisplay.scrollingTextColour)
+        self.display.displayText(self.scrollingText, colour=self.scrollingTextColour)
 
     async def teamNames(self):
-        await self.clockTimerDisplay.displayTeamNames(self.timers.competition.teams, self.config.defaults.scrollTeamsSeparator)
+        teams = self.timers.competition.teams
+        await self.display.displayTeamNames(teams[0].name, teams[0].colour, teams[1].name, teams[1].colour, self.config.defaults.scrollTeamsSeparator)
 
     async def teamNamesCountDown(self):
-        await self.clockTimerDisplay.displayTeamNames(self.timers.competition.teams, self.config.defaults.scrollTeamsSeparator)
+        teams = self.timers.competition.teams
+        await self.display.displayTeamNames(teams[0].name, teams[0].colour, teams[1].name, teams[1].colour, self.config.defaults.scrollTeamsSeparator)
 
     async def elapsedTimeUpdate(self):
         elapsedTime = self.timers.elapsedTime
         if elapsedTime.active():
-            self.clockTimerDisplay.resetIdleTime()
+            self.resetIdleTime()
 
-        self.clockTimerDisplay.elapsedTimeUpdate(elapsedTime)
+        t = elapsedTime.parts()
+
+        displayTime = elapsedTime.format(t)
+
+        self.display.updateTimer(displayTime, self.white, "elt:")
 
     async def countDownUpdate(self):
         countDown = self.timers.countDown
         state = countDown.getState()
         if state == "running":
             if countDown.active():
-                self.clockTimerDisplay.resetIdleTime()
+                self.resetIdleTime()
 
-            self.clockTimerDisplay.countDownUpdate(countDown)
+            displayTime = str(countDown)
+            self.display.updateTimer(displayTime, self.white, "cdt:")
         elif state == "onemore":
             self.setView(self.countDownFinished)
         else:
@@ -221,39 +287,42 @@ class CurlingClockManager:
         return 0.05
 
     async def countDownFinished(self):
-        self.clockTimerDisplay.abort()
-        await self.clockTimerDisplay.displayScrollingText(self.clockTimerDisplay.countDown.finishedMessage if self.clockTimerDisplay.countDown.finishedMessage else "Done",
-                                                          colour=self.clockTimerDisplay.countDown.finishedMessageColour if self.clockTimerDisplay.countDown.finishedMessageColour else "green",
-                                                          displayTime=self.clockTimerDisplay.countDown.finishedMessageDisplayTime,
-                                                          twoLineOK=False)
-        if self.clockTimerDisplay.countDown.finishedMessage and self.clockTimerDisplay.countDown.finishedMessageDisplayTime:
+        self.abort()
+        countDown = self.timers.countDown
+        await self.display.displayScrollingText(countDown.finishedMessage if countDown.finishedMessage else "Done",
+                                                colour=countDown.finishedMessageColour if countDown.finishedMessageColour else "green",
+                                                displayTime=countDown.finishedMessageDisplayTime,
+                                                twoLineOK=False)
+        
+        if countDown.finishedMessage and countDown.finishedMessageDisplayTime:
             self.setView(self.countDownLastEnd)
 
     async def countDownLastEnd(self):
-        self.clockTimerDisplay.abort()
-        await self.clockTimerDisplay.displayScrollingText(self.clockTimerDisplay.countDown.lastEndMessage if self.clockTimerDisplay.countDown.lastEndMessage else "Last End",
-                                                          colour=self.clockTimerDisplay.countDown.lastEndMessageColour if self.clockTimerDisplay.countDown.lastEndMessageColour else "red",
-                                                          twoLineOK=False)
+        self.abort()
+        countDown = self.timers.countDown
+        await self.display.displayScrollingText(countDown.lastEndMessage if countDown.lastEndMessage else "Last End",
+                                                colour=countDown.lastEndMessageColour if countDown.lastEndMessageColour else "red",
+                                                twoLineOK=False)
 
     async def intermissionUpdate(self):
         timer = self.timers.intermission
 
         if timer.active():
-            self.clockTimerDisplay.resetIdleTime()
+            self.resetIdleTime()
 
         if timer.timeRemaining() == 0:
             self.setView(self.competitionUpdate)
             return 0
 
-        self.clockTimerDisplay.timerUpdate(timer)
+        self.display.timerUpdate(str(timer), timer.colour)
         return 0.05
 
     async def betweenEndTimerUpdate(self):
         timer = self.timers.intermission
-        self.clockTimerDisplay.timerUpdate(timer)
+        self.display.timerUpdate(str(timer), timer.colour)
 
         if timer.active():
-            self.clockTimerDisplay.resetIdleTime()
+            self.resetIdleTime()
 
         if timer.timeRemaining() == 0:
             self.setView(self.competitionUpdate)
@@ -262,10 +331,10 @@ class CurlingClockManager:
 
     async def timeoutUpdate(self):
         timer = self.timers.timeout
-        self.clockTimerDisplay.timerUpdate(timer)
+        self.display.timerUpdate(str(timer), timer.colour)
 
         if timer.active():
-            self.clockTimerDisplay.resetIdleTime()
+            self.resetIdleTime()
 
         if timer.timeRemaining() == 0:
             timer.team.remainingTimeouts -= 1
@@ -280,14 +349,14 @@ class CurlingClockManager:
         return 0.05
 
     async def clockUpdate(self):
-        self.clockTimerDisplay.clockUpdate()
+        self.display.clockUpdate()
         return 0.05
 
     async def splashColour(self):
-        self.clockTimerDisplay.splashColour()
+        self.display.splashColour()
 
-    async def flashText(self):
-        await self.clockTimerDisplay.displayFlashText(self.clockTimerDisplay.flashText, colour=self.clockTimerDisplay.flashTextColour)
+    async def displayFlashText(self):
+        await self.display.displayFlashText(self.flashText, colour=self.flashTextColour)
 
     def breakTimesNeedsUpdate(self):
         self.breakTimeUpdateTime = 0
@@ -299,16 +368,16 @@ class CurlingClockManager:
                 event = self.rockThrowListener.getEvent()
                 if event:
                     for tm, clr, evName, speed in event[1][0: min(2, len(event[1]))]:
-                        self.clockTimerDisplay.breakTimeSet(tm, clr)
+                        self.display.breakTimeSet(tm, clr)
                         
                 self.breakTimeUpdateTime = breakTimeUpdateTime
         else:
-            self.clockTimerDisplay.breakTimeClear()
+            self.display.breakTimeClear()
             
-        await self.clockTimerDisplay.breakTimeDisplay()
+        await self.display.breakTimeDisplay()
             
     async def showColour(self):
-        self.clockTimerDisplay.showColour()
+        self.display.showColour()
 
     def setSensorCheck(self, info):
         self.checkSelectedSensorInfo = info
@@ -318,7 +387,7 @@ class CurlingClockManager:
 
         startTime = time.monotonic()
         if sensor is None or sensor["ip"] == "Unassigned":
-            self.clockTimerDisplay.displayText("No snsr", "white")
+            self.display.displayText("No snsr", "white")
         else:
             name = sensor["name"]
             tkn = self.tokenAuthenticator.create(expires=int(time.time()) + BreakTimerClient.tokenValidTime, audience="sensor")
@@ -329,9 +398,9 @@ class CurlingClockManager:
                                                  headers={CLOCK_HDR: tkn})
 
             if response and response['state']:
-                await self.clockTimerDisplay.twoLineText(name, "Yes", colour="green", centre=True)
+                await self.display.twoLineText(name, "Yes", colour="green", centre=True)
             else:
-                await self.clockTimerDisplay.twoLineText(name, "No", colour="red", centre=True)
+                await self.display.twoLineText(name, "No", colour="red", centre=True)
 
             await asyncio.sleep(max(0, 0.2 - (time.monotonic() - startTime)))
 
@@ -349,7 +418,7 @@ class CurlingClockManager:
                 curTime = time.monotonic()
                 if curTime > nextCheckTime:
                     if self.isIdle():
-                        self.clockTimerDisplay.blank()
+                        self.display.blank()
                         await asyncio.sleep(0.05)
                         continue
 
@@ -371,10 +440,10 @@ class CurlingClockManager:
             pass
 
         
-def create(clockTimerDisplay, config, port=80, tokenAuthenticator=None, isIdle=lambda: False, user="pi", group="pi"):
+def create(display, config, port=80, tokenAuthenticator=None, user="pi", group="pi"):
     global manager
 
     if not manager:
-        manager = CurlingClockManager(clockTimerDisplay, config, port=port, tokenAuthenticator=tokenAuthenticator, isIdle=isIdle,  user=user, group=group)
+        manager = CurlingClockManager(display, config, port=port, tokenAuthenticator=tokenAuthenticator, user=user, group=group)
 
     return manager
