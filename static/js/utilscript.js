@@ -620,13 +620,9 @@ function enableField(enable, target) {
     }
 }
 
-function verifyField(rePat, input, target, allowEmpty) {
+function checkField(rePat, input, allowEmpty) {
     input = $(input)
     
-    if (!target) {
-	target = '.submit-target';
-    }
-
     let value = input.val();
     let isValid = rePat.test(value);
 
@@ -634,17 +630,31 @@ function verifyField(rePat, input, target, allowEmpty) {
 	if (!value) {
 	    isValid = true
 	}
-    } else {
-        isValid = value.trim() != "";
     }
-    
+
+    return isValid;
+}
+
+function validField(isValid, input) {
     if (isValid) {
 	input.removeClass('invalid').addClass('valid');
     } else {
 	input.removeClass('valid').addClass('invalid');
     }
+}
 
-    enableField(isValid, target);
+function verifyField(rePat, input, target, allowEmpty) {
+    input = $(input)
+    
+    let value = input.val();
+    let isValid = checkField(rePat, input, allowEmpty);
+    
+    validField(isValid, input);
+    if (!target) {
+        enableField(isValid, target);
+    }
+
+    return isValid;
 }
 
 function verifyTimeField(input, target, allowEmpty) {
@@ -746,30 +756,40 @@ Date.prototype.toTimeInputValue = (function() {
     return local.toJSON().slice(11,16);
 });
 
+function checkNumber(itemsToCheckSelector, targetSelector, allowEmpty) {
+    $(itemsToCheckSelector).on('input', function(e) {
+	verifyNumberField(e.target, targetSelector, allowEmpty);
+    });
+    
+    $(itemsToCheckSelector).on('keyup', function(e) {
+	verifyNumberField(e.target, targetSelector, allowEmpty);
+    });
+}
+
+function checkNoneEmpty(itemsToCheckSelector, targetSelector, allowEmpty) {
+    $(itemsToCheckSelector).on('input', function(e) {
+	verifyNoneEmpty(e.target, targetSelector, allowEmpty);
+    });
+    
+    $(itemsToCheckSelector).on('keyup', function(e) {
+	verifyNoneEmpty(e.target, targetSelector, allowEmpty);
+    });
+}
+                     
+function checkTime(itemsToCheckSelector, targetSelector, allowEmpty) {
+    $(itemsToCheckSelector).on('input', function(e) {
+	verifyTimeField(e.target, targetSelector, allowEmpty);
+    });
+    
+    $(itemsToCheckSelector).on('keyup', function(e) {
+	verifyTimeField(e.target, targetSelector, allowEmpty);
+    });
+}
+                     
 $(document).ready(function(){
-    $('.check-none-empty').on('input', function(e) {
-	verifyNoneEmpty(e.target);
-    });
-    
-    $('.check-none-empty').on('keyup', function(e) {
-	verifyNoneEmpty(e.target);
-    });
-
-    $('.check-number').on('input', function(e) {
-	verifyNumberField(e.target);
-    });
-    
-    $('.check-number').on('keyup', function(e) {
-	verifyNumberField(e.target);
-    });
-
-    $('.check-time').on('input', function(e) {
-	verifyTimeField(e.target);
-    });
-    
-    $('.check-time').on('keyup', function(e) {
-	verifyTimeField(e.target);
-    });
+    checkNumber('.check-number')
+    checkNoneEmpty('.check-none-empty')
+    checkTime('.check-time')
     
     $('.dropdown-submenu > a').on('click', function(e) {
 	let submenu = $(this);

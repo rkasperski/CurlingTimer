@@ -72,7 +72,7 @@
     } else if (loginInfo && loginInfo.user && loginInfo.isAdmin) {
        accessToken = loginInfo.accessToken;
        getSensorStatus(null, false)
-          .done(() => panelNavigate("breaktimerAdmin"))
+          .done(() => panelNavigate("club"))
           .fail(function () {
              logoutRecord()
              panelNavigate("clubLogin") ;
@@ -81,6 +81,7 @@
        logoutRecord()
        panelNavigate("clubLogin") ;
     }
+    setupClickHack();
  })
 </script> 
 </html>

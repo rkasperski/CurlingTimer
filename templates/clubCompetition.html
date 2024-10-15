@@ -20,7 +20,7 @@
       <div class="row mb-1">
 	 <div class="col-5 col-md-2">
 	    <label for="clubCompetition-teamTime" class="col-form-label">Per Team Time:</label>
-	    <input type="text" class="form-control check-time" id="clubCompetition-teamTime" value="">
+	    <input type="text" class="form-control clubCompetitiion-check-time" id="clubCompetition-teamTime" value="">
 	 </div>
 	 <div class="col-4 offset-1 col-md-2  ml-2">
 	    <label for="clubCompetition-teamColour" class="col-form-label" >Team Colour:</label>
@@ -34,12 +34,12 @@
       </div>
       <div class="row mb-1">
 	 <div class="col-auto col-md-2">
-	    <input type="text" class="form-control check-time" id="clubCompetition-intermissionLength" value="{{intermissionLength}}">
+	    <input type="text" class="form-control clubCompetitiion-check-time" id="clubCompetition-intermissionLength" value="{{intermissionLength}}">
 	 </div>
 	 <div class="col-auto ml-1">
 	    <div class="form-control unpadded-btn-group">
-	       <button type="button" id="clubCompetition-btn-clearAll" class="icon-button btn btn-outline-dark submit-target me-3" onclick='clubCompetition_clearAll();'>{{icon("backspace")}}</button>
-	       <button type="button" id="clubCompetition-btn-setAll" class="disabled icon-button btn btn-outline-dark submit-target ms-1" onclick="clubCompetition_setAll()">{{icon("box-arrow-up-right")}}</button>
+	       <button type="button" id="clubCompetition-btn-clearAll" class="icon-button btn btn-outline-dark clubCompetitiion-submit-target me-3" onclick='clubCompetition_clearAll();'>{{icon("backspace")}}</button>
+	       <button type="button" id="clubCompetition-btn-setAll" class="disabled icon-button btn btn-outline-dark clubCompetitiion-submit-target ms-1" onclick="clubCompetition_setAll()">{{icon("box-arrow-up-right")}}</button>
 	    </div>
 	 </div>
       </div>
@@ -75,7 +75,7 @@
                   </div>
                </div>
                <div class="col-auto ml-1">
-		  <button type="button" id="btn_countdown_flip_{{loop.index0}}" class="icon-button btn btn-outline-dark submit-target" onclick='flip("clubCompetition-team-top{{loop.index0}}","clubCompetition-team-bottom{{loop.index0}}");'>{{icon("shuffle")}}</button>
+		  <button type="button" id="btn_countdown_flip_{{loop.index0}}" class="icon-button btn btn-outline-dark clubCompetitiion-submit-target" onclick='flip("clubCompetition-team-top{{loop.index0}}","clubCompetition-team-bottom{{loop.index0}}");'>{{icon("shuffle")}}</button>
                </div>
 	    </div>
 	    
@@ -91,7 +91,7 @@
                </div>
 	       
 	       <div class="col-auto ml-1">
-		  <button type="button" id="clubCompetition-btn-competition{{loop.index0}}" class="disabled icon-button btn btn-outline-dark submit-target" onclick="clubCompetition_setup('{{s.ip}}', {{loop.index0}})">{{icon("box-arrow-up-right")}}</button>
+		  <button type="button" id="clubCompetition-btn-competition{{loop.index0}}" class="disabled icon-button btn btn-outline-dark clubCompetitiion-submit-target" onclick="clubCompetition_setup('{{s.ip}}', {{loop.index0}})">{{icon("box-arrow-up-right")}}</button>
 	       </div>
 	    </div>
 	 {% endif %}
@@ -157,6 +157,7 @@
     } else {
        grabNamesFromPeers("#clubCompetition-team-top", "#clubCompetition-team-bottom");
     }
+    checkTime(".clubCompetitiion-check-time", ".clubCompetitiion-submit-target");
  }
 
  function clubCompetition_exit() {

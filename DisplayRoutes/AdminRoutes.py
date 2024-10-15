@@ -97,7 +97,6 @@ async def PINgetAllAjax(request):
 async def flashTextAjax(request):
     json = await request.json()
     if CurlingClockManager.manager:
-        print("here")
         CurlingClockManager.manager.resetIdleTime()
         CurlingClockManager.manager.setFlashText(json.get("text", myIPAddress()), json.get("colour", "red"))
         CurlingClockManager.manager.setView(CurlingClockManager.manager.displayFlashText)

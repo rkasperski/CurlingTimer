@@ -32,6 +32,11 @@ function renderIcon(icon, id, clss, style, extra) {
 
 function addActionIcon(parent, id, title, icon, action, data, addBreak) {
     let parentId = $(parent)[0].id;
+
+    if (addBreak) {
+        $(parent).append('<div class="w-100"></div>')
+    }
+    
     let newIcon =
         `<div class="actionIcon col-3 col-md-2 text-center mb-1 mt-2 iconClass-${parentId}" onclick="${action}" id="${id}">
 <div>
@@ -47,23 +52,25 @@ function addActionIcon(parent, id, title, icon, action, data, addBreak) {
     for (let p in data) {
         added[0].dataset[`icondata${p}`] = data[p];
     }
-    if (addBreak) {
-        $(parent).append('<div class="w-100"></div>')
-    }
     
     return added;
 }
 
-function addSelectableIcon(parent, id, checkedClass, title, icon, data) {
+function addSelectableIcon(parent, id, checkedClass, title, icon, data, addBreak) {
     let parentId = $(parent)[0].id;
+
+    if (addBreak) {
+        $(parent).append('<div class="w-100"></div>')
+    }
+    
     let newIcon =
         `<div class="col-auto text-center mb-4 actionIcon selectable-icon-class-${parentId}" id="${id}">
-       <div class="selectable-icon-wrapper">
+       <div class="selectable-icon-wrapper mx-auto">
          <i class="bi bi-${icon}" id="iconId-${id}"> </i>
          <input class='selectable-icon-input ${checkedClass}' type="checkbox" id="checkId-${id}">
          <label for="checkId-${id}"></label>
        </div>   
-       <div>
+       <div class="mx-auto">
          <span id="iconTitle-${id}" >${htmlToText(title).replace(/(?:\r\n|\r|\n)/g, '<br>')}</span>
        </div>
     </div>
@@ -74,6 +81,7 @@ function addSelectableIcon(parent, id, checkedClass, title, icon, data) {
     for (let p in data) {
         added[0].dataset[`icondata${p}`] = data[p];
     }
+
     return added;
 }
 
@@ -238,3 +246,19 @@ function waitForRemote(prmIp, target, op, skipTime, onSuccess) {
     }, 1000);
 }
 
+var btnClickTime = 350;
+
+function setupClickHack() {
+    $('.btn').bind('touchstart', function () {
+        var el = $(this);
+        el.addClass('hover-clicked').addClass("hover"); 
+        
+        el.hover(null, function () {
+            el.removeClass('hover').removeClass('hover-clicked');
+        });
+        
+        setTimeout(function () {
+            el.removeClass('hover-clicked').addClass('hover');
+        }, btnClickTime);
+    });
+}

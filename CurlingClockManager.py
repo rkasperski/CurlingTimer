@@ -193,7 +193,7 @@ class CurlingClockManager:
                 activeUntil = 30 + time.monotonic()
                 self.resetIdleTime(activeUntil)
             else:
-                self.setScrollingText(self.display.welcomeMessage)
+                self.setScrollingText(self.welcomeMessage)
 
             if self.config.defaults.ipOnStart:
                 self.setView(self.showIpAtStart)
@@ -432,10 +432,10 @@ class CurlingClockManager:
 
         except asyncio.CancelledError:
             return
-        except Exception:
-            error("curlingtimer: update task", exc_info=True)
         except KeyboardInterrupt:
             raise
+        except Exception:
+            error("curlingtimer: update task", exc_info=True)
         finally:
             pass
 

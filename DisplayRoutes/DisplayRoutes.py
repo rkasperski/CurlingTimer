@@ -83,8 +83,6 @@ async def configAjax(request):
 
     myIp = myIPAddress()
 
-    Config.display.sheets.whoAmI(myIp)
-
     Config.display.sheets.modified = True
 
     if CurlingClockManager.manager:

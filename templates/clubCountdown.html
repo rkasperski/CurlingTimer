@@ -49,7 +49,7 @@
       <div class="row">
          <div class="col-4 col-md-2">
 	    <label for="clubCountdown-gameTime">Game Time:</label>
-	    <input type="text" class="form-control check-time" id="clubCountdown-gameTime" value="">
+	    <input type="text" class="form-control clubCountdown-check-time" id="clubCountdown-gameTime" value="">
          </div>
          <div class="col-4 col-md-auto ml-2">
 	    <label for="clubCountdown-teamColour">Team Colour:</label>
@@ -58,10 +58,10 @@
          <div class="col-auto">
 	    <label for="clubCountdown-btn-clearAll">&nbsp;</label>
 	    <div class="form-control unpadded-btn-group ml-1">
-	       <button type="button" id="clubCountdown-btn-clearAll" class="icon-button btn btn-outline-dark submit-target mx-2" onclick='clubCountdown_clearAll();'>{{icon("backspace")}}</button>
-	       <button type="button" id="clubCountdown-btn-setAll" class="disabled icon-button btn btn-outline-dark submit-target mx-2" onclick="clubCountdown_setupAll();">{{icon("box-arrow-up-right")}}</button>
-	       <button type="button" id="clubCountdown-btn-startAll" class="icon-button btn btn-outline-dark submit-target mx-2" onclick="CountDownResumeAll();">{{icon("play-fill")}}</button>
-	       <button type="button" id="clubCountdown-btn-pauseAll" class="icon-button btn btn-outline-dark submit-target mx-2" onclick="CountDownPauseAll();">{{icon("pause-fill")}}</button>
+	       <button type="button" id="clubCountdown-btn-clearAll" class="icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick='clubCountdown_clearAll();'>{{icon("backspace")}}</button>
+	       <button type="button" id="clubCountdown-btn-setAll" class="disabled icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick="clubCountdown_setupAll();">{{icon("box-arrow-up-right")}}</button>
+	       <button type="button" id="clubCountdown-btn-startAll" class="icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick="CountDownResumeAll();">{{icon("play-fill")}}</button>
+	       <button type="button" id="clubCountdown-btn-pauseAll" class="icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick="CountDownPauseAll();">{{icon("pause-fill")}}</button>
 	    </div>
          </div>
       </div>
@@ -102,10 +102,10 @@
                   </div>
                   <div class="col-auto row pe-0">
                      <div class="col-auto my-auto pe-0">
-	                <button type="button" id="clubCountdown-btn_flip{{loop.index0}}" class="icon-button btn btn-outline-dark submit-target" onclick='flip("clubCountdown-team-top{{loop.index0}}","clubCountdown-team-bottom{{loop.index0}}");'>{{icon("shuffle")}}</button>
+	                <button type="button" id="clubCountdown-btn_flip{{loop.index0}}" class="icon-button btn btn-outline-dark clubCountdown-submit-target" onclick='flip("clubCountdown-team-top{{loop.index0}}","clubCountdown-team-bottom{{loop.index0}}");'>{{icon("shuffle")}}</button>
                      </div>
                      <div class="col-auto my-auto pe-0">
-	                <button type="button" id="clubCountdown-btn-winner-top{{loop.index0}}" class="icon-button btn btn-outline-dark submit-target" onclick='clubCountdown_showWinner({{loop.index0}}, "{{s.ip}}", "#clubCountdown-team-top{{loop.index0}}")'>{{icon("trophy")}}</button>
+	                <button type="button" id="clubCountdown-btn-winner-top{{loop.index0}}" class="icon-button btn btn-outline-dark clubCountdown-submit-target" onclick='clubCountdown_showWinner({{loop.index0}}, "{{s.ip}}", "#clubCountdown-team-top{{loop.index0}}")'>{{icon("trophy")}}</button>
                      </div>
                   </div>
                </div>
@@ -124,11 +124,11 @@
                   </div>
                   <div class="col-auto row pe-0">
                      <div class="col-auto my-auto pe-0">
-                        <button type="button" id="clubCountdown-btn-set{{loop.index0}}" class="disabled icon-button btn btn-outline-dark submit-target" onclick="clubCountdown_setup('{{s.ip}}', {{loop.index0}})">{{icon("box-arrow-up-right")}}</button>
+                        <button type="button" id="clubCountdown-btn-set{{loop.index0}}" class="disabled icon-button btn btn-outline-dark clubCountdown-submit-target" onclick="clubCountdown_setup('{{s.ip}}', {{loop.index0}})">{{icon("box-arrow-up-right")}}</button>
                         
                      </div>
                      <div class="col-auto my-auto pe-0">
-	                <button type="button" id="clubCountdown-btn-winner-bottom{{loop.index0}}" class="icon-button btn btn-outline-dark submit-target" onclick='clubCountdown_showWinner("{{loop.index0}}", "{{s.ip}}", "#clubCountdown-team-bottom{{loop.index0}}")'>{{icon("trophy")}}</button>
+	                <button type="button" id="clubCountdown-btn-winner-bottom{{loop.index0}}" class="icon-button btn btn-outline-dark clubCountdown-submit-target" onclick='clubCountdown_showWinner("{{loop.index0}}", "{{s.ip}}", "#clubCountdown-team-bottom{{loop.index0}}")'>{{icon("trophy")}}</button>
                      </div>
                   </div>
                </div>
@@ -141,17 +141,17 @@
                   
                   <div class="col-7 col-md-5 row">
                      <div class="col-auto">
-	                <button type="button" id="clubCountdown-btn-start{{loop.index0}}" class="icon-button btn btn-outline-dark submit-target" onclick='CountDownStart("{{s.ip}}")'>{{icon("play-fill")}}</button>
+	                <button type="button" id="clubCountdown-btn-start{{loop.index0}}" class="icon-button btn btn-outline-dark clubCountdown-submit-target" onclick='CountDownStart("{{s.ip}}")'>{{icon("play-fill")}}</button>
                      </div>
                      <div class="col-auto">
-	                <button type="button" id="clubCountdown-btn-pause{{loop.index0}}" class="icon-button btn btn-outline-dark submit-target" onclick='CountDownPause("{{s.ip}}")'>{{icon("pause-fill")}}</button>
+	                <button type="button" id="clubCountdown-btn-pause{{loop.index0}}" class="icon-button btn btn-outline-dark clubCountdown-submit-target" onclick='CountDownPause("{{s.ip}}")'>{{icon("pause-fill")}}</button>
                      </div>
                      <div class="col-auto pe-0">
-	                <button type="button" id="clubCountdown-btn-lastEnd{{loop.index0}}" class="icon-button btn btn-outline-dark submit-target" onclick='CountDownLastEnd("{{s.ip}}")'>LE</button>
+	                <button type="button" id="clubCountdown-btn-lastEnd{{loop.index0}}" class="icon-button btn btn-outline-dark clubCountdown-submit-target" onclick='CountDownLastEnd("{{s.ip}}")'>LE</button>
                      </div>
                   </div>
                   <div class="col-auto ms-4" >
-                     <button type="button" class="icon-button btn btn-outline-dark submit-target" data-state="off" onclick="clubCountdown_onOff('{{loop.index0}}', '{{s.ip}}')">
+                     <button type="button" class="icon-button btn btn-outline-dark clubCountdown-submit-target" data-state="off" onclick="clubCountdown_onOff('{{loop.index0}}', '{{s.ip}}')">
                         {{icon("toggle-off", id="clubCountdown-btn-onOff" ~ loop.index0)}}
                      </button>
                   </div>
@@ -252,6 +252,8 @@
     } else {
        grabNamesFromPeers("#clubCountdown-team-top", "#clubCountdown-team-bottom");
     }
+    checkTime(".clubCountdown-check-time", ".clubCountdown-submit-target");
+    
  }
 
  function clubCountdown_exit() {

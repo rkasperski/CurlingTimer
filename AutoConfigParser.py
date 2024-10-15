@@ -244,21 +244,9 @@ class AutoConfigParser():
 
         return data
 
-    def clear(self):
-        for n, v in self.items():
-            print(f"{n}: {type(v)}")
-            
-        for s in self.sections():
-            self[s].clear()
-
-        self._modified = True
-
-    def fromString(self, s, doClear=True):
+    def fromString(self, s):
         with open(self.filename, 'w') as myfile:
             myfile.write(s)
-
-        if doClear:
-            self.clear()
 
         self.read(self.filename)
         self.toInterfaceReaders()

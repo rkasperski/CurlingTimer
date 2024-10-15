@@ -6,7 +6,7 @@
 	    <label for="sheetElapsedSetTime-time">Time</label>
          </div>
 	 <div class="col-auto">
-	    <input type="text" class="form-control check-time" id="sheetElapsedSetTime-time">
+	    <input type="text" class="form-control sheetElapsedSetTime-check-time" id="sheetElapsedSetTime-time">
 	 </div>
       </div>
       <div class="row justify-content-center mt-4">
@@ -14,7 +14,7 @@
 	    <button type="button" class="btn btn-outline-dark" onclick="overlayHide('sheetElapsedSetTime')">{{icon("x")}}</button>
          </div>
          <div class="col-auto">
-	    <button type="button" class="btn btn-outline-dark sheetCountdown-submit-target" onclick="sheetElapsedSetTime_setTime()">{{icon("box-arrow-up-right")}}</button>
+	    <button type="button" class="btn btn-outline-dark sheetElapsedSetTime-submit-target" onclick="sheetElapsedSetTime_setTime()">{{icon("box-arrow-up-right")}}</button>
          </div>
       </div>
    </div>
@@ -28,6 +28,7 @@
  
  function sheetElapsedSetTime_show(data) {
     $("#sheetElapsedSetTime-time").val(data.time)
+    checkTime(".sheetElapsedSetTime-check-time", ".sheetElapsedSetTime-submit-target");
  }
 
 </script>

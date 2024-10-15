@@ -48,31 +48,31 @@ disabled
  <div class="row justify-content-center mt-2 mb-4">
    <div class="col-12 col-md-8">
       <div class="row justify-content-evenly nav-panel">
-         {% if me %}
-            <div class="col-auto nav-back my-auto"
-                 {% if kwargs.idBack %} id="{{kwargs.idBack}}" {% endif %}              
-                 data-navto="{{parent}}"
-                 {% if kwargs.backToFunc %} data-navtofunction="{{kwargs.backToFunc}}" {% endif %}                           
-                 onclick="panelNavigateEv(this, true)">
-               <i class="navIcon bi bi-arrow-left-square"></i>
-            </div>
-         {% else %}
-            <div class="col-2 nav-back my-auto invisible">
-               <i class="navIcon bi bi-arrow-left-square"></i>
-            </div>        
-         {% endif %}
-         <div class="col-7 col-md-auto text-center mt-2">
-            <h1 class="text-center nav-title "
-                {% if kwargs.idTitle %} id="{{kwargs.idTitle}}" {% endif %}>{{title}}</h1>
-         </div>
          {% if "noUp" not in kwargs or not kwargs.noUp %}
             <div class="col-auto nav-up my-auto"
                  {% if kwargs.idUp %} id="{{kwargs.idUp}}" {% endif %}              
                  {% if kwargs.upTop %} data-navto="{{kwargs.upTop}}" {% else %} data-navto="club" {% endif %}
                  {% if kwargs.upToFunc %} data-navtofunction="{{kwargs.upToFunc}}" {% endif %}                           
                  onclick="panelNavigateEv(this, true)">
-               <i class="bi bi-arrow-up-square navIcon float-end"></i>
+               <i class="bi bi-house navIcon"></i>
             </div>
+         {% endif %}
+         <div class="col-7 col-md-auto text-center mt-2">
+            <h1 class="text-center nav-title "
+                {% if kwargs.idTitle %} id="{{kwargs.idTitle}}" {% endif %}>{{title}}</h1>
+         </div>
+         {% if me %}
+            <div class="col-auto nav-back my-auto"
+                 {% if kwargs.idBack %} id="{{kwargs.idBack}}" {% endif %}              
+                 data-navto="{{parent}}"
+                 {% if kwargs.backToFunc %} data-navtofunction="{{kwargs.backToFunc}}" {% endif %}                           
+                 onclick="panelNavigateEv(this, true)">
+               <i class="navIcon bi bi-arrow-left"></i>
+            </div>
+         {% else %}
+            <div class="col-2 nav-back my-auto invisible">
+               <i class="navIcon bi bi-arrow-left float-end"></i>
+            </div>        
          {% endif %}
       </div>
    </div>

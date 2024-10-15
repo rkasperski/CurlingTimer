@@ -6,7 +6,7 @@
 	    <label for="sheetCountdownSetTime-time" class="col-form-label">Time:</label>
          </div>
 	 <div class="col-auto">
-	    <input type="text" class="form-control check-time" id="sheetCountdownSetTime-time">
+	    <input type="text" class="form-control sheetCountdownSetTime-check-time" id="sheetCountdownSetTime-time">
 	 </div>
       </div>
       <div class="row justify-content-center mt-4">
@@ -14,7 +14,7 @@
 	    <button type="button" class="btn btn-lg icon-button-lg btn-outline-dark" onclick="overlayHide('sheetCountdownSetTime')">{{icon("x")}}</button>
          </div>
          <div class="col-auto">
-	    <button type="button" class="btn btn-outline-dark btn-lg icon-button-lg sheetCountdown-submit-target" onclick="sheetCountdownSetTime_setTime()">{{icon("box-arrow-up-right")}}</button>
+	    <button type="button" class="btn btn-outline-dark btn-lg icon-button-lg sheetCountdownSetTime-submit-target" onclick="sheetCountdownSetTime_setTime()">{{icon("box-arrow-up-right")}}</button>
          </div>
       </div>
    </div>
@@ -28,6 +28,7 @@
  
  function sheetCountdownSetTime_show(data) {
     $("#sheetCountdownSetTime-time").val(data.time)
+    checkTime(".sheetCountdownSetTime-check-time", ".sheetCountdownSetTime-submit-target");
  }
 
 </script>

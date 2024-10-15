@@ -2,7 +2,7 @@
    {% if type == "display" %}
       {{ navPanel("adminLogsDisplay", "adminLogs" , "Admin - Logs") }}
    {% else %}
-      {{ navPanel("adminLogsDisplay", "breaktimerAdmin" , "Logs - " ~ name, upTop="breaktimerAdmin") }}
+      {{ navPanel("adminLogsDisplay", "breaktimerAdmin" , "Logs - " ~ name) }}
    {% endif %}
    <div class="row justify-content-evenly">
       {{ actionIcon("Verbose - is off", "toggle-off", "adminLogsDisplay_toggleVerbose()", idIcon="adminLogsDisplay_toggle" , idTitle="adminLogsDisplay_title") }}

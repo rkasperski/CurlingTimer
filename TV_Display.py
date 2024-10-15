@@ -1,25 +1,50 @@
 from Logger import error, warning, info, debug
 import asyncio
+import traceback
 import os
 import time
 import re
 import sys
 from collections import namedtuple
 
-from rgbmatrix import RGBMatrix, RGBMatrixOptions
+from PySide6 import QtCore, QtGui, QtWidgets
+
+from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtAsyncio.events import QAsyncioEventLoopPolicy
+from PySide6.QtCore import QPoint, QRect, Qt
+from PySide6.QtGui import QColor
+import PySide6.QtAsyncio as QtAsyncio
+import qasync
+
 
 import argparse
 import Hardware
 
-from PIL import Image, ImageDraw, ImageFont
-
 from AutoConfigParser import AutoConfigParser
+
+def excepthook(type_, value, traceback_):
+    traceback.print_exception(type_, value, traceback_)
+    QtCore.qFatal('')
+
+sys.excepthook = excepthook
 
 sections = ["Hardware"]
 
+app = qasync.QApplication(sys.argv)
+
+event_loop = qasync.QEventLoop(app)
+asyncio.set_event_loop(event_loop)
+
+screen = app.primaryScreen()
+size = screen.size()
+screenWidth = size.width()
+screenHeight = size.height()
+
+print(f"{screenWidth=} {screenHeight=}")
+
 display = None
 
-Font = namedtuple("Font", "name font id size ascender descender height")
+Font = namedtuple("Font", "name font id size ascender descender height fontMetrics")
 
 requiredColours = (("red", (255, 0, 0)),
                    ("cyan", (0, 255, 255)),
@@ -33,18 +58,19 @@ requiredColours = (("red", (255, 0, 0)),
                    ("purple", (255, 0, 255)),
                    )
 
-def inferTextMetrics(f):
-    ss = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRTSUVWXYZ"
+def inferTextMetrics(fontMetrics):
+    #ss = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRTSUVWXYZ"
 
-    bbox = f.getbbox(ss, anchor='ls')
-    ascender = -bbox[1]
-    descender = bbox[3]
+    #bbox = f.getbbox(ss, anchor='ls')
+    ascender = fontMetrics.ascent()
+    descender = fontMetrics.descent()
     return (ascender, descender)
 
 
 def getsize(f, s):
-    bbox = f.font.getbbox(s, anchor='ls')
-    return (bbox[2] - bbox[0], bbox[3] - bbox[1])
+    #bbox = f.font.getbbox(s, anchor='ls')
+    bbox = f.fontMetrics.boundingRect(QRect(0,0,6000,3000), Qt.AlignTop, s)
+    return (bbox.width(), bbox.height())
 
 
 class FancyTextSegment:
@@ -68,6 +94,8 @@ class FancyTextSegment:
         self.height = font.height
 
     def draw(self, drawable, pos, height, ascender, displayWidth=64):
+        drawable.setFont(self.font.font)
+        drawable.setPen(QColor(*self.colour))
         anchor = "ls"
         top = None
         if self.vertical == "middle":
@@ -79,9 +107,10 @@ class FancyTextSegment:
         for c, w in zip(self.text, self.charWidths):
             if x >= displayWidth:
                 break
-            
+
             if x + w >= 0:
-                drawable.text((x, y), c, font=self.font.font, fill=self.colour, anchor=anchor)
+                #drawable.drawText(x, y, c, font=self.font.font, fill=self.colour, anchor=anchor)
+                drawable.drawText(x, y, c)
 
             x += w
         
@@ -91,7 +120,6 @@ class FancyTextSegment:
 class FancyText:
     def __init__(self, displayWidth, *args):
         self.displayWidth = displayWidth
-
         self.segments = args
         self.largestAscender = max([s.ascender for s in self.segments])
         self.height = max([s.height for s in self.segments])
@@ -120,154 +148,85 @@ class FancyText:
 
         return t
 
-    
-class SampleBase(object):
-    def __init__(self, hardwareConfigFN=None):
-        if not hardwareConfigFN:
-            hardwareConfigFN = "hardware.toml"
-            
-        hardwareConfigFile = AutoConfigParser(sections=sections, filename=hardwareConfigFN)
-        hardwareConfig = Hardware.HardwareConfigSection(hardwareConfigFile)
-        hardwareConfigFile.hardware = hardwareConfig
+class TV_Widget(QtWidgets.QLabel):
+    """
+    Custom Qt Widget to show a power bar and dial.
+    Demonstrating compound and custom-drawn widget.
+    """
 
-        self.hardwareConfig = hardwareConfigFile
-        
+    def __init__(self, steps=5, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.canvas1 = QtGui.QPixmap(100, 100)
+        self.canvas2 = QtGui.QPixmap(100, 100)
+        self.offscreen_canvas = self.canvas1
+        self.width, self.height = (100, 100)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        size = event.size()
+        self.width, self.height = (size.width(), size.height())
+        self.canvas1 = QtGui.QPixmap(self.width, self.height)
+        self.canvas2 = QtGui.QPixmap(self.width, self.height)
+        self.offscreen_canvas = self.canvas1
+
+def neverIdle():
+    return False
+
+class ClockTimerDisplaySingleton(TV_Widget):
+    def __init__(self, args, displayString=None, hardwareConfigFN=None, fontPath=["fonts"]):
+        super().__init__()
+
+        #if not hardwareConfigFN:
+        #    hardwareConfigFN = "hardware.toml"
+
+        #hardwareConfigFile = AutoConfigParser(sections=sections, filename=hardwareConfigFN)
+        #hardwareConfig = Hardware.HardwareConfigSection(hardwareConfigFile)
+        #hardwareConfigFile.hardware = hardwareConfig
+
+        #self.hardwareConfig = hardwareConfigFile
+
         self.parser = argparse.ArgumentParser()
-        self.matrix = None
         self.args = None
 
-        self.parser.add_argument("-r", "--led-rows", action="store", help="Display rows. 16 for 16x32, 32 for 32x32. Default: 32", default=hardwareConfig.rows, type=int)
-        self.parser.add_argument("--led-cols", action="store", help="Panel columns. Typically 32 or 64. (Default: 32)", default=hardwareConfig.cols, type=int)
-        self.parser.add_argument("-c", "--led-chain", action="store", help="Daisy-chained boards. Default: 1.", default=hardwareConfig.chain, type=int)
-        self.parser.add_argument("-P", "--led-parallel", action="store", help="For Plus-models or RPi2: parallel chains. 1..3. Default: 1", default=hardwareConfig.parallel, type=int)
-        self.parser.add_argument("-p", "--led-pwm-bits", action="store", help="Bits used for PWM. Something between 1..11. Default: 11", default=hardwareConfig.pwmBits, type=int)
-        self.parser.add_argument("-b", "--led-brightness", action="store", help="Sets brightness level. Default: 100. Range: 1..100", default=hardwareConfig.brightness, type=int)
-        self.parser.add_argument("-m", "--led-gpio-mapping", help="Hardware Mapping: regular, adafruit-hat, adafruit-hat-pwm", choices=['regular', 'adafruit-hat', 'adafruit-hat-pwm'], default=hardwareConfig.gpioMapping, type=str)
-        self.parser.add_argument("--led-scan-mode", action="store", help="Progressive or interlaced scan. 0 Progressive, 1 Interlaced (default)", default=hardwareConfig.scanMode, choices=range(2), type=int)
-        self.parser.add_argument("--led-pwm-lsb-nanoseconds", action="store", help="Base time-unit for the on-time in the lowest significant bit in nanoseconds. Default: 130", default=hardwareConfig.pwmLsbNanoseconds, type=int)
-        self.parser.add_argument("--led-show-refresh", action="store_true", help="Shows the current refresh rate of the LED panel", default=hardwareConfig.showRefresh)
-        self.parser.add_argument("--led-slowdown-gpio", action="store", help="Slow down writing to GPIO. Range: 1..100. Default: 1", choices=range(5), type=int, default=hardwareConfig.slowdownGpio)
-        self.parser.add_argument("--led-no-hardware-pulse", action="store", help="Don't use hardware pin-pulse generation")
-        self.parser.add_argument("--led-rgb-sequence", action="store", help="Switch if your matrix has led colors swapped. Default: RGB", default=hardwareConfig.rgbSequence, type=str)
-        self.parser.add_argument("--led-pixel-mapper", action="store", help="Apply pixel mappers. e.g \"Rotate:90\"", default=hardwareConfig.pixelMapper, type=str)
-        self.parser.add_argument("--led-row-addr-type", action="store", help="0 = default; 1=AB-addressed panels;2=row direct", default=hardwareConfig.rowAddrType, type=int, choices=[0, 1, 2])
-        self.parser.add_argument("--led-multiplexing", action="store", help="Multiplexing type: 0=direct; 1=strip; 2=checker; 3=spiral; 4=ZStripe; 5=ZnMirrorZStripe; 6=coreman; 7=Kaler2Scan; 8=ZStripeUneven (Default: 0)", default=hardwareConfig.multiplexing, type=int)
-        self.parser.add_argument("--mirrored", help="mirror display", action="store_true", default=hardwareConfig.mirrored)
-        
-    def initMatrix(self):
-        args = self.parseArgs()
-        
-        options = RGBMatrixOptions()
-        options.drop_privileges = 0
-
-        if self.args.led_gpio_mapping is not None:
-            options.hardware_mapping = args.led_gpio_mapping
-            
-        options.rows = args.led_rows
-        options.cols = args.led_cols
-        options.chain_length = args.led_chain
-        options.parallel = args.led_parallel
-        options.row_address_type = args.led_row_addr_type
-        options.multiplexing = args.led_multiplexing
-        options.pwm_bits = args.led_pwm_bits
-        options.brightness = args.led_brightness
-        options.pwm_lsb_nanoseconds = args.led_pwm_lsb_nanoseconds
-        options.led_rgb_sequence = args.led_rgb_sequence
-        options.pixel_mapper_config = args.led_pixel_mapper
-        
-        if args.led_show_refresh:
-            options.show_refresh_rate = 1
-
-        if args.led_slowdown_gpio is not None:
-            options.gpio_slowdown = args.led_slowdown_gpio
-            
-        if self.args.led_no_hardware_pulse:
-            options.disable_hardware_pulsing = True
-
-        self.matrix = RGBMatrix(options=options)
-
-        debug(f"""{options.drop_privileges=}
-{options.hardware_mapping=}
-{options.rows=}
-{options.cols=}
-{options.chain_length=}
-{options.parallel=}
-{options.row_address_type=}
-{options.multiplexing=}
-{options.pwm_bits=}
-{options.brightness=}
-{options.pwm_lsb_nanoseconds=}
-{options.led_rgb_sequence=}
-{options.pixel_mapper_config=}
-{options.show_refresh_rate=}
-{options.gpio_slowdown=}
-{options.disable_hardware_pulsing=}
-""")
-        return True
-    
-
-class ClockTimerDisplaySingleton(SampleBase):
-    def __init__(self, args, displayString=None, hardwareConfigFN=None, fontPath=["fonts"]):
-        super().__init__(hardwareConfigFN=hardwareConfigFN)
-
         self.fontPath = [fontPath] if isinstance(fontPath, str) else fontPath
+        self.fontId = 0
 
-        # self.parser.set_defaults(led_rows=16, led_cols=32)
+        #self.parser.set_defaults(led_rows=16, led_cols=32)
 
         self.parser.add_argument("--twoline-font", action="store", type=str,
-                                 help="the twoline font", default="EncodeSansSemiCondensed-Light.ttf:15")
+                                 help="the twoline font", default=f"EncodeSansSemiCondensed-Light.ttf:{int(screenHeight * 0.30)}")
         self.parser.add_argument("--twotime-font", action="store", type=str,
                                  help="the twotime font - should be monospaced",
-                                 default="IBMPlexSansCondensed-Light.ttf:21")
+                                 default=f"IBMPlexSansCondensed-Light.ttf:{int(screenHeight * 0.45)}")
         self.parser.add_argument("--timer-font", action="store", type=str,
-                                 help="the timer font", default="RobotoCondensed-Light.ttf:26")
+                                 help="the timer font", default=f"RobotoCondensed-Light.ttf:{int(screenHeight * 0.5)}")
         self.parser.add_argument("--small-font", action="store", type=str,
-                                 help="the small font", default="RobotoCondensed-Light.ttf:10")
+                                 help="the small font", default=f"RobotoCondensed-Light.ttf:{int(screenHeight * 0.28)}")
         self.parser.add_argument("--clock-font", action="store", type=str,
-                                 help="the clock font", default="RobotoCondensed-Light.ttf:26")
+                                 help="the clock font", default=f"RobotoCondensed-Light.ttf:{int(screenHeight * 0.65)}")
         self.parser.add_argument("--seconds-font", action="store", type=str,
-                                 help="the clock seconds font", default="RobotoCondensed-Light.ttf:14")
+                                 help="the clock seconds font", default=f"RobotoCondensed-Light.ttf:{int(screenHeight * 0.25)}")
         self.parser.add_argument("--text-font", action="store", type=str,
-                                 help="the text font", default="Lato-Light.ttf:32")
+                                 help="the text font", default=f"Lato-Light.ttf:{int(screenHeight * 0.8)}")
 
         self.parser.add_argument("--start-message", help="message to display at the start", type=str, default=None)
         self.parser.add_argument("--port", help="start in given port", type=str, default=None)
 
-        self.mirrored = False
-        self.scrollDelay = 0.050
+        self.scrollDelay = 0.01
+        self.scrollAmt = 5
 
         self.setColours()
         self.colourCache = {}
-        self.isIdle = lambda : False
-        self.fontId = 0
+        self.isIdle = neverIdle
+        self.args = self.parser.parse_args()
+        self.hardwareConfig = None
 
-    def parseArgs(self):
-        if not self.args:
-            self.args = self.parser.parse_args()
 
-        return self.args
-
-    def startDisplay(self):
-        if self.initMatrix():
-            self.offscreen_canvas = self.matrix.CreateFrameCanvas()
-
-            self.width = self.offscreen_canvas.width
-            self.height = self.offscreen_canvas.height
-
-            self.timerFont = self.loadFont("Timer", self.args.timer_font, fontPathList=self.fontPath)
-            self.smallFont = self.loadFont("Small", self.args.small_font, fontPathList=self.fontPath)
-            self.twoLineFont = self.loadFont("TwoLine", self.args.twoline_font, fontPathList=self.fontPath)
-            self.twoTimeFont = self.loadFont("TwoTime", self.args.twotime_font, fontPathList=self.fontPath)
-            self.clockFont = self.loadFont("Clock", self.args.clock_font, fontPathList=self.fontPath)
-            self.secondsFont = self.loadFont("Seconds", self.args.seconds_font, fontPathList=self.fontPath)
-            self.textFont = self.loadFont("Text", self.args.text_font, fontPathList=self.fontPath)
-
-            self.offscreen_canvas = self.matrix.CreateFrameCanvas()
-
-            self.pos = 1
-            self.mirrored = self.args.mirrored
-            if self.mirrored:
-                self.width = int(self.width / 2)
+        self.white = (255, 255, 255)
+        self.sofWhite = (180, 180, 180)
+        self.pos = 1
+        self.mirrored = False
 
         self.lastDisplay = ""
 
@@ -278,16 +237,26 @@ class ClockTimerDisplaySingleton(SampleBase):
         self.sequenceNumber = 0
 
         self.breakTimes = []
-        self.drawableImage = Image.new("RGB", (self.width, self.height))
-        self.drawable = ImageDraw.Draw(self.drawableImage)
-        self.drawable.fontmode = "1"
-        
+
+
+    def parseArgs(self):
+        return self.args
+
+    def startDisplay(self):
+        self.timerFont = self.loadFont("Timer", self.args.timer_font, fontPathList=self.fontPath)
+        self.smallFont = self.loadFont("Small", self.args.small_font, fontPathList=self.fontPath)
+        self.twoLineFont = self.loadFont("TwoLine", self.args.twoline_font, fontPathList=self.fontPath)
+        self.twoTimeFont = self.loadFont("TwoTime", self.args.twotime_font, fontPathList=self.fontPath)
+        self.clockFont = self.loadFont("Clock", self.args.clock_font, fontPathList=self.fontPath)
+        self.secondsFont = self.loadFont("Seconds", self.args.seconds_font, fontPathList=self.fontPath)
+        self.textFont = self.loadFont("Text", self.args.text_font, fontPathList=self.fontPath)
+
     def loadFont(self, name, fontFileName, default=True, fontPathList=[]):
         self.fontId += 1
 
         sp = fontFileName.split(":")
         fontFileName = sp[0]
-        size = 12
+        size = int(screenHeight * 0.3)
 
         if len(sp) > 1:
             size = int(sp[1])
@@ -301,19 +270,40 @@ class ClockTimerDisplaySingleton(SampleBase):
             if os.path.exists(fontPath):
                 debug("pillow: %s loading font: %s(%d) size=%d", name, fontPath, self.fontId, size)
                 if fontPath.lower().endswith(".ttf"):
-                    font = ImageFont.truetype(fontPath, size=size)
+
+                    QtFontId = QtGui.QFontDatabase().addApplicationFont(fontPath)
+                    families = QtGui.QFontDatabase.applicationFontFamilies(QtFontId)
+                    if len(families) > 1:
+                        if "light" in fontPath.lower():
+                            families = list(filter(lambda x: "light" in x.lower(), families))
+                        else:
+                            families = list(filter(lambda x: "light" not in x.lower(), families))
+
+                    font = QtGui.QFontDatabase.font(families[0], "", size)
                 else:
+                    print("shouldn't be here")
                     font = ImageFont.load(fontPath)
 
-                ascender, descender = inferTextMetrics(font)
-                info("pillow: %s loaded font: %s(%d) size=%d ascender=%s descender=%s", name, fontPath, self.fontId, size, ascender, descender)
-                return Font(name, font, self.fontId, size, ascender, descender, ascender + descender)
+                fontMetrics = QtGui.QFontMetrics(font)
 
-        error("pillow: %s font not found: %s", name, fontPath)
+                ascender, descender = inferTextMetrics(fontMetrics)
+                info("pillow: %s loaded font: %s(%d) size=%d ascender=%s descender=%s", name, fontPath, self.fontId, size, ascender, descender)
+                return Font(name, font, self.fontId, size, ascender, descender, ascender + descender, fontMetrics)
+
+            error("pillow: %s font not found: %s", name, fontPath)
 
         if default:
             warning("pillow: %s loading default font for: %s", name, fontFileName)
-            return Font(name, ImageFont.load_default(), self.fontId, 12, 0, 0, -4, 0, 12)
+
+            font = QtGui.QFont()
+            font.setFamily('Times')
+            font.setBold(True)
+            #ptSize = int(self.height * 0.3)
+            ptSize = int(screenHeight * 0.6)
+            font.setPointSize(ptSize)
+            fontMetrics = QtGui.QFontMetrics(font)
+            ascender, descender = inferTextMetrics(fontMetrics)
+            return Font(name, font, self.fontId, ptSize, ascender, descender, ascender + descender, fontMetrics)
 
         return None
 
@@ -321,16 +311,15 @@ class ClockTimerDisplaySingleton(SampleBase):
         self.isIdle = isIdle
 
     def clearDrawable(self):
-        self.drawable.rectangle((0, 0, self.width, self.height), fill=(0, 0, 0, 0))
-        return self.drawable
+        self.offscreen_canvas.fill(QColor(0, 0, 0))
+        return QtGui.QPainter(self.offscreen_canvas)
 
-    def swapCanvas(self):
-        self.offscreen_canvas.SetImage(self.drawableImage)
+    def swapCanvas(self, drawable):
+        drawable.end()
+        self.setPixmap(self.offscreen_canvas)
 
-        if self.mirrored:
-            self.offscreen_canvas.SetImage(self.drawableImage, self.width)
-
-        self.offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
+        self.canvas1, self.canvas2 = self.canvas2, self.canvas1
+        self.offscreen_canvas = self.canvas1
 
     def _colour(self, c):
         if isinstance(c, list):
@@ -339,7 +328,7 @@ class ClockTimerDisplaySingleton(SampleBase):
             try:
                 return self.colourCache[c]
             except KeyError:
-                rgb = self.colours.get(c.lower(), (255, 255, 255))
+                rgb = self.colours.get(c.lower(), QColor(255, 255, 255))
                 self.colourCache[c] = rgb
                 return rgb
         else:
@@ -347,7 +336,7 @@ class ClockTimerDisplaySingleton(SampleBase):
 
     def getColours(self):
         return list(self.colours.items())
-
+        
     def setColours(self, colours=None):
         self.colourCache = {}
 
@@ -355,14 +344,14 @@ class ClockTimerDisplaySingleton(SampleBase):
         if colours is not None:
             for n, rgb in colours:
                 self.colours[re.sub("\W*", "", n.lower())] = rgb
-
+                
         for n, rgb in requiredColours:
             if n not in self.colours:
                 self.colours[n] = rgb
 
     def abort(self):
         self.sequenceNumber += 1
-        
+
     def competitionUpdate(self, displayTime1 , colour1, displayTime2, colour2):
         self.sequenceNumber += 1
         
@@ -373,18 +362,25 @@ class ClockTimerDisplaySingleton(SampleBase):
 
         self.lastDisplay = curDisplay
 
-        self.clearDrawable()
+        drawable = self.clearDrawable()
+        drawable.setFont(self.twoTimeFont.font)
+
         w1, h1 = getsize(self.twoTimeFont, displayTime1)
         w2, h2 = getsize(self.twoTimeFont, displayTime2)
 
         wmax = max(w1, w2)
         xoffset = int((self.width - wmax) / 2)
         xend = xoffset + wmax
-        self.drawable.text((xend - w1, 0), displayTime1, font=self.twoTimeFont.font, fill=self._colour(colour1.lower()), anchor="lt")
-        self.drawable.text((xend - w2, self.height), displayTime2, font=self.twoTimeFont.font, fill=self._colour(colour2.lower()), anchor="lb")
-        self.swapCanvas()
 
-    async def displayTeamNames(self, team1, colour1, team2, colour2, scrollTeamsSeparator):
+        drawable.setPen(QColor(*self._colour(colour1)))
+        drawable.drawText(xend - w1, self.height * 0.45, displayTime1)
+
+        drawable.setPen(QColor(*self._colour(colour2)))
+        drawable.drawText(xend - w2, self.height * 0.95, displayTime2)
+
+        self.swapCanvas(drawable)
+
+    async def displayTeamNames(self, team1, colour1, team2, colour2, scrollTeamsSeparator=None):
         if scrollTeamsSeparator:
             separatorColour = self._colour("white") if colour1 != colour2 else self._colour("yellow")
             ft = FancyText(self.width,
@@ -405,20 +401,19 @@ class ClockTimerDisplaySingleton(SampleBase):
             
         colour = self.colours.get(colour, (255, 255, 255)) if isinstance(colour, str) else colour
 
-        self.clearDrawable()
+        drawable = self.clearDrawable()
         self.sequenceNumber += 1
 
-        clr = (colour[0], colour[1], colour[2])
+        clr = QColor(colour[0], colour[1], colour[2])
 
-        top = 4
-        h = self.height - 2 * top
-        w = h
+        drawable.setPen(clr)
+        brush = QtGui.QBrush()
+        brush.setColor(clr)
+        brush.setStyle(Qt.BrushStyle.SolidPattern)
+        drawable.setBrush(brush)
+        drawable.drawRect(0, 0, self.width, self.height)
 
-        left = (self.width - w) / 2
-        for t in range(top, h + top):
-            self.drawable.line((left, t, (left + w), t), clr)
-        
-        self.swapCanvas()
+        self.swapCanvas(drawable)
 
     def updateTimer(self, displayTime, colour, prefix):
         curDisplay = prefix + displayTime
@@ -429,7 +424,10 @@ class ClockTimerDisplaySingleton(SampleBase):
         self.lastDisplay = curDisplay
 
         widthT, heightT = getsize(self.timerFont, displayTime)
-        self.clearDrawable()
+        drawable = self.clearDrawable()
+        drawable.setFont(self.timerFont.font)
+        drawable.setPen(QColor(*colour))
+
         pos = max(0, int((self.width - (widthT - len(displayTime) - 2)) / 2))
         firstChar = True
         for c in displayTime:
@@ -437,17 +435,16 @@ class ClockTimerDisplaySingleton(SampleBase):
                 pos -= 2
 
             xAdjust = 1 if firstChar and c == "1" else 0
-            self.drawable.text((pos + xAdjust, self.height / 2), c, font=self.timerFont.font, fill=colour, anchor="lm")
+            drawable.drawText(pos + xAdjust, heightT + (self.height - heightT) / 2, c)
             cwidth = getsize(self.timerFont, c)[0]
-            
-            pos += cwidth - 1
+            pos += cwidth * 0.9
             firstChar = False
             
             if c == ":":
                 pos -= 1
                 firstChar = True
 
-        self.swapCanvas()
+        self.swapCanvas(drawable)
 
     def timerUpdate(self, time, colour):
         self.displayText(time.strip(), colour)
@@ -483,9 +480,10 @@ class ClockTimerDisplaySingleton(SampleBase):
             if self.lastDisplay == prevDisplay:
                 return
 
-            self.clearDrawable()
-            ft.draw(self.drawable, (int((canvasWidth - lengthT) / 2), yOffset))
-            self.swapCanvas()
+            drawable = self.clearDrawable()
+
+            ft.draw(drawable, (int((canvasWidth - lengthT) / 2), yOffset))
+            self.swapCanvas(drawable)
             return
 
         curSequenceNumber = self.sequenceNumber
@@ -503,16 +501,16 @@ class ClockTimerDisplaySingleton(SampleBase):
                     return
 
             sCnt += 1
-            tDiff = int((time.monotonic() - startTime) / self.scrollDelay) % scrollLength
+            tDiff = int((time.monotonic() - startTime) * self.scrollAmt / self.scrollDelay) % scrollLength
             
-            self.clearDrawable()
-            ft.draw(self.drawable, (-tDiff + canvasWidth, yOffset))
+            drawable = self.clearDrawable()
+            ft.draw(drawable, (-tDiff + canvasWidth, yOffset))
 
-            self.swapCanvas()
+            self.swapCanvas(drawable)
 
-            await asyncio.sleep(0.005)
+            await asyncio.sleep(0.001)
             while time.monotonic() < nextTime and curSequenceNumber == self.sequenceNumber:
-                await asyncio.sleep(0.005)
+                await asyncio.sleep(0.0001)
 
     async def displayFlashText(self, my_text, colour="white", delay=1.0, displayCount=1000, length=5.0):
         self.sequenceNumber += 1
@@ -535,16 +533,16 @@ class ClockTimerDisplaySingleton(SampleBase):
                     displayCount -= 1
                     self.displayText(my_text, colour, centre=True, sequenceUpdate=False)
                 else:
-                    self.clearDrawable()
-                    self.swapCanvas()
+                    drawable = self.clearDrawable()
+                    self.swapCanvas(drawable)
 
             await asyncio.sleep(0.05)        
 
     def blank(self):
         self.sequenceNumber += 1
         self.lastDisplay = "blank:"
-        self.clearDrawable()
-        self.swapCanvas()
+        drawable = self.clearDrawable()
+        self.swapCanvas(drawable)
         return 0.25
 
     def findFont(self, textList, fontList):
@@ -552,7 +550,6 @@ class ClockTimerDisplaySingleton(SampleBase):
             fits = True
             for l in textList:
                 textLen, textHeight = getsize(f, l)
-                
                 if textLen > self.width:
                     fits = False
 
@@ -560,22 +557,21 @@ class ClockTimerDisplaySingleton(SampleBase):
                 return f
 
         return fontList[-1]
-    
+
     def displayText(self, text, colour="white", centre=False, sequenceUpdate=True):
         text = text.rstrip()
         if sequenceUpdate:
             self.sequenceNumber += 1
             self.lastDisplay = "dt:" + text
-            
+
         textColour = self._colour(colour)
-        anchor = "lm"
 
         if '\n' in text:
             lines = text.split('\n', 1)
         else:
             lines = [text]
 
-        displayFont = self.findFont(lines, [self.timerFont, self.textFont, self.twoLineFont, self.smallFont])
+        displayFont = self.findFont(lines, [self.timerFont, self.textFont, self.smallFont])
 
         if displayFont == self.smallFont and len(lines) == 1:
             width = 0
@@ -585,26 +581,24 @@ class ClockTimerDisplaySingleton(SampleBase):
                     lines = [text[0:i - 1], text[i - 1:]]
                     break
 
-        if len(lines) == 1:
-            vpos = int((self.height - displayFont.height) / 2)
-        else:
-            vpos = int((self.height - 2 * displayFont.height) / 2)
-            
         drawable = self.clearDrawable()
+        drawable.setFont(displayFont.font)
+        drawable.setPen(QColor(*textColour))
 
+        vpos = 0
         for text in lines:
             textLen, textHeight = getsize(displayFont, text)
+            vpos += textHeight
             if centre:
                 hpos = int(max(0, (self.width - textLen) / 2))
             else:
                 hpos = 0
 
-            drawable.text((hpos, vpos), text, fill=textColour, font=displayFont.font, anchor="lt")
-            vpos += displayFont.height
+            drawable.drawText(hpos, vpos, text)
 
-        self.swapCanvas()
+        self.swapCanvas(drawable)
 
-    async def twoLineText(self, line1, line2, colour=None, colour1="white", colour2="white", centre=False, endTime=None, scroll=True):
+    async def twoLineText(self, line1, line2, colour="white", colour1=None, colour2=None, centre=False, endTime=None, scroll=True):
         self.sequenceNumber += 1
 
         colour1 = (colour1 if colour1 else colour).lower()
@@ -616,7 +610,7 @@ class ClockTimerDisplaySingleton(SampleBase):
             return
 
         self.lastDisplay = curDisplay
-
+            
         line1 = line1.rstrip()
         line2 = line2.rstrip()
 
@@ -627,14 +621,19 @@ class ClockTimerDisplaySingleton(SampleBase):
         twoLineFont = self.twoLineFont
         len1, height1 = getsize(twoLineFont, line1)
         len2, height2 = getsize(twoLineFont, line2)
-        
+
         if (not scroll) or (len1 < pos and len2 < pos):
             drawable = self.clearDrawable()
+            drawable.setFont(twoLineFont.font)
+
             centre1 = int((self.width - len1) / 2) if centre else 0
             centre2 = int((self.width - len2) / 2) if centre else 0
-            drawable.text((centre1, 0), line1, font=twoLineFont.font, spacing=0, fill=c1, anchor="lt")
-            drawable.text((centre2, self.height), line2, font=twoLineFont.font, spacing=0, fill=c2, anchor="lb")
-            self.swapCanvas()
+            drawable.setPen(QColor(*c1))
+            drawable.drawText(centre1, self.height * 0.38 , line1)
+
+            drawable.setPen(QColor(*c2))
+            drawable.drawText(centre2, self.height * 0.88, line2)
+            self.swapCanvas(drawable)
             return
 
         curSequenceNumber = self.sequenceNumber
@@ -648,15 +647,20 @@ class ClockTimerDisplaySingleton(SampleBase):
                     return
 
             drawable = self.clearDrawable()
-            drawable.text((pos, 0), line1, font=twoLineFont.font, spacing=0, fill=c1, anchor="lt")
+            drawable.setFont(twoLineFont.font)
+
+            drawable.setPen(QColor(*c1))
+            drawable.drawText(pos, self.height * 0.38, line1)
             
-            drawable.text((pos, twoLineFont.height), line2, font=twoLineFont.font, spacing=0, fill=c2, anchor="lt")
-            pos -= 1
+            drawable.setPen(QColor(*c2))
+            drawable.drawText(pos, self.height * 0.88, line2)
+            self.swapCanvas(drawable)
+
+            pos -= self.scrollAmt
             if pos + maxLen < 0:
                 pos = self.width
                 continue
 
-            self.swapCanvas()
             diffTime = time.monotonic() - curTime
             await asyncio.sleep(max(self.scrollDelay - diffTime, 0))
 
@@ -670,36 +674,49 @@ class ClockTimerDisplaySingleton(SampleBase):
         self.breakTimes = []
             
     async def breakTimeDisplay(self):
-        self.sequenceNumber += 1
-        
-        curDisplay = "breaktime:"
-        drawable = self.clearDrawable()
-        if len(self.breakTimes) == 0:
-            tWidth, tHeight = getsize(self.clockFont, "...")
-            
-            drawable.text((int((self.width - tWidth) / 2), int(self.height / 2)), "...", font=self.twoTimeFont.font, fill=(255, 255, 255), anchor="lt")
-            curDisplay += "..."
-        else:
-            ypos, anchor = 0, "lt"
-            for t, c in self.breakTimes[0: min(2, len(self.breakTimes))]:
-                if t < 1:
-                    txt = "%.5f" % t
-                elif t < 10:
-                    txt = "%.4f" % t
-                else:
-                    txt = "%.3f" % t
-                    
-                # trim off leading 0
-                if t < 1:
-                    txt = txt[1:]
+        try:
+            self.sequenceNumber += 1
 
-                drawable.text((0, ypos), txt, font=self.twoTimeFont.font, fill=self._colour(c), anchor=anchor)
-                curDisplay += str(c) + ":" + txt
-                ypos, anchor = self.height, "lb"
+            curDisplay = "breaktime:"
+            drawable = self.clearDrawable()
+            drawable.setFont(self.twoLineFont.font)
 
-        self.lastDisplay = curDisplay
-        self.swapCanvas()
-            
+            if len(self.breakTimes) == 0:
+                drawable.setPen(QColor(255,255,255))
+                drawable.drawText(int(self.width * 0.45), int(self.height * 0.5), "...")
+                curDisplay += "..."
+            else:
+                ypos, anchor = self.height * 0.47, "lt"
+                for t, c in self.breakTimes[0: min(2, len(self.breakTimes))]:
+                    if t < 1:
+                        txt = "%.5f" % t
+                    elif t < 10:
+                        txt = "%.4f" % t
+                    else:
+                        txt = "%.3f" % t
+
+                    # trim off leading 0
+                    if t < 1:
+                        txt = txt[1:]
+
+                    drawable.setPen(QColor(*self._colour(c)))
+                    drawable.drawText(0, ypos, txt)
+                    curDisplay += str(c) + ":" + txt
+                    ypos, anchor = self.height * 0.97, "lb"
+
+            self.lastDisplay = curDisplay
+            self.swapCanvas(drawable)
+
+            return 5
+
+            if self.lastDisplay == curDisplay:
+                return 0.01
+
+        except Exception as e:
+            print("bad me")
+            error("timerdisplay: displayBreakTimes exception=%s", e, exc_info=True)
+            raise
+
         return 0.005
         
     def clockUpdate(self, showTenths=False, colour="white"):
@@ -713,7 +730,7 @@ class ClockTimerDisplaySingleton(SampleBase):
         curDisplay = f"localTime:{localTime}.{tenths}"
 
         if self.lastDisplay == curDisplay:
-            return
+            return 0.05
 
         self.lastDisplay = curDisplay
 
@@ -722,30 +739,66 @@ class ClockTimerDisplaySingleton(SampleBase):
         colour=self._colour(colour)
 
         drawable = self.clearDrawable()
+        drawable.setFont(self.clockFont.font)
+        drawable.setPen(QColor(*colour))
+
         for offset, c in enumerate(displayTime):
-            drawable.text((pos - offset, 0), c, font=self.clockFont.font, fill=colour, anchor="lt")
+            drawable.drawText(pos - offset, self.clockFont.size, c)
             tWidth, tHeight = getsize(self.clockFont, c)
-            pos += tWidth
+            pos += int(tWidth - tWidth * 0.1)
 
+        drawable.setFont(self.secondsFont.font)
+        oWidth, oHeight = getsize(self.secondsFont, "0")
         if showTenths:
-            drawable.text((38, self.height), ("0" + str(localTime.tm_sec))[-2:] + '.' + str(tenths), font=self.secondsFont.font, fill=colour, anchor="lb")
-
+            drawable.drawText(int(self.width * 0.65), int(self.height * 0.75 + self.secondsFont.ascender), ("0" + str(localTime.tm_sec))[-2:] + '.' + str(tenths))
         else:
-            drawable.text((50, self.height), ("0" + str(localTime.tm_sec))[-2:], font=self.secondsFont.font, fill=colour, anchor="lb")
+            drawable.drawText(pos - oWidth * 2, int(self.clockFont.size + self.secondsFont.ascender), ("0" + str(localTime.tm_sec))[-2:])
 
-        self.swapCanvas()
-        return 0.005
+        self.swapCanvas(drawable)
+        return 0.05
 
     def run(self):
-        loop = asyncio.get_event_loop()
+        loop = qasync.QEventLoop(app)
         return loop
 
-    
+
+class MainWindow(QMainWindow):
+    def __init__(self, args, displayString, hardwareConfigFN, fontPath):
+        self.tvWidget = None
+        super().__init__()
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, True)
+        self.tvWidget = ClockTimerDisplaySingleton(args, displayString=displayString, hardwareConfigFN=hardwareConfigFN, fontPath=fontPath)
+        self.showFullScreen()
+
+        print(f"{args=}\n{displayString=}\n{hardwareConfigFN=}\n{fontPath=}")
+
+        self.setCentralWidget(self.tvWidget)
+
+        print(f"{self.width()=}")
+        print(f"{self.height()=}")
+
+    def keyPressEvent(self, event):
+        print(f"{event.key()=} {event.text()=}")
+        if event.text() in ["q", "Q"]:
+            self.tvWidget.abort()
+            time.sleep(0.5)
+            sys.exit()
+
+    #def resizeEvent(self, event):
+    #    global display
+    #    print("MainWindow resize")
+    #    print(f"{self.tvWidget=} {self.testFn=}")
+    #    if self.tvWidget and self.testFn:
+    #        asyncio.ensure_future(self.delayedTest())
+
+window = None
 def create(args, displayString=None, hardwareConfigFN=None, fontPath=["fonts"]):
-    global display
+    global display, window
 
     if not display:
-        display = ClockTimerDisplaySingleton(args, displayString=displayString, hardwareConfigFN=hardwareConfigFN, fontPath=fontPath)
+        window = MainWindow(args, displayString, hardwareConfigFN, fontPath)
+
+        display = window.tvWidget
+        display.startDisplay()
 
     return display
-    

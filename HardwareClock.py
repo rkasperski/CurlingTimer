@@ -4,9 +4,14 @@ from datetime import datetime, timezone
 
 from Logger import warning, error
 import time
-import USB_DS3231
-import DS1307
+try:
+    import USB_DS3231
+    import DS1307
+except ModuleNotFoundError:
+    pass
+
 from Utils import runCommand
+
  
 dsRTC = None
 hwClockPath = "/usr/sbin/hwclock"

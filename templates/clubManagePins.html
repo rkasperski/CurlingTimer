@@ -8,7 +8,7 @@
 	 </div>
 	 <div class="row">
 	    <div class="col-4 col-md-auto">
-	       <input type="text" class="form-control check-time" id="clubManagePins-defaultPINExpireTime" value="">
+	       <input type="text" class="form-control clubManagePins-check-time" id="clubManagePins-defaultPINExpireTime" value="">
 	    </div>
 	    <div class="col-auto">
 	       <button type="button" id="btn_msg" class="btn btn-outline-dark my-form-control clubManagePins-submit-target" onclick='clubManagePins_GetNewAllPINs()'>Reset All PINs</button>
@@ -80,9 +80,7 @@
           loadSettings("clubManagePins", response);
        })
 
-    $("#clubManagePins-defaultPINExpireTime").on("change", function() {
-       verifyTimeField($("#clubManagePins-defaultPINExpireTime"), ".clubManagePins-submit-target");
-    })
+    checkTime(".clubManagePins-check-time", ".clubManagePins-submit-target");
  }
 
  function clubManagePins_exit() {

@@ -1,9 +1,22 @@
-5.8 - Tue Sep 17 15:34:23 2024
+5.11 - Tue Oct 15 10:23:59 2024
+- update python rock throw to be the same as js one.
+- fix navigation in breaktimers
+- fix layout of selectable dyanmic icons
+- hack to mostly fix button clicks on mobile devices
+5.10 - Fri Oct 11 23:01:59 2024
+- fix bugs in WebSocket that caused connections to be dropped
+- fix bug in rock event handling that caused event to not be properly handled
+- use time of first sensor reading to uniquely tag event so that in full
+  sheet mode there is only one event entry.
+5.9 - Fri Oct 11 10:36:45 2024
+- fix bug in sheetTimingSetup
+- fix default hardware toml file
+5.8 - Wed Oct  9 17:08:56 2024
 - rework of display manager to separate display from clock management
 - upload of new builds are now put on external media if it is available
 - packing/unpacking is done to ${HOME}/CurlingTimer unless user is root, if so then up 1 directory
 - add missing file for break timers
-- fix bugs with setting of time in countdone timer and elapsed timer
+- fix bugs with setting of time in countdown timer and elapsed timer
 5.7 - Tue Sep 17 10:11:33 2024
 - replace font-awesome icons with bootstrap icons
 - fix handling of draw add/edit

@@ -152,9 +152,9 @@ class DrawManager:
             ds = e['date']
             if len(e.get("sheets")) == 0:
                 if e.get('date', None) == "none" or e.get('time', None):
-                    return (-1, "didn't add; bad time")
+                    return (None, "didn't add; bad time")
                 
-                return (-1, "didn't add; empty draw", e)
+                return (None, "didn't add; empty draw", e)
             if ds and ds.strip() and len(e.get("sheets")):
                 d = date_parser(e['date'])
                 e["date"] = d.strftime("%Y-%m-%d")
@@ -163,7 +163,7 @@ class DrawManager:
                 
         except TypeError as err:
             error("draw: add: %s exception: %s", e, err)
-            return (-1, f"didn't add; parsing error;  {e.get('name', None)} d={e.get('date', None)} r={e.get('time', None)}", e)
+            return (None, f"didn't add; parsing error;  {e.get('name', None)} d={e.get('date', None)} r={e.get('time', None)}", e)
 
         if drawName:
             e["name"] = drawName
@@ -249,8 +249,10 @@ class DrawManager:
                     
                 if not draw:
                     continue
-                
+
                 msgs.append(f"added; {draw['name']} {draw['date']} {draw['time']}")
+
+            msgs.sort()
 
             cleanFiles(fileName)
 

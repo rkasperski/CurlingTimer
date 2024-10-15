@@ -24,22 +24,24 @@ class WebSocketBase:
 
     async def ping(self):
         if self.verbose:
-            print(f"{self.name}: start pinging")
-            
+            print(f"{time.monotonic()}:{self.name}: start pinging")
+
+        #at the start we wait have the regular ping delay before sending a ping
+        await asyncio.sleep(self.pingDelay / 2)
         while True:
             curTime = time.monotonic()
             if self.verbose:
-                print(f"{self.name}: {self.lastPongReceived=} {curTime=}")
+                print(f"{time.monotonic()}:{self.name}: {self.lastPongReceived=} {curTime=}")
                 
             if (self.lastPongReceived + 1.5 * self.pingDelay) < curTime:
                 if self.verbose:
-                    print(f"{self.name}: ping timeout")
+                    print(f"{time.monotonic()}:{self.name}: ping timeout")
                     
                 await self.close()
                 return;
             
             if self.verbose:
-                print(f"{self.name}: ping")
+                print(f"{time.monotonic()}: {self.name}: ping")
                 
             await self.ws.send_str("ping")
             self.lastPingSent = time.monotonic()
@@ -50,11 +52,11 @@ class WebSocketBase:
             curTime = time.monotonic()
 
             if self.verbose:
-                print(f"{self.name}: {self.lastPingReceived=} {curTime=}")
+                print(f"{curTime}: {self.name}: {self.lastPingReceived=} {curTime=}")
                 
-            if (lastPingReceived + 1.5 * self.pingDelay) < curTime:
+            if (self.lastPingReceived + 1.5 * self.pingDelay) < curTime:
                 if self.verbose:
-                    print(f"{self.name}: missing ping")
+                    print(f"{curTime}: {self.name}: missing ping")
                     
                 await self.close()
                 return;
@@ -63,28 +65,32 @@ class WebSocketBase:
 
     async def connect(self, url):
         if self.verbose:
-            print(f"{self.name}: connect to {url=}")
+            print(f"{time.monotonic()}: {self.name}: connect to {url=}")
             
         async with ClientSession() as session:
             if self.verbose:
-                print(f"{self.name}: create session")
-                
-            async with session.ws_connect(url, receive_timeout=self.pingDelay * 1.5, timeout=1) as ws:
-                if self.verbose:
-                    print(f"{self.name}: connected {ws=}")
-                    
-                self.ws = ws
-                self.pingTask = asyncio.ensure_future(self.waitOnPing())
-                await self.process()
-        
+                print(f"{time.monotonic()}: {self.name}: create session")
+
+            while True:
+                async with session.ws_connect(url, receive_timeout=self.pingDelay * 1.5, timeout=5) as ws:
+                    if self.verbose:
+                        print(f"{time.monotonic()}: {self.name}: connected {ws=}")
+
+                    self.ws = ws
+                    self.pingTask = asyncio.ensure_future(self.waitOnPing())
+                    try:
+                        await self.process()
+                    except Exception as e:
+                        pass
+
     async def process(self):
         try:
             if self.verbose:
-                print(f"{self.name}: process wait")
+                print(f"{time.monotonic()}: {self.name}: process wait")
                 
             async for msg in self.ws:
                 if self.verbose:
-                    print(f"{self.name}: websocket: ", msg)
+                    print(f"{time.monotonic()}: {self.name}: websocket: ", msg)
                     
                 if msg.type == aiohttp_web.WSMsgType.TEXT:
                     if msg.data == 'close':
@@ -92,14 +98,14 @@ class WebSocketBase:
                         return
                     elif msg.data == "pong":
                         if self.verbose:
-                            print(f"{self.name}: pong")
+                            print(f"{time.monotonic()}: {self.name}: pong")
                             
                         self.lastPongReceived = time.monotonic()
                     elif msg.data == "ping":
                         if self.verbose:
-                            print(f"{self.name}: ping; send pong")
+                            print(f"{time.monotonic()}: {self.name}: ping; send pong")
                                 
-                        self.lastPongReceived = time.monotonic()
+                        self.lastPingReceived = time.monotonic()
                         await self.ws.send_str("pong")
                     else:
                         decodedMsg = loads(msg.data)
@@ -113,23 +119,24 @@ class WebSocketBase:
                         data = decodedMsg.get("data", {})
                         await cmdFn(data)
                 elif msg.type == aiohttp_web.WSMsgType.ERROR:
+                    if self.verbose:
+                        print(f"{time.monotonic()}: MSG Error: {self.ws.exception()}")
                     await self.onerror(self.ws.exception())
 
                 else:
-                    print(f"{self.name}: {msg.type=}")
+                    if self.verbose:
+                        print(f"{time.monotonic()}: {self.name}: {msg.type=}")
                     
         except ConnectionResetError as e:
             await self.onerror(e)
-            pass
         except asyncio.TimeoutError as e:
             await self.onerror(e)
-            pass
 
-        await self.close()
+        #await self.close()
 
     async def send_msg(self, cmd, data=None):
         if self.verbose:
-            print(f"{self.name}: ws send {cmd=} {data=}")
+            print(f"{time.monotonic()}: {self.name}: ws send {cmd=} {data=}")
             
         try:
             await self.ws.send_json({"cmd": cmd, "data": data})
@@ -137,10 +144,14 @@ class WebSocketBase:
         except (RuntimeError, ConnectionResetError):
             await self.closed()
             return False
+        except Exception as e:
+            if self.verbose:
+                print(f"{time.monotonic()}: send_msg", e)
+            raise e
 
     async def close(self):
         if self.verbose:
-            print(f"{self.name}: close")
+            print(f"{time.monotonic()}: {self.name}: close")
 
         if self.pingTask is not None:
             self.pingTask.cancel()
@@ -148,7 +159,7 @@ class WebSocketBase:
 
         if self.ws:
             if self.verbose:
-                print(f"{self.name}: send close")
+                print(f"{time.monotonic()}: {self.name}: send close")
             
             try:
                 await self.ws.send_str("close")
@@ -156,7 +167,7 @@ class WebSocketBase:
                 pass
             
             if self.verbose:
-                print(f"{self.name}: close ws={self.ws}")
+                print(f"{time.monotonic()}: {self.name}: close ws={self.ws}")
                 
             await self.ws.close()
             self.ws = None
@@ -165,12 +176,10 @@ class WebSocketBase:
 
     async def onerror(self, exception):
         if self.verbose:
-            print(f"{self.name}: WebSocket: connection exception {exception}")
+            print(f"{time.monotonic()}: {self.name}: WebSocket: exception - {exception}")
             
         error("WebSocket: connection exception %s", exception)
         
     async def closed(self):
         if self.verbose:
-            print(f"{self.name}: closed")
-
-        
+            print(f"{time.monotonic()}: {self.name}: closed")

@@ -395,7 +395,7 @@ function testRockThrow() {
         if (ev) {
             for (let evt of ev[1]) {
                 let tm = evt[0];
-                let clt = evt[1];
+                let clr = evt[1];
                 let event = evt[2];
                 let speed = evt[3];
                 
@@ -430,7 +430,6 @@ function testSheetTraining() {
                                                     0.910, 
                                                     6.401);    
 
-    let o = 0;
     for (let tm of rows) {
         let sensor = tm.pop()
         sheetTraining_appendTime({name:sensor,
@@ -438,8 +437,9 @@ function testSheetTraining() {
                                   colour: placementToColourMap[sensorToPlacementMap[sensor]],
                                   ordinal: 0,
                                   placement: sensorToPlacementMap[sensor]}, tm);
-        o++;
+        let event = sheetTraining_rockThrows.checkForEvent(tm);
+        sheetTraining_renderEvent(event);
     }
-    sheetTraining_updateDisplay();    
-    sheetTraining_updateEvents();    
+    //sheetTraining_updateDisplay();    
+    //sheetTraining_updateEvents();    
 }

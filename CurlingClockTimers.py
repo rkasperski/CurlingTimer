@@ -1,3 +1,7 @@
+"""
+Creates the timers used to track curling games
+"""
+
 from Timers import CountDownTimer, ElapsedTimeTimer, CompetitionTimer
 
 class Timers():

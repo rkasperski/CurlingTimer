@@ -420,4 +420,39 @@ input.valid, textarea.valid {
     height: 100vh !important;
 }
 
+.fixed-box {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.fixed-box-header {
+  flex: 0 1 auto;
+  /* The above is shorthand for:
+  flex-grow: 0,
+  flex-shrink: 1,
+  flex-basis: auto
+  */
+}
+
+.fixed-box-content {
+  flex: 1 1 auto;
+}
+
+.fixed-box-footer {
+    flex: 0 1 auto;
+}
+
+/* this is css part of hack to get button clicks to behave properly on
+   mobile devices
+*/
+.hover:hover {
+    color: #000000 !important;
+    background-color: #ffffff !important
+}
+.hover-clicked:hover {
+    color: #ffffff !important;
+    background-color: #000000 !important
+}
+
 </style>

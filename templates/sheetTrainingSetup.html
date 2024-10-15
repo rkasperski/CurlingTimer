@@ -109,10 +109,9 @@
     sheetTrainingSetup_autoAssignPlacement();
     sheetTrainingSetup_verifyStyleConstraints();    
  }
- 
+
  function sheetTrainingSetup_changePlacement(sensor, ordinal, name) {
     $("#sheetTrainingSetup-sensorName_" + ordinal).val(name);
-    sheetTrainingSetup_updateSensor(sensor, name);
  }
 
  function sheetTrainingSetup_verifyStyleConstraints() {
@@ -164,7 +163,7 @@
      </h3>
   </div>
   <div class="offset-1 col-4 offset-md-0 col-md-auto">
-     <select class="form-control sheetTrainingSetup-placement" id="sheetTrainingSetup-placement${idx}" onchange="sheetTrainingSetup_changePlacement(this, '${idx}', '${sensor.name}');" onfocus="sheetTrainingSetup_updateSensor(this, '${sensor.name}');">
+     <select class="form-control sheetTrainingSetup-placement" id="sheetTrainingSetup-placement${idx}" onchange="sheetTrainingSetup_changePlacement(this, '${idx}', '${sensor.name}');">
         <option value="s1">T/Back-Line 1</option>
         <option value="h1">Hog-Line 1</option>
         <option value="s2">T/Back-Line 2</option>

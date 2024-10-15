@@ -191,6 +191,10 @@ async def close():
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger('zeroconf').setLevel(logging.INFO)
+    Logger.logToStdOut()
+    Logger.setLevel(logging.INFO)
+
     if len(sys.argv) > 1:
         assert sys.argv[1:] == ['--debug']
         logging.getLogger('zeroconf').setLevel(logging.DEBUG)

@@ -7,7 +7,7 @@
                <div class="adminUpdate-row">
 	          <div class="col-auto">
                      <label for="adminUpdate-updateFileUpload" class="form-label">Select build to install</label>
-		     <input type="file" class="form-control" required id="adminUpdate-updateFileUpload" name="updateFileUpload">
+		     <input type="file" class="form-control adminUpdate-install-ready" required id="adminUpdate-updateFileUpload" name="updateFileUpload">
                   </div>
                </div>
             </form>
@@ -96,7 +96,7 @@
                       d.name,
                       d.type == "display" ? 'display' : 'stopwatch',
                       d,
-                      i > 0 && (i % 2 == 0))
+                      i > 0 && (i % 2 == 0));
 
     let dataIp = `data-ip="${d.ip}"`;
     $("#adminUpdate-devicesTableBody").append(`
@@ -115,10 +115,6 @@
 </tr>`);
  }
 
- function adminUpdate_verifyFileField(input, target, allowEmpty) {
-    verifyField(/^.*\.(tgz)$/, input, target, allowEmpty);
- }
- 
  function updateUnpack(ip, fileName, digest) {
     return jsonCall('updateUnpack', 
                     `${scheme}://${ip}:${port}/update/unpack`,
@@ -137,7 +133,6 @@
        enableField(false, "#adminUpdate-btn-install")
        enableField(false, "#adminUpdate-btn-restart")
        enableField(false, "#adminUpdate-btn-reboot")
-       enableField(false, "#adminUpdate-btn-install")
        enableField(false, "#adminUpdate-btn-clean")
        enableField(false, "#adminUpdate-btn-ptpd")
        
@@ -228,10 +223,11 @@
  function adminUpdate_verifyInstallReady(btn) {
     let devices = getSelectedIconList("adminUpdate-iconChecked");
     
-    let digest = $('#adminUpdate-digest').val().trim()
+    let installIsValid = devices.length > 0 &&
+                         verifyField(/^.*\.(tgz)$/, '#adminUpdate-updateFileUpload', '#adminUpdate-btn-install') &&
+                         verifyField(/[a-f0-9A-F]+/, "#adminUpdate-digest", '#adminUpdate-btn-install');
     
-    enableField(devices.length > 0 && adminUpdate_active == 0 && digest, btn)
-    adminUpdate_verifyFileField('#adminUpdate-updateFileUpload', '#adminUpdate-btn-install');
+    enableField(installIsValid, '#adminUpdate-btn-install')
  }
  
  function adminUpdate_doInstall() {
@@ -395,12 +391,7 @@
     enableField(enable, "#adminUpdate-btn-reboot")
     enableField(enable, "#adminUpdate-btn-restart")
 
-    if (enable) {
-       adminUpdate_verifyInstallReady('#adminUpdate-btn-install');
-    } else {
-       enableField(enable, "#adminUpdate-btn-install");
-       adminUpdate_verifyFileField('#adminUpdate-updateFileUpload', '#adminUpdate-btn-install');
-    }
+    adminUpdate_verifyInstallReady();
  }
  
  function adminUpdate_enter() {
@@ -414,20 +405,21 @@
           response.displays.concat(response.sensors).forEach(adminUpdate_addDevice)
           $('.adminUpdate-iconChecked').on('change',  adminUpdate_verifySelectedIcons)
           $('.adminUpdate-install-ready').on('change',function() {
-             adminUpdate_verifyInstallReady('#adminUpdate-btn-install')
+             adminUpdate_verifyInstallReady()
           });
        })
     
-    $('#adminUpdate-updateFileUpload').on('change',function() {
-       adminUpdate_verifyFileField('#adminUpdate-updateFileUpload', '#adminUpdate-btn-install');
-    });
+    $('#adminUpdate-updateFileUpload').on('change', adminUpdate_verifyInstallReady)
+                                      .on('input', adminUpdate_verifyInstallReady);
+    $('#adminUpdate-digest').on('change', adminUpdate_verifyInstallReady)
+                            .on('keyup', adminUpdate_verifyInstallReady)
+                            .on('input', adminUpdate_verifyInstallReady);
     
-    adminUpdate_verifyFileField('#adminUpdate-updateFileUpload', '#adminUpdate-btn-install');
+    $('.adminUpdate-install-ready').on('change', adminUpdate_verifyInstallReady)
+                                   .on('keyup', adminUpdate_verifyInstallReady)
+                                   .on('input', adminUpdate_verifyInstallReady);
     
-    $('.adminUpdate-install-ready').on('change',function() {
-       adminUpdate_verifyInstallReady('#adminUpdate-btn-install')
-    });
-    adminUpdate_verifyInstallReady('#adminUpdate-btn-install')
+    adminUpdate_verifyInstallReady()
  }
 
  function adminUpdate_exit() {

@@ -22,7 +22,6 @@ import ssl
 
 import Config
 import Identify
-import LED_RGB_Display 
 import CurlingClockManager
 import Utils
 import AIO_Utils
@@ -145,22 +144,26 @@ async def httpRedirectorHtmlPost(request):
 
 async def shutdown(sig, loop, app):
     global serverTask, serverActive, curlingClockManager
-
-    serverActive = False
     
+    serverActive = False
+
     print(f"shutting down sig={sig.name}...", file=sys.stderr)
     await curlingClockManager.stopTasks(app)
 
+    loop.stop()
+
     serverTask.cancel()
-    await serverTask
+    #await serverTask
 
     tasks = [task for task in asyncio.all_tasks() if task is not asyncio.current_task()]
 
     for task in tasks:
         print(task, file=sys.stderr)
-        # task.cancel()
+        task.cancel()
               
 async def runApp(appMain, ssl_context):
+    global serverActive
+    
     handleSignals = False
     try:
         # main server
@@ -198,7 +201,7 @@ async def runApp(appMain, ssl_context):
             info("CurlingTimer: HTTP Redirector started on http://%s:%s", "0.0.0.0", 80)
 
         try:
-            while True:
+            while serverActive:
                 await asyncio.sleep(1)  # sleep forever by 1 hour intervals
 
         except (asyncio.CancelledError, KeyboardInterrupt):
@@ -235,13 +238,6 @@ def loadConfiguration(configFn):
     return displayConfig
 
 
-async def mainLoopTask(loop, app):
-    global serverActive, curlingClockManager
-
-    while serverActive:
-        await asyncio.sleep(0.1)
-
-        
 def gatherDisplayInfo(info):
     info["application"] = "DisplayTimer"
     info["idle"] = str(curlingClockManager.getIdleTime()) + " " + curlingClockManager.getIdleResetter()
@@ -261,6 +257,11 @@ def main():
     global displayDevice, curlingClockManager, startTime
     global displayBreakTimeTracker
     global tokenAuthenticator
+
+    showOnTV = len(sys.argv) > 1 and sys.argv[1] == "TV"
+
+    if showOnTV:
+        sys.argv.pop(1)
 
     info("startup: begin")
 
@@ -292,7 +293,12 @@ def main():
     
     info("startup: init display")
     hardwareConfigFN = myApp.config("display.toml")
-    displayDevice = LED_RGB_Display.create([], hardwareConfigFN=hardwareConfigFN, fontPath=[myApp.app("fonts")])
+    if showOnTV:
+        import TV_Display as displayServer
+    else:
+        import LED_RGB_Display as displayServer
+
+    displayDevice = displayServer.create([], hardwareConfigFN=hardwareConfigFN, fontPath=[myApp.app("fonts")])
     args = displayDevice.parseArgs()
 
     if args.port:
@@ -399,14 +405,16 @@ def main():
     info("startup: complete")
     checkUserSetup()
 
-    loop = asyncio.get_event_loop()
-    
+    loop = displayDevice.run()
+
     loop.add_signal_handler(signal.SIGINT, functools.partial(asyncio.ensure_future, shutdown(signal.SIGINT, loop, app)))
     loop.add_signal_handler(signal.SIGTERM, functools.partial(asyncio.ensure_future, shutdown(signal.SIGTERM, loop, app)))
     loop.add_signal_handler(signal.SIGQUIT, functools.partial(asyncio.ensure_future, shutdown(signal.SIGQUIT, loop, app)))
 
     serverTask = loop.create_task(runApp(app, ssl_context))
-    loop.run_until_complete(mainLoopTask(loop, app))
+
+    loop.run_forever()
+
     info("curling timer: reached the end")
     
 

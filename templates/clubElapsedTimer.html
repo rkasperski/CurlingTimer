@@ -29,10 +29,10 @@
       </div>
       <div class="row">
 	 <div class="col-4">
-	    <input type="text" class="form-control check-time" placeholder="hh:mm:ss" id="clubElapsed-startTime" value="">
+	    <input type="text" class="form-control clubElapsed-check-time" placeholder="hh:mm:ss" id="clubElapsed-startTime" value="">
 	 </div>
 	 <div class="col-auto">
-	    <button type="button" id="clubElapsed-setAll" class="disabled icon-button btn btn-outline-dark submit-target" onclick="ElapsedSetAll($('#clubElapsed-startTime').val())">{{icon("box-arrow-up-right")}}</button>
+	    <button type="button" id="clubElapsed-setAll" class="disabled icon-button btn btn-outline-dark clubElapsed-submit-target" onclick="ElapsedSetAll($('#clubElapsed-startTime').val())">{{icon("box-arrow-up-right")}}</button>
          </div>
 	 <div class="col-auto">
 	    <button type="button" id="clubElapsed-resumeAll" class="icon-button btn btn-outline-dark" onclick="ElapsedStartAll()">{{icon("play-fill")}}</button>
@@ -68,7 +68,7 @@
 		  <input type="text" class="form-control" id="clubElapsed-startTime{{loop.index0}}" placeholder="hh:mm:ss" value="">
 	       </div>
 	       <div class="col-auto">
-		  <button type="button" id="clubElapsed-btn-set{{s.ordinal}}" class="disabled icon-button btn btn-outline-dark submit-target" onclick='clubElapsed_setOneTimer("{{s.ip}}", $("#clubElapsed-startTime{{s.ordinal}}").val())'>{{icon("box-arrow-up-right")}}</button>
+		  <button type="button" id="clubElapsed-btn-set{{s.ordinal}}" class="disabled icon-button btn btn-outline-dark clubElapsed-submit-target" onclick='clubElapsed_setOneTimer("{{s.ip}}", $("#clubElapsed-startTime{{s.ordinal}}").val())'>{{icon("box-arrow-up-right")}}</button>
 	       </div>
 	       <div class="col-auto">
 		  <button type="button" id="clubElapsed-btn-resume_{{s.ordinal}}" class="icon-button btn btn-outline-dark" onclick='ElapsedStart("{{s.ip}}")'>{{icon("play-fill")}}</button>
@@ -106,6 +106,7 @@
           verifyTimeField(e.target, `#clubElapsed- btn-set${i}`, true);
        });	 
     }
+    checkTime(".clubElapsed-check-time", ".clubElapsed-submit-target", true);
  }
 
  function clubElapsed_exit() {

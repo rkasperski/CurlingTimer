@@ -96,7 +96,9 @@ fileDebug = os.path.exists("DEBUG") or os.environ.get("DEBUGFILE", None)
 def clearLogs():
     logEntries.clear()
 
-    
+def logToStdOut():
+    log_handler.sendToStderr(True)
+
 if fileDebug:
     log_handler.sendToStderr(True)
 

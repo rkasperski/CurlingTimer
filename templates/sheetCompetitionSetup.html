@@ -7,7 +7,7 @@
 	       <label for="sheetCompetitionSetup-teamTime" class="col-form-label">Time Limit Per Team:</label>
             </div>
             <div class="col-3">
-	       <input type="text" class="form-control check-time" id="sheetCompetitionSetup-teamTime" value="">
+	       <input type="text" class="form-control sheetCompetitionSetup-check-time" id="sheetCompetitionSetup-teamTime" value="">
 	    </div>
          </div>
          <div class="row mt-4">
@@ -15,7 +15,7 @@
 	       <label for="sheetCompetitionSetup-intermissionLength" class="col-form-label">Intermission Length:</label>
             </div>
             <div class="col-3">
-	       <input type="text" class="form-control check-time" id="sheetCompetitionSetup-intermissionLength" value="">
+	       <input type="text" class="form-control sheetCompetitionSetup-check-time" id="sheetCompetitionSetup-intermissionLength" value="">
 	    </div>
          </div>
          <div class="row mt-4">
@@ -41,7 +41,7 @@
                </div>
             </div>
 	    <div class="col-auto ml-1 my-auto ">
-	       <button type="button" class="icon-button btn btn-outline-dark submit-target" onclick='flip("sheetCompetitionSetup-team1","sheetCompetitionSetup-team2");{{icon("shuffle")}}</button>
+	       <button type="button" class="icon-button btn btn-outline-dark sheetCompetitionSetup-submit-target" onclick='flip("sheetCompetitionSetup-team1","sheetCompetitionSetup-team2");'>{{icon("shuffle")}}</button>
 	    </div>			    
          </div>
          <div class="row mt-4">
@@ -58,7 +58,7 @@
             </div>
 	    <div class="col-auto ml-1 my-auto ">
 	       <button type="button"
-                       class="icon-button btn btn-outline-dark submit-target"
+                       class="icon-button btn btn-outline-dark sheetCompetitionSetup-submit-target"
                        onclick="sheetCompetitionSetup_setTeamNames()">
                 {{icon("box-arrow-up-right")}}
                </button>			
@@ -67,12 +67,12 @@
          <div class="row mt-4">
 	    <div class="col-auto">
 	       <button type="submit"
-                       class="btn btn-outline-dark submit-target"
+                       class="btn btn-outline-dark sheetCompetitionSetup-submit-target"
                        onclick="sheetCompetitionSetup_newGame()">New Game</button>
 	    </div>
 	    <div class="col-auto">
 	       <button type="submit"
-                       class="btn btn-outline-dark submit-target"
+                       class="btn btn-outline-dark sheetCompetitionSetup-submit-target"
                        onclick="sheetCompetitionSetup_showTimer()">Show Timer</button>
 	    </div>
          </div>		
@@ -97,6 +97,7 @@
           $("#sheetCompetitionSetup-top-rock").attr("src", `/static/images/Curling-Rock-${response.topColour}-sm.png`)
           $("#sheetCompetitionSetup-bottom-rock").attr("src", `/static/images/Curling-Rock-${response.bottomColour}-sm.png`)
        })
+    checkTime(".sheetCompetitionSetup-check-time", ".sheetCompetitionSetup-submit-target");
  }
 
  function sheetCompetitionSetup_newGame() {

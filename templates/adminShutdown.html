@@ -55,10 +55,10 @@
     addSelectableIcon("#adminShutdown-selectableIcons",
                       `adminShutdown-selectableIcons${i}`,
                       "adminShutdown-iconChecked",
-                      p.name,
+                      `${p.name}\n${p.ip}`,
                       p.type == "display" ? 'display' : 'stopwatch',
                       p,
-                      i > 0 && (i % 2 == 0))
+                      i > 0 && (i % 2 == 0));
  }
  
 

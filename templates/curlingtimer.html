@@ -2,6 +2,8 @@
 {% import 'macros.html' as macros %}
 {% from "macros.html" import navPanel, actionIcon, overlayNav, selectableIcon, icon %}
 {% include 'helpers.css' %}
+<style>
+</style>
 <html lang="en">
    <head>
       {% include 'head.html' %}
@@ -87,74 +89,78 @@
    {% include "adminShowVersions.html" %}
    {% include "adminGotoDevice.html" %}
    </body>
-   <script>
-    function club_verifyLoggedIn() {
-       let result = null;
+</html>
+<script>
+ loginInfo = null;
+
+ function verifyLoggedIn() {
+    let result = null;
+    Status(ip, "competition/status", {}, false)
+       .fail(function () {
+          logoutRecord();
+          result = "clubLogin";
+       })
+    
+    return result;
+ }
+ 
+ $(document).ready(function() {
+    if (typeof(Storage) !== "undefined") {
+       let s = localStorage.getItem("logininfo")
+       if (s) {
+          loginInfo = JSON.parse(s);
+       }
+    }
+    
+    if (setupStage == 0) {
+       Status(ip, "competition/status", false)
+       adminSecret_directShow(name, ip)
+    } else if (setupStage == 1) {
        Status(ip, "competition/status", {}, false)
+          .done(function () {
+             if (loginInfo && loginInfo.isAdmin) {
+                panelNavigate("adminSheets");
+             } else {
+                logoutRecord();
+                panelNavigate("clubLogin");
+             }
+          })
           .fail(function () {
              logoutRecord();
-             result = "clubLogin";
-          })
-
-       return result;
-    }
-
-    loginInfo = null;
-    $(document).ready(function() {
-       if (typeof(Storage) !== "undefined") {
-          let s = localStorage.getItem("logininfo")
-          if (s) {
-             loginInfo = JSON.parse(s);
-          }
-       }
-
-       if (setupStage == 0) {
-          Status(ip, "competition/status", false)
-          adminSecret_directShow(name, ip)
-       } else if (setupStage == 1) {
+             panelNavigate("clubLogin");
+          });
+    } else {
+       if (loginInfo && loginInfo.user) {
+          accessToken = loginInfo.accessToken;
           Status(ip, "competition/status", {}, false)
-             .done(function () {
-                if (loginInfo && loginInfo.isAdmin) {
-                   panelNavigate("adminSheets");
-                } else {
-                   logoutRecord();
-                   panelNavigate("clubLogin");
-                }
-             })
+             .done(() => panelNavigate("club"))
              .fail(function () {
                 logoutRecord();
                 panelNavigate("clubLogin");
-             });
+             })
+       } else if (loginInfo && loginInfo.pinSheetID && loginInfo.pinSheetIP) {
+          accessToken = loginInfo.accessToken;
+          ip = loginInfo.pinSheetIP;
+          Status(ip, "competition/status", false)
+             .done(() => panelNavigate("sheet" + loginInfo.pinSheetID))
+             .fail(function () {
+                logoutRecord();
+                panelNavigate("clubLogin");
+             })
        } else {
-          if (loginInfo && loginInfo.user) {
-             accessToken = loginInfo.accessToken;
-             Status(ip, "competition/status", {}, false)
-                .done(() => panelNavigate("club"))
-                .fail(function () {
-                   logoutRecord();
-                   panelNavigate("clubLogin");
-                })
-          } else if (loginInfo && loginInfo.pinSheetID && loginInfo.pinSheetIP) {
-             accessToken = loginInfo.accessToken;
-             ip = loginInfo.pinSheetIP;
-             Status(ip, "competition/status", false)
-                .done(() => panelNavigate("sheet" + loginInfo.pinSheetID))
-                .fail(function () {
-                   logoutRecord();
-                   panelNavigate("clubLogin");
-                })
-          } else {
-             logoutRecord();
-             panelNavigate("clubLogin");
-          }
+          logoutRecord();
+          panelNavigate("clubLogin");
        }
-    });
-
-    unauthorizedCallback = function(jqXHR, status, errorThrown) {
-       logoutRecord();
-       panelNavigate("clubLogin");
     }
     
-   </script> 
+    setupClickHack();
+ });
+ 
+ unauthorizedCallback = function(jqXHR, status, errorThrown) {
+    logoutRecord();
+    panelNavigate("clubLogin");
+ }
+ 
+</script>
 </html>
 

@@ -110,26 +110,34 @@ class RockTimingEvents:
             for selector in timeSelector:
                 if selector == "b":
                     # report breaktime at first hog-line
-                    throwTimes.append((timePatternMatch[1][3],
-                                       self.placementToColourMap[timePatternMatch[1][0]], "Near Hog-Line Speed", self.diameter / timePatternMatch[1][3]))
+                    throwTimes.append((timePatternMatch[-1][3],
+                                       self.placementToColourMap[timePatternMatch[-1][0]],
+                                       "Near Hog-Line Speed",
+                                       self.diameter / timePatternMatch[-1][3]))
                 elif selector == "B":
                     # report breaktime at second hog-line
-                    throwTimes.append((timePatternMatch[2][3],
-                                       self.placementToColourMap[timePatternMatch[2][0]], "Far Hog-Line Speed", self.diameter / timePatternMatch[2][3]))
+                    throwTimes.append((timePatternMatch[0][3],
+                                       self.placementToColourMap[timePatternMatch[0][0]],
+                                       "Far Hog-Line Speed",
+                                       self.diameter / timePatternMatch[0][3]))
                 elif selector == "d":
                     # report difference between first two timers - they are in reverse order
                     td = timePatternMatch[-2][2] - timePatternMatch[-1][2]
                     throwTimes.append((td,
-                                       self.placementToColourMap[timePatternMatch[0][0]], "Slide Interval", self.slidePathLength / td))
+                                       self.placementToColourMap[timePatternMatch[0][0]],
+                                       "Slide Interval",
+                                       self.slidePathLength / td))
                 elif selector == "D":
                     # report difference between last two timers - they are in reverse order
                     td = timePatternMatch[0][2] - timePatternMatch[1][2]
                     throwTimes.append((td,
-                                       self.placementToColourMap[timePatternMatch[1][0]], "Hog-To-Hog Interval", 21.945 / td))
+                                       self.placementToColourMap[timePatternMatch[1][0]],
+                                       "Hog-To-Hog Interval",
+                                       21.945 / td))
                 elif selector == "X":
                     self.times.clear()
 
-            throwKey = timePatternMatch[0][2]
+            throwKey = timePatternMatch[-1][2]
             self.throws[throwKey] = throwTimes
             return (throwKey, throwTimes)
 
