@@ -2,6 +2,8 @@ import functools, CurlingClockTimers
 import sys
 import asyncio
 
+from Kapow import RotatingBlock, Rain, Life, Symbols
+
 fakeTimers = None
 fakeDefaults = None
 fakeSheet = None
@@ -26,10 +28,11 @@ def createFakeTimers():
 
     fakeDefaults.lastEndMessage = "Last End"
     fakeDefaults.lastEndMessageColour = "green"
+    fakeDefaults.lastEndMessageDisplayTime = "15:00"
 
     fakeTimers = CurlingClockTimers.Timers(fakeDefaults, fakeSheetData,lambda : False)
-    fakeTimers.competition.teams[0].name = "O'Connor"
-    fakeTimers.competition.teams[1].name = "Ratakowski"
+    fakeTimers.competition.teams[0].name = "Ratakowsky"
+    fakeTimers.competition.teams[1].name = "O'Connor"
 
 async def spin(fn):
     while True:
@@ -45,6 +48,12 @@ async def testClock():
 
     await spin(clockUpdate)
 
+async def testClock10ths():
+    async def clockUpdate10ths():
+        display.clockUpdate(showTenths=True)
+
+    await spin(clockUpdate10ths)
+
 async def test2Line():
     await spin(functools.partial(display.twoLineText, "line p" , "line y", centre=True))
 
@@ -55,7 +64,6 @@ async def testBreakTimes():
     await spin(functools.partial(display.breakTimeDisplay))
 
 async def testBreakTimes1():
-    print("textBreaktimes")
     display.breakTimeSet(0.123, "red")
 
     await spin(functools.partial(display.breakTimeDisplay))
@@ -97,7 +105,11 @@ async def nothing():
 
 async def testText():
     display.displayText("test text")
-    spin(functools.partial(nothing))
+    await spin(functools.partial(nothing))
+
+async def testBlank():
+    display.bkank()
+    await spin(functools.partial(nothing))
 
 async def testSplash():
     async def splashColour(colour):
@@ -113,100 +125,194 @@ async def testFlash2():
 
 async def testCountdownUpdate():
     async def countdownUpdate():
-        display.countDownUpdate(fakeTimers.countDown)
+        display.updateTimer(str(fakeTimers.countDown), "white", "cdt:")
 
     fakeTimers.countDown.resume()
     await spin(countdownUpdate)
+
+async def testElapsedUpdate():
+    async def elapsedUpdate():
+        display.updateTimer(str(fakeTimers.elapsedTime), "white", "cdt:")
+
+    fakeTimers.elapsedTime.resume()
+    await spin(elapsedUpdate)
+
+async def testElapsed10thsUpdate():
+    fakeTimers.elapsedTime.showTenths = True
+
+    async def elapsed10thsUpdate():
+        display.updateTimer(str(fakeTimers.elapsedTime), "white", "cdt:", showTenths=True)
+
+    fakeTimers.elapsedTime.resume()
+    
+    await spin(elapsed10thsUpdate)
 
 async def delayedTest(testFn):
     await asyncio.sleep(1)
     await testFn()
 
+async def testDots():
+    i = -1
+    r, g, b = [128, 129, 128]
+
+    drawable = display.getClearedDrawable()
+    drawable.show()
+
+    while True:
+        i += 1
+
+        r = (r + 9) % 255
+        g = (g + 31) % 255
+        b = (b + 67) % 255
+
+        drawable.start()
+        drawable.drawPoint(i % drawable.width, int(i / drawable.width) % drawable.height, (r, g, b))
+        drawable.show()
+        await asyncio.sleep(0.2)
+
+async def testCircles():
+    i = -1
+    r, g, b = [128, 129, 128]
+
+    drawable = display.getClearedDrawable()
+    drawable.show()
+
+    centerX = int(drawable.width / 2)
+    centerY = int(drawable.height / 2)
+    maxD = int(max(drawable.visible_pixels) / 2)
+    pd = drawable.visible_pixel_dimension
+    i = 1234567890 * maxD - 1
+    while True:
+        i = (i - 1) % maxD
+
+        r = (r + 9) % 255
+        g = (g + 31) % 255
+        b = (b + 67) % 255
+
+        drawable.start()
+        drawable.drawCircle(centerX, centerY, pd * i, borderColour=(r, g, b))
+        display.show(drawable)
+        await asyncio.sleep(0.2)
+
+async def testRects():
+    i = -1
+    r, g, b = [128, 129, 128]
+
+    drawable = display.getClearedDrawable()
+    drawable.show()
+
+    centerX = int(drawable.width / 2)
+    centerY = int(drawable.height / 2)
+
+    maxD = int(max(drawable.visible_pixels) / 2)
+
+    pd = drawable.visible_pixel_dimension
+    i = 1234567890 * maxD - 1
+    while True:
+        i = (i - 1) % maxD
+
+        r = (r + 9) % 255
+        g = (g + 31) % 255
+        b = (b + 67) % 255
+
+        t = i * pd
+        drawable.start()
+        drawable.drawRect(centerX - t, centerY - t, t + t - 1, t + t - 1, borderColour=(r, g, b))
+        drawable.show()
+        await asyncio.sleep(0.2)
+
+async def testKapow(whichKapow):
+    kapow = whichKapow(display.getDrawable())
+
+    await spin(kapow.next)
+
+async def testPolygons():
+    star_vertices = ((000, 300), (300, 300), (400, 000), (500, 300), (800, 300), (550, 500), (650, 800), (400, 600), (150, 800), (250, 500))
+
+    i = -1
+    r, g, b = [128, 129, 128]
+
+    drawable = display.getClearedDrawable()
+    drawable.show()
+
+    centerX = int(drawable.width / 2)
+    centerY = int(drawable.height / 2)
+
+    maxD = max(drawable.visible_pixels)
+    pd = drawable.visible_pixel_dimension
+
+    i = 1234567890 + maxD - 1
+    while True:
+        i = (i - 1) % maxD
+
+        r = (r + 9) % 255
+        g = (g + 31) % 255
+        b = (b + 67) % 255
+
+        pi = i * pd
+        offset = (centerX - int(((800 / maxD) * i  / 800) * pi) , centerY - int((800 / maxD) * (i / 800) * pi))
+
+        pts = [(int((x / 800) * pi) + offset[0], int((y / 800) * pi) + offset[1]) for x, y in star_vertices]
+
+        drawable.start()
+        drawable.drawPolygon(pts, borderColour=(r, g, b))
+        drawable.show()
+        await asyncio.sleep(0.2)
+
 def main():
     global display, app, testFn
 
     TV = False
-    if len(sys.argv) > 1 and sys.argv[1] == "TV":
+    a = sys.argv.pop(1)
+    if a == "TV":
         import TV_Display as displayServer
 
-        sys.argv.pop(1)
+        a = sys.argv.pop(1)
         TV = True
     else:
         import LED_RGB_Display as displayServer
 
-
-    print(sys.argv)
     createFakeTimers()
 
-    if sys.argv[1] == "scrolling":
-        del sys.argv[1]
-        testFn = testScrolling
-    elif sys.argv[1] == "clock":
-        del sys.argv[1]
-        testFn = testClock
-    elif sys.argv[1] == "2line":
-        del sys.argv[1]
-        testFn = test2Line
-    elif sys.argv[1] == "2scrolling":
-        del sys.argv[1]
-        testFn = test2Scrolling
-    elif sys.argv[1] == "break":
-        del sys.argv[1]
-        testFn = testBreakTimes
-    elif sys.argv[1] == "break1":
-        del sys.argv[1]
-        testFn = testBreakTimes1
-    elif sys.argv[1] == "break2":
-        del sys.argv[1]
-        testFn = testBreakTimes2
-    elif sys.argv[1] == "text":
-        del sys.argv[1]
-        testFn = testText
+    testFunctions = {
+        "scrolling": testScrolling,
+        "clock": testClock,
+        "clock10ths": testClock10ths,
+        "2line": test2Line,
+        "2scrolling": test2Scrolling,
+        "break": testBreakTimes,
+        "break1": testBreakTimes1,
+        "break2": testBreakTimes2,
+        "text": testText,
+        "competition": testCompetitionUpdate,
+        "teams": testTeams,
+        "teamsScrolling": testTeamsScrolling,
+        "vs": testTeamsScrolling,
+        "splash": testSplash,
+        "countdown": testCountdownUpdate,
+        "elapsed": testElapsedUpdate,
+        "elapsed10ths": testElapsed10thsUpdate,
+        "flash": testFlash,
+        "flash2": testFlash2,
+        "blank": testBlank,
+        "dots": testDots,
+        "circles": testCircles,
+        "rects": testRects,
+        "polygons": testPolygons,
+        "block": functools.partial(testKapow, RotatingBlock),
+        "rain": functools.partial(testKapow, Rain),
+        "life": functools.partial(testKapow, Life),
+        "star": functools.partial(testKapow, lambda x: Symbols(x, "star")),
+        "square": functools.partial(testKapow, lambda x: Symbols(x, "square")),
+        "circle": functools.partial(testKapow, lambda x: Symbols(x, "circle"))
+    }
+    
+    testFn = testFunctions.get(a, None)
 
-    elif sys.argv[1] == "competition":
-        del sys.argv[1]
-        testFn = testCompetitionUpdate
-
-    elif sys.argv[1] == "teams":
-        del sys.argv[1]
-        testFn = testTeams
-
-    elif sys.argv[1] == "teamsScrolling":
-        del sys.argv[1]
-        testFn = testTeamsScrolling
-
-    elif sys.argv[1] == "splash":
-        del sys.argv[1]
-        testFn = testSplash
-
-    elif sys.argv[1] == "update":
-        del sys.argv[1]
-        testFn = testUpdateTimer
-
-    elif sys.argv[1] == "countdown":
-        del sys.argv[1]
-        testFn = testCountdownUpdate
-
-    elif sys.argv[1] == "elapsed":
-        del sys.argv[1]
-        testFn = testElapsedUpdate
-
-    elif sys.argv[1] == "timerUpdate":
-        del sys.argv[1]
-        testFn = testTimerUpdate
-
-    elif sys.argv[1] == "flash":
-        del sys.argv[1]
-        testFn = testFlash
-
-    elif sys.argv[1] == "flash2":
-        del sys.argv[1]
-        testFn = testFlash2
-
-    elif sys.argv[1] == "blank":
-        del sys.argv[1]
-        testFn = testBlank
-
+    if testFn is None:
+        print(f"{a} is not a valid test")
+        print(f"try one of {', '.join(testFunctions.keys())}")
+        sys.exit(4)
 
     if TV:
         display = displayServer.create(sys.argv, "welcome to my nightmare", "test.config")

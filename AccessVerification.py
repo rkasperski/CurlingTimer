@@ -53,13 +53,19 @@ def checkUserSetup():
         Config.display.save()
 
         
-def verifyToken(accessToken, audience):
+def verifyToken(accessToken, audience, verbose=False):
     if not accessToken:
+        if verbose:
+            print(f"verifyToken: bad token {accessToken=}")
+
         return False
     
     mySheet = Config.display.sheets.mySheet
     tkn = tokenAuthenticator.verify(accessToken,  mySheet)
     if not tkn:
+        if verbose:
+            print(f"verifyToken: unverifiable token {accessToken=}")
+
         return False
 
     tknAud = tkn["aud"]
@@ -75,6 +81,9 @@ def verifyToken(accessToken, audience):
     else:
         verified = False
         
+    if not verified and verbose:
+        print(f"verifyToken: unverified {tkn=} {audience=}")
+
     return verified
     
         
@@ -88,7 +97,7 @@ def ajaxVerifyToken(audience):
                 mySheet = Config.display.sheets.mySheet
                 tkn = tokenAuthenticator.verify(accessToken,  mySheet)
                 if not tkn:
-                    info("security: %s verify failed tkn", audience)
+                    info("security: %s verify failed tkn; ip=%s who=%s", audience, request.remote, func.__name__)
                     return aiohttp_web.HTTPUnauthorized()
 
                 tknAud = tkn["aud"]
@@ -108,9 +117,9 @@ def ajaxVerifyToken(audience):
                     request.accessTknAudience = tknAud
                     return await func(request)
 
-                info("security: %s verify failed tkn", audience)
+                info("security: %s verify failed tkn; ip=%s", audience, request.remote)
             else:
-                info("security: %s verify failed no access token", audience)
+                info("security: %s verify failed no access token; ip=%s", audience, request.remote)
 
             return aiohttp_web.HTTPUnauthorized()
 

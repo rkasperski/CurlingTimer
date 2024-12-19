@@ -1,4 +1,4 @@
-from Logger import info, error
+from Logger import info, error, debug
 import asyncio
 import os
 import time
@@ -352,6 +352,8 @@ class DrawManager:
                                                             jsonData={},
                                                             headers={CLOCK_HDR: tkn},
                                                             retries=3))
+                info("Draw: blank %s", sheetDisplay.ip)
+                
 
         await asyncio.wait(activeBlankTasks)
                 
@@ -380,6 +382,10 @@ class DrawManager:
                                                                           },
                                                                 headers={CLOCK_HDR: tkn},
                                                                 retries=3))
+                info("Draw: counttdaown set %s gameTime=%s",
+                     sheetDisplay.ip,
+                     gameTime)
+                    
 
         await asyncio.wait(activeSetupTasks)
 
@@ -399,6 +405,7 @@ class DrawManager:
                                                                 jsonData={},
                                                                 headers={CLOCK_HDR: tkn},
                                                                 retries=3))
+                info("Draw: counttdown start %s", sheetDisplay.ip)
                 
         await asyncio.wait(activeStartTasks)
 
@@ -414,7 +421,7 @@ class DrawManager:
 
                 if sheet["team1"] or sheet["team2"]:
                     tkn = AccessVerification.tokenAuthenticator.create(expires=int(time.time()) + tokenValidTime, audience="peer")
-                    
+
                     activeSetupTasks.append(postUrlJSONResponse("draw/showTeams/set",
                                                                 f'{httpUtils.scheme}://{sheetDisplay.ip}:{httpUtils.port}/teamnames/set',
                                                                 jsonData={"team1": sheet["team1"],
@@ -423,6 +430,7 @@ class DrawManager:
                                                                           },
                                                                 headers={CLOCK_HDR: tkn},
                                                                 retries=3))
+                    info("Draw: show teams set %s '%s' '%s'", sheetDisplay.ip,  sheet["team1"],  sheet["team2"])
 
         await asyncio.wait(activeSetupTasks)
 
@@ -443,6 +451,7 @@ class DrawManager:
                                                                           "until": until},
                                                                 headers={CLOCK_HDR: tkn},
                                                                 retries=3))
+                    info("Draw: show teams show %s howLong=%s until=%s", sheetDisplay.ip,  howLong,  until)
 
         await asyncio.wait(activeStartTasks)
 
@@ -498,9 +507,18 @@ class DrawManager:
                     
                     secsToDrawStart = drawTime - lclTime
 
+                    debug("Draw: check show=% atStart=%s drawTime=%s secsToDraw=%s",
+                          show,
+                          atStart,
+                          drawTime,
+                          secsToDrawStart)
+
                     if secsToDrawStart > 0:
                         if draw.doc_id not in self.drawsShown:
                             if show and secsToDrawStart < show:
+                                info("Draw: check show teams drawTime=%s",
+                                     drawTime)
+                                     
                                 await self.showTeams(draw["colour"], draw["sheets"], until=drawTime)
                                 self.drawsShown.add(draw.doc_id)
                     elif secsToDrawStart <= 0:
@@ -508,15 +526,21 @@ class DrawManager:
                             self.drawsStarted.add(draw.doc_id)
                             if atStart == "countdown":
                                 activeUntil = drawTime + strToSeconds(Config.display.defaults.gameTime) + strToSeconds(Config.display.defaults.blankTime)
+                                info("Draw: countdown test activeUntil=%s lclTime=%s", activeUntil, lclTime)
                                 if activeUntil > lclTime:
+                                    info("Draw: countdown start secsToDrawStart=%s", -secsToDrawStart)
                                     await self.startCountDownSheets(draw["sheets"], -secsToDrawStart)
                             elif isinstance(atStart, int):
                                 activeUntil = drawTime + atStart * 60
+                                info("Draw: showTeams test activeUntil=%s lclTime=%s", activeUntil, lclTime)
                                 if activeUntil > lclTime:
+                                    info("Draw: showTeams activeUntil=%s", activeUntil)
                                     await self.showTeams(draw["colour"], draw["sheets"], until=activeUntil)
                             else:
-                                blankUntil = drawTime + strToSeconds(Config.display.defaults.gameTime) + strToSeconds(Config.display.defaults.blankTime)
-                                if blankUntil > lclTime:
+                                blankAftr = drawTime + strToSeconds(Config.display.defaults.gameTime) + strToSeconds(Config.display.defaults.blankTime)
+                                info("Draw: blank test blankAfter=%s lclTime=%s", blankUntil, lclTime)
+                                if blankAfter > lclTime:
+                                    info("Draw: blank")
                                     await self.blankSheets(draw["sheets"])
                                 
             except asyncio.CancelledError:

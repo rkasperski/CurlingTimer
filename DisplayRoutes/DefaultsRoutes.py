@@ -23,7 +23,6 @@ async def colourShowAjax(request):
 
     CurlingClockManager.manager.setSplashColour(colour=(red, green, blue))
     CurlingClockManager.manager.setView(CurlingClockManager.manager.splashColour)
-    CurlingClockManager.manager.resetIdleTime()
     
     return aiohttp_web.json_response({"action": "colour"})
 
@@ -49,6 +48,8 @@ async def defaultsAjaxPost(request):
         Config.display.defaults.set(n, v)
 
     Config.display.defaults.modified = True
+    CurlingClockManager.manager.setDefaultsFromConfig()
+
     asyncio.ensure_future(updateAllConfigs())
 
     return aiohttp_web.json_response({"msg": "values saved"})

@@ -1,4 +1,4 @@
-from Logger import info
+from Logger import info, debug
 import tomlkit
 import os
 import time
@@ -79,7 +79,7 @@ class ConfigSectionHandler():
 
         configItems = set(config.toml[self.section].keys())
         sectionItems = set(self.getAttributeList())
-        
+
         for n in set.union(configItems, sectionItems):
             defn = self.getDefinition(n)
             if defn is None:
@@ -112,7 +112,7 @@ class ConfigSectionHandler():
 class AutoConfigParser():
     def __init__(self, *args, filename="config.toml", sections=None, autosave=True, **kwargs):
         self.filename = os.path.abspath(filename)
-        info("config: Reading file: %s", self.filename)
+        debug("config: Reading file: %s", self.filename)
         self.toml = None
         self.read(filename)
         self._modified = False
@@ -232,7 +232,7 @@ class AutoConfigParser():
                 os.rename(self.filename, self.filename + ".old")
                 os.rename(createName, self.filename)
 
-            info("config: saved %s", self.filename);
+            debug("config: saved %s", self.filename);
             return True
 
         return False

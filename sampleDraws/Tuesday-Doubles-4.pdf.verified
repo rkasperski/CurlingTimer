@@ -1,0 +1,48 @@
+name=Tuesday Doubles date=2024-01-04 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Main/Hull            O'Connor/Kinder W   
+    2    Wood/Fahselt         CalCurl W           
+    3    Double D             Main/Hawton L       
+name=Tuesday Doubles date=2024-01-11 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    4    CalCurl              Main/Hull L         
+    5    O'Connor/Kinder      Main/Hawton W       
+    6    Wood/Fahselt         Double D L          
+name=Tuesday Doubles date=2024-01-18 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Double D             CalCurl W           
+    2    Main/Hull            Main/Hawton L       
+    3    Wood/Fahselt         O'Connor/Kinder W   
+name=Tuesday Doubles date=2024-01-25 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    4    Wood/Fahselt         Main/Hawton         
+    5    Double D             Main/Hull           
+    6    CalCurl              O'Connor/Kinder     
+name=Tuesday Doubles date=2024-02-01 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Wood/Fahselt         Main/Hull           
+    2    O'Connor/Kinder      Double D            
+    3    Main/Hawton          CalCurl             
+name=Tuesday Doubles date=2024-02-08 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    4    Main/Hull            O'Connor/Kinder     
+    5    Wood/Fahselt         CalCurl             
+    6    Double D             Main/Hawton         
+name=Tuesday Doubles date=2024-02-15 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Main/Hawton          O'Connor/Kinder     
+    2    CalCurl              Main/Hull           
+    3    Double D             Wood/Fahselt        
+name=Tuesday Doubles date=2024-02-22 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    4    CalCurl              Double D            
+    5    Main/Hull            Main/Hawton         
+    6    O'Connor/Kinder      Wood/Fahselt        
+name=Tuesday Doubles date=2024-03-01 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    3    O'Connor/Kinder      CalCurl             
+    4    Wood/Fahselt         Main/Hawton         
+    6    Main/Hull            Double D            
+name=Tuesday Doubles date=2024-03-08 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    3    Wood/Fahselt         Main/Hull           
+    5    O'Connor/Kinder      Double D            
+    6    Main/Hawton          CalCurl             
+name=Tuesday Doubles date=2024-03-15 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Double D             Main/Hawton         
+    2    CalCurl              Wood/Fahselt        
+    4    Main/Hull            O'Connor/Kinder     
+name=Tuesday Doubles date=2024-03-22 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    3    Main/Hawton          O'Connor/Kinder     
+    4    Double D             Wood/Fahselt        
+    5    Main/Hull            CalCurl             

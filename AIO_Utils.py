@@ -33,6 +33,7 @@ async def renderTemplate(template, request, iContext={}, verbose=False):
     context["sheets"] = Config.display.sheets
     context["drawServer"] = Config.display.defaults.drawServer
     context["kapow"] = list(Kapow.registered.keys())
+    context["debug"] = request.query.get("debug", 0)
     accessToken = request.headers.get(HTTP_Utils.CLOCK_HDR, None)
             
     if accessToken:

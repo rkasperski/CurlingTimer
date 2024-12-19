@@ -13,12 +13,10 @@ def getValidBoardColour(c):
     return "white" if c in [None, "default", "board"] or c not in Config.colours else c
 
 
-def showTeamNames(activeUntil=None, howLong=None):
-    activeUntil = max(activeUntil if activeUntil else 0, howLong + time.monotonic()) if howLong else None
-        
+def showTeamNames(active_until=None, active_interval=None):
     if CurlingClockManager.manager.timers.competition.paused() and CurlingClockManager.manager.timers.countDown.paused() and (CurlingClockManager.manager.timers.competition.teams[0].name.strip() or CurlingClockManager.manager.timers.competition.teams[0].name.strip()):
-        CurlingClockManager.manager.setView(CurlingClockManager.manager.teamNames)
-        CurlingClockManager.manager.resetIdleTime(activeUntil)
+        CurlingClockManager.manager.setView(CurlingClockManager.manager.teamNames, reset_idle=False)
+        CurlingClockManager.manager.resetIdleTime(activeUntil=active_until, activeInterval=active_interval)
     else:
         CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
 

@@ -1,3 +1,4 @@
+
 <div class="display-view d-none h-100 overflow-x-hidden" id="sheetTraining">
    {{ navPanel("sheetTraining", "club" , "Sheet - Training ") }}
    <ul class="nav nav-tabs col-12" id="myTab" role="tablist">
@@ -7,13 +8,21 @@
       <li class="nav-item" role="presentation">
          <button class="nav-link" id="sheetTraining-tab-raw" data-bs-toggle="tab" data-bs-target="#sheetTraining-tab-content-raw" type="button" role="tab" aria-controls="profile" aria-selected="false">Timers</button>
       </li>
-      <li class="nav-item ms-auto" role="presentation">
+      <li class="nav-item ms-auto" role="presentation" id="sheetTraining-connected">
+         <i class="bi bi-lightning" style="font-size:145%"></i>
+      </li>
+      <li class="nav-item ms-auto" role="presentation" id="sheetTraining-reconnect">
+	 <button type="button" class="btn btn-outline-dark" id="sheetTraining-refresh" onclick="sheetTraining_refreshTimes();">
+	    <i class="bi bi-arrow-clockwise"></i>
+	 </button>
+      </li>
+      <li class="nav-item ms-4" role="presentation">
 	 <button type="button" class="btn btn-outline-dark" id="sheetTraining-downloadTimes" onclick="sheetTraining_saveTimes();">
 	    Save
 	 </button>
       </li>
-      <li class="nav-item ms-2 me-4" role="presentation">
-	 <button type="button" id="btn_reset" class="btn btn-default btn-outline-dark submit-target" onclick="sheetTraining_resetBreakTimes();">Clear</button>
+      <li class="nav-item ms-4 me-4" role="presentation">
+	  <button type="button" id="btn_reset" class="btn btn-default btn-outline-dark submit-target" onclick="sheetTraining_resetBreakTimes();">Clear</button>
       </li>
    </ul>
    <div class="tab-content col-12 row" id="sheetTraining-content">
@@ -55,7 +64,10 @@
  var sheetTraining_activeSensors = null;
  var sheetTraining_ws = null;
  var sheetTraining_position = null;
- 
+ var sheetTraining_hasDisplay = false;
+ var sheetTraining_checkTimerId = null;
+ var sheetTraining_lastInteractionTime = 0;
+ var sheetTraining_activeSensorCount = 0
  
  function sheetTraining_clockTime(s) {
     let strTime = s.toLocaleTimeString('en-US', { hour12: false });
@@ -134,7 +146,7 @@
        comment = comment ? comment : "";
 
        thrw[1].forEach(function(evt) {
-          data.push(`${tm},${evt[2]},${evt[0].toFixed(3)}s,${evt[3].toFixed(3)} m/s,${csvQuote(comment)}`);
+          data.push(`${tm},${evt[2]},${evt[0].toFixed(4)}s,${evt[3].toFixed(3)} m/s,${csvQuote(comment)}`);
           tm = "";
           comment = "";
        })
@@ -171,7 +183,10 @@
     sheetTraining_commentMap.clear();
     sheetTraining_timeOrder = [];
     sheetTraining_timeToID.clear();
-    sheetTraining_activeSensors.forEach(snsr => snsr.sendMsg("reset", {filterTime: 5}));
+    sheetTraining_activeSensors.forEach(snsr => snsr.reset(5));
+    if (sheetTraining_ws) {
+       sheetTraining_ws.reset(5); 
+    } 
  }
  
  function sheetTraining_textChange(inField, id) {
@@ -232,7 +247,7 @@
   ${evt[2]}:
 </div>
 <div class="col-4 col-sm-2 col-md-2 h4">
-  ${evt[0].toFixed(3)}s
+  ${evt[0].toFixed(4)}s
 </div>
 <div class="offset-7 offset-sm-0 col-4 col-xs-3 col-sm-3 col-md-3 h4">
   ${evt[3].toFixed(3)} m/s
@@ -287,6 +302,7 @@
     }
 
     updateDisplay() {
+       sheetTraining_lastInteractionTime = Date.now();
        sheetTraining_updateDisplay();
     }
 
@@ -294,13 +310,90 @@
        sheetTraining_updateEvents();
     }
  }
+
+// what to do when endsessio msg arrives
+ function connectToBreakTimerDisplay(ip, sensors) {
+    let ws = new WSBreakTimerDisplay();
+    ws.connect(`ws://${ip}:80/ws/breaktimerdisplay`, sensors, true);
+    return ws;
+}
  
- function sheetTraining_enter(displayInfo) {
+ function sheetTraining_clearSensors() {
+    if (sheetTraining_ws) {
+       sheetTraining_ws.close();
+    }
+
+    sheetTraining_ws = null;
+    
+    if (sheetTraining_activeSensors) {
+       sheetTraining_activeSensors.forEach(snsr => snsr.close());
+    }
+    sheetTraining_activeSensors = [];
+ }
+ 
+ function sheetTraining_checkSensors() {
+    let nGood = 0;
+    let curTime = Date.now();
+
+    if (curTime - sheetTraining_lastInteractionTime > 15 * 60 * 1000) {
+       sheetTraining_clearSensors();
+    } else {
+       if (sheetTraining_ws) {
+          if (sheetTraining_ws.getState() == 1 && sheetTraining_ws.registered) {
+             nGood += 1;
+          }
+       }
+
+       sheetTraining_activeSensors.forEach(function(snsr) {
+          if (snsr.getState() == 1 && snsr.registered) {
+             nGood += 1;
+          }
+       });
+    }
+
+    if ( sheetTraining_activeSensorCount == nGood) {
+       // $("#sheetTraining-reconnect").hide()
+       $("#sheetTraining-connected").show()
+    } else {
+       // $("#sheetTraining-reconnect").show()
+       $("#sheetTraining-connected").hide()
+    }
+ }
+
+ function sheetTraining_refreshTimes() {
+    sheetTraining_lastInteractionTime = Date.now();
+    sheetTraining_clearSensors();
+    setTimeout(function(){
+       if (sheetTraining_displayInfo.hasDisplay) {
+          sheetTraining_ws = connectToBreakTimerDisplay(sheetTraining_displayInfo.ip, sheetTraining_displayInfo.sensors);
+          if (loginInfo && loginInfo.pinSheetID) {
+             updateNavPanel(sheetTrainingHandle, "sheetTraining", `${sheetTraining_displayInfo.name} - Training`, null, "sheet" + loginInfo.pinSheetID);
+          } else {
+             updateNavPanel(sheetTrainingHandle, "sheetTraining", `${sheetTraining_displayInfo.name} - Training`, null, "club");
+          }
+       } else {
+          updateNavPanel(sheetTrainingHandle, "sheetTraining", `${sheetTraining_displayInfo.name} - Training`, null, "club");
+          sheetTraining_ws = null;
+       }
+    
+       for (let x = 0; x < sheetTraining_displayInfo.sensors.length; x++) {
+          let sensor = sheetTraining_displayInfo.sensors[x];2
+          sensor.ordinal = x;
+       
+          let bt = new WSSheetBreakTimer()
+          bt.connect(`ws://${sensor.ip}:80/ws/gettimes`, sensor, true);
+          sheetTraining_activeSensors[x] = bt;
+       }
+    }, 1000);
+}
+  
+function sheetTraining_enter(displayInfo) {
     let sensorToPlacementMap = new Map();
     let placementToColourMap = new Map();
 
     sheetTraining_eventSourceCounter = displayInfo.sensors.length;
-    
+    sheetTraining_activeSensorCount = displayInfo.sensors.length + (displayInfo.hasDisplay ? 1 : 0);
+
     for (let sensor of displayInfo.sensors) {
        sensorToPlacementMap.set(sensor.name, sensor.placement);
        placementToColourMap.set(sensor.placement, sensor.colour);
@@ -320,40 +413,19 @@
     sheetTraining_timeOrder = [];
     sheetTraining_activeSensors = [];
     
-    global_timingStyle = displayInfo.style; 
-    
-    if (displayInfo.hasDisplay) {
-       sheetTraining_ws = connectToBreakTimerDisplay(displayInfo.ip, displayInfo.sensors);
-       if (loginInfo && loginInfo.pinSheetID) {
-          updateNavPanel(sheetTrainingHandle, "sheetTraining", `${displayInfo.name} - Training`, null, "sheet" + loginInfo.pinSheetID);
-       } else {
-          updateNavPanel(sheetTrainingHandle, "sheetTraining", `${displayInfo.name} - Training`, null, "club");
-       }
-    } else {
-       updateNavPanel(sheetTrainingHandle, "sheetTraining", `${displayInfo.name} - Training`, null, "club");
-       sheetTraining_ws = null;
-    }
-    
-    for (let x = 0; x < displayInfo.sensors.length; x++) {
-       let sensor = displayInfo.sensors[x];
-       sensor.ordinal = x;
-       
-       let bt = new WSSheetBreakTimer()
-       bt.connect(`ws://${sensor.ip}:80/ws/gettimes`, sensor);
-       sheetTraining_activeSensors[x] = bt;
-    }
-    
-    // $(`#sheetTraining${idx} .nav-up`).show()
+    global_timingStyle = displayInfo.style;
+    sheetTraining_displayInfo = displayInfo;
+    sheetTraining_refreshTimes();
+
+    sheetTraining_lastInteractionTime = Date.now();
+    sheetTraining_checkTimerID = setInterval(sheetTraining_checkSensors, 500);
  }
  
  function sheetTraining_exit() {
-    if (sheetTraining_ws) {
-       sheetTraining_ws.close();
-    }
-    
-    sheetTraining_activeSensors.forEach(snsr => snsr.close());
-    sheetTraining_activeSensors = [];
+    sheetTraining_clearSensors();
     sheetTraining_timeOrder = null;
+    
+    clearInterval(sheetTraining_checkTimerID)
  }
  
 </script>

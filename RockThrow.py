@@ -12,6 +12,7 @@ class RockTimingEvents:
         self.mode = mode
         # time patterns are in reverse order.
         # pattern tuple is (placement, maximum time difference from previous placment)
+        # "f" is nreak time of first match
         # "b" is break time of second match.
         # "B" is break time of third match
         # "d" is time difference between 1 & 2
@@ -20,8 +21,10 @@ class RockTimingEvents:
         if mode == "half":
             self.timePatterns = [("dbX", (("s1", 0), ("s1", 4)))]
         elif mode == "h2h":
-            self.timePatterns = [("dbBX", (("h1", 0), ("h2", 30))),
-                                 ("dbBX", (("h2", 0), ("h1", 30)))]
+            self.timePatterns = [("DbBX", (("h1", 0), ("h2", 30))),
+                                 ("DbBX", (("h2", 0), ("h1", 30))),
+                                 ("f", (("h1", 0),)),
+                                 ("f", (("h2", 0),))]
         elif mode == "full":
             self.timePatterns = [("dDbBX", (("h2", 0), ("h1", 30), ("s1", 4))),
                                  ("dDbBX", (("h1", 0), ("h2", 30), ("s2", 4))),
@@ -57,25 +60,20 @@ class RockTimingEvents:
         checkIndex = 1
         maxCheckIndex = len(times)
         patternIndex = 1
-        # print(f"{timePattern=}")
         while patternIndex < maxPatternIndex and checkIndex < maxCheckIndex:
             checkPattern = timePattern[patternIndex]
             while checkIndex < maxCheckIndex:
-                # print(f"{patternIndex=} {checkIndex=} diff={matches[-1][2] - times[checkIndex][1]} {timePattern[patternIndex]=} {times[checkIndex]=}")
                 checkTime = times[checkIndex]
         
                 if checkPattern[0] != checkTime[0]:
-                    # print(f"!{checkPattern[0]=} {checkTime[0]=}")
                     checkIndex += 1
                     continue
 
                 t = checkTime[1]
 
                 diff = matches[-1][2] - t
-                # print(f"{diff=} {checkPattern[1]=}")
                 if diff > 0 and diff < checkPattern[1]:
                     matches.append((checkPattern[0], checkIndex, t, checkTime[3]))
-                    # print(matches)
                     if len(matches) == maxPatternIndex:
                         return matches
 
@@ -89,6 +87,7 @@ class RockTimingEvents:
 
     def checkForEvent(self, tm):
         self.times.appendleft((self.sensorToPlacementMap.get(tm[3], tm[3]), tm[0], tm[1], tm[2]))
+
         if self.timePatterns is None:
             return [tm[0], [[tm[2], "white", "raw", self.diameter / tm[2]]]]
         
@@ -134,9 +133,15 @@ class RockTimingEvents:
                                        self.placementToColourMap[timePatternMatch[1][0]],
                                        "Hog-To-Hog Interval",
                                        21.945 / td))
+                elif selector == "f":
+                    # report breaktime at first timer
+                    throwTimes.append((timePatternMatch[0][3],
+                                       self.placementToColourMap[timePatternMatch[0][0]],
+                                       "Near Hog-Line Speed",
+                                       self.diameter / timePatternMatch[0][3]))
                 elif selector == "X":
                     self.times.clear()
-
+                    
             throwKey = timePatternMatch[-1][2]
             self.throws[throwKey] = throwTimes
             return (throwKey, throwTimes)

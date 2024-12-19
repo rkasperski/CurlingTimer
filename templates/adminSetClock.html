@@ -67,9 +67,10 @@
  var adminSetClock_origTimeZone = "";
  var adminSetClock_origDate = "";
  var adminSetClock_timeUpdateID = 0;
+ var adminSetClock_clockServer = "{{clockServer}}"
  
  function adminSetClock_setTimeDate(time, date, timezone, permanent) {
-    SetTimeDate("{{clockServer}}", time, date, timezone, permanent)
+    SetTimeDate(adminSetClock_clockServer, time, date, timezone, permanent)
        .done(function (res, textStatus, jqXHR){
           let s = htmlToText(res.msg)
           let s2 = s.replaceAll("\n", "<br>")
@@ -114,7 +115,7 @@
  }
 
  function adminSetClock_updateTime() {
-    getTime("{{clockServer}}")
+    getTime(adminSetClock_clockServer)
        .done(function(res) {
           $("#adminSetClock-curTime").text(res.time);
           $("#adminSetClock-curTimezone").text(res.timezone);
@@ -130,12 +131,17 @@
 
     adminSetClock_timeUpdateID = setInterval(adminSetClock_updateTime, 250);
     adminSetClock_populateTimeZones()
-    getTime("{{clockServer}}")
-       .done(function(res) {
-          $("#adminSetClock-date").val(res.date);
-          $("#adminSetClock-time").val(res.time);
-          $("#adminSetClock-timeZone").val(res.timezone)
- })
+
+    WhoAreYou(ip)
+       .done(function(info) {
+          adminSetClock_clockServer = info.clockServer;
+          getTime(adminSetClock_clockServer)
+             .done(function(res) {
+                $("#adminSetClock-date").val(res.date);
+                $("#adminSetClock-time").val(res.time);
+                $("#adminSetClock-timeZone").val(res.timezone)
+             })
+       });
  }
 
  function adminSetClock_exit() {

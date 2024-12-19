@@ -37,8 +37,12 @@ class TokenAuthentication:
         return self.encoder.encrypt(s.encode("utf-8")).decode("utf-8")
 
     def decode(self, s):
-        return self.encoder.decrypt(s.encode("utf-8")).decode("utf-8")
-    
+        try:
+            return self.encoder.decrypt(s.encode("utf-8")).decode("utf-8")
+        except fernet.InvalidToken:
+            debug("tokenAuthentication: invalid token:<%s>", s)
+            return None
+
     def verify(self, s, skipTime=False):
         if not s:
             debug("tokenAuthentication: invalid token:<>")

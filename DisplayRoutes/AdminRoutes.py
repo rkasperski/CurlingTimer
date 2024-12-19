@@ -1,4 +1,4 @@
-from Logger import warning, info
+from Logger import warning, info, exception
 import datetime
 import time
 import asyncio
@@ -97,7 +97,6 @@ async def PINgetAllAjax(request):
 async def flashTextAjax(request):
     json = await request.json()
     if CurlingClockManager.manager:
-        CurlingClockManager.manager.resetIdleTime()
         CurlingClockManager.manager.setFlashText(json.get("text", myIPAddress()), json.get("colour", "red"))
         CurlingClockManager.manager.setView(CurlingClockManager.manager.displayFlashText)
 
@@ -108,60 +107,65 @@ async def flashTextAjax(request):
 @ajaxVerifyToken("admin")
 async def clockSetHtmlPost(request):
     startTime = time.time()
-
-    if Config.display.rink.clockServer.strip() != myIPAddress():
-        return aiohttp_web.json_response({"msg": "trying to set time on a clock that doesn't have a hardware clock"})
-        
-    CurlingClockManager.manager.abort()
-    
     data = await request.json()
-    warning("timedate: request data=%s", data.items())
-
-    permanent = data.get("permanent", True)
     
-    newTime = data.get("time", None)
-    if newTime:
-        newTime = newTime.strip()
+    try:
+        if Config.display.rink.clockServer.strip() != myIPAddress():
+            return aiohttp_web.json_response({"msg": "trying to set time on a clock that doesn't have a hardware clock"})
         
-    newTimeZone = data.get("timeZone", None)
-    if newTimeZone:
-        newTimeZone = newTimeZone.strip()
+        CurlingClockManager.manager.abort()
+    
+        warning("timedate: request data=%s", data.items())
+
+        permanent = data.get("permanent", True)
+    
+        newTime = data.get("time", None)
+        if newTime:
+            newTime = newTime.strip()
         
-    newDate = data.get("date", None)
-    if newDate:
-        newDate = newDate.strip()
-
-    newTimeSecsSinceMidnight = None
-
-    msg = "nothing asked"
-    if newTime:
-        clockTimeHours, clockTimeMinutes, clockTimeSeconds = newTime.split(":")
-        # adjust start time by  approximate amount do connection to match time. empirical hack
-        newTimeSecsSinceMidnight = int(clockTimeHours) * 3600 + int(clockTimeMinutes) * 60 + int(clockTimeSeconds) + 0.600
+        newTimeZone = data.get("timeZone", None)
+        if newTimeZone:
+            newTimeZone = newTimeZone.strip()
         
-    if newTimeZone:
-        if updateClockTime(newTimeZone=newTimeZone):
-            Config.display.rink.timezone = newTimeZone
-            await updateAllConfigs(True)
-            msg = "timezone set"
-        else:
-            return aiohttp_web.json_response({"msg": f"Failed to set time zone to '{newTimeZone}'"})
-        
-    diffTime = time.time() - startTime
+        newDate = data.get("date", None)
+        if newDate:
+            newDate = newDate.strip()
 
-    if newTimeSecsSinceMidnight or newDate:
-        msg = updateClockTime(newTimeSecsFromMidnight=newTimeSecsSinceMidnight + diffTime if newTimeSecsSinceMidnight else None,
-                              newDate=newDate if newDate else None,
-                              newTimeZone=None)
+        newTimeSecsSinceMidnight = None
 
-    if permanent:
-        setHardwareClock()
-        CurlingClockManager.manager.setScrollingText("Restarting ...", "red")
-        CurlingClockManager.manager.setView(CurlingClockManager.manager.displayText)
+        msg = "nothing asked"
+        if newTime:
+            clockTimeHours, clockTimeMinutes, clockTimeSeconds = newTime.split(":")
+            # adjust start time by  approximate amount do connection to match time. empirical hack
+            newTimeSecsSinceMidnight = int(clockTimeHours) * 3600 + int(clockTimeMinutes) * 60 + int(clockTimeSeconds) + 0.600
+            
+        if newTimeZone:
+            if updateClockTime(newTimeZone=newTimeZone):
+                Config.display.rink.timezone = newTimeZone
+                await updateAllConfigs(True)
+                msg = "timezone set"
+            else:
+                return aiohttp_web.json_response({"msg": f"Failed to set time zone to '{newTimeZone}'"})
+            
+        diffTime = time.time() - startTime
 
-        asyncio.ensure_future(delayedRestart(delay=5))
-        msg = "Setting hardware clock"
+        if newTimeSecsSinceMidnight or newDate:
+            msg = updateClockTime(newTimeSecsFromMidnight=newTimeSecsSinceMidnight + diffTime if newTimeSecsSinceMidnight else None,
+                                  newDate=newDate if newDate else None,
+                                  newTimeZone=None)
 
+        if permanent:
+            setHardwareClock()
+            CurlingClockManager.manager.setScrollingText("Restarting ...", "red")
+            CurlingClockManager.manager.setView(CurlingClockManager.manager.displayText)
+            
+            asyncio.ensure_future(delayedRestart(delay=5))
+            msg = "Setting hardware clock"
+
+    except Exception as e:
+        msg = f"badness {e}"
+        exception("set timedate '%s'", data)
+            
     return aiohttp_web.json_response({"msg": msg})
 
 

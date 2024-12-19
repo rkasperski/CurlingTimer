@@ -1,7 +1,17 @@
 <!doctype html>
 {% import 'macros.html' as macros %}
-{% from "macros.html" import navPanel, selectableIcon, actionIcon, icon %}
+{% from "macros.html" import navPanel, selectableIcon, actionIcon, icon, debugMsg %}
 {% include 'helpers.css' %}
+
+{% if debug %}
+   {% macro debugMsg(who, what) %}
+   console.log(who, what);
+   {% endmacro %}
+{% else %}
+   {% macro debugMsg(who, what) %}
+   {% endmacro %}
+{% endif %}
+
 <html lang="en">
    <head>
       {% include 'head.html' %}
@@ -10,16 +20,19 @@
    </head>
    <body class="vh-100">
       <script>
-       var setupStage = {{setup}};
-       {% include "clockAPI.js" %}
-       {% include 'timer.js' %}
-       {% include 'helpers.js' %}
-       {% include 'login.js' %}
-       {% include 'navigation.js' %}
-       {% include 'websocket.js' %}
-       {% include 'breaktimer.js' %}
-       {% include 'breaktimerdisplay.js' %}
-       {% include 'rockthrow.js' %}
+        var setupStage = {{setup}};
+        var debug = {{debug}};
+
+        {% include "console.js" %}
+        {% include "clockAPI.js" %}
+        {% include 'timer.js' %}
+        {% include 'helpers.js' %}
+        {% include 'login.js' %}
+        {% include 'navigation.js' %}
+        {% include 'websocket.js' %}
+        {% include 'breaktimer.js' %}
+        {% include 'breaktimerdisplay.js' %}
+        {% include 'rockthrow.js' %}
       </script>
       {% include "clubAbout.html" %}
       {% include "clubLogout.html" %}
@@ -31,6 +44,7 @@
       {% include "adminOrganization.html" %}
       {% include "adminSSL.html" %}
       {% include "adminLogsDisplay.html" %}
+      {% include "adminJSLogs.html" %}
       {% include "breaktimerAdmin.html" %}
       {% include "deviceTrainingList.html" %}
       {% include "sheetTrainingSetup.html" %}
@@ -69,16 +83,21 @@
 
     if (setupStage == 0) {
        adminSecret_directShow(name, ip)
-    } else if (loginInfo && loginInfo.user && loginInfo.isAdmin) {
+    } else if (loginInfo && loginInfo.user) {
        accessToken = loginInfo.accessToken;
        getSensorStatus(null, false)
-          .done(() => panelNavigate("club"))
+          .done(function() {
+             security_enableAdminPages();
+             panelNavigate("club");
+          })
           .fail(function () {
              logoutRecord()
+             security_enableAdminPages();
              panelNavigate("clubLogin") ;
           })
     } else {
        logoutRecord()
+       security_enableAdminPages();
        panelNavigate("clubLogin") ;
     }
     setupClickHack();

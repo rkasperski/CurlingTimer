@@ -1,3 +1,48 @@
+5.17 - Wed Dec 18 17:13:46 2024
+- simplify single and two line drawing code.
+- share most rendering code between TB and LED display
+- toggle blank on countdown page maintains state.
+- improve logging in websockets and breaktimer/curling timer websockets
+- better handle admin pages
+- add onconnect callback for python websockets
+- make update timer diplsay adjustments display independent
+- remove duplicate sheet name from pin login
+- allow non admin users on break timers
+- clean up crash in token authentictaion. fernet used to return None new version raises an exception
+- fix incorrect logic in when to display refresh button on training
+- although auto reconnect sounds good it's hard to get right so remove it
+- show update button during training  at all times
+- close all timers when and display websocket on timer fail 
+- callOnViewChange gives the new view
+- replace "new Date().getTime()" with Date.now()
+- ping/pong time out is 5 seconds. ping time is 1
+- increase rock times to 4 decimal places
+- display times on clock display after training refresh
+5.16 - Tue Nov 26 14:40:43 2024
+- fix crash in idle checking
+- fix blank of initial message displays. Force idle now resets all idle parameters.
+- add page for JS logs
+- text now waits for the given time
+- changing the view on the clock now resets idle time unless told not to. 
+5.15 - Sun Nov 24 23:47:51 2024
+- add a default to control the length of time the last end message is shown
+- add ability to reset breaks timers from the display screen
+- show breaktime at first hogline for hog to hog mode
+5.14 - Thu Nov 14 15:04:08 2024
+- idle blank time happens on setting rather than restart
+- reset idle time whrn end warnings are changed
+- fix very fast pinging in websockets.js
+- reconnect on failed websocket connection
+5.13 - Thu Oct 24 20:45:36 2024
+- changes to draw parsing
+5.12 - Sat Oct 19 12:59:29 2024
+- uppdate CurlingManager from config after confg file change
+- better handle varioous logging levels
+- change default error log level to info
+- properly set blank time from config file
+- log draw operations
+- fix "at start" when editing draw
+- fix display of timers. No leading hours 0 unless explicitly requested.
 5.11 - Tue Oct 15 10:23:59 2024
 - update python rock throw to be the same as js one.
 - fix navigation in breaktimers

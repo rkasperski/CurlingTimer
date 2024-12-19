@@ -10,7 +10,6 @@ routes = aiohttp_web.RouteTableDef()
 @routes.post('/competition/pause')
 @ajaxVerifyToken("pin")
 async def competitionPauseAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.pause()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "pause"}))
@@ -19,7 +18,6 @@ async def competitionPauseAjax(request):
 @routes.post('/competition/show')
 @ajaxVerifyToken("pin")
 async def competitionShowAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     return aiohttp_web.json_response(CurlingClockManager.manager.ajaxResponse({"operation": "show"}))
 
@@ -27,7 +25,6 @@ async def competitionShowAjax(request):
 @routes.post('/competition/resume')
 @ajaxVerifyToken("pin")
 async def competitionResumeAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.resume()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "resume"}))
@@ -36,7 +33,6 @@ async def competitionResumeAjax(request):
 @routes.post('/competition/exchange')
 @ajaxVerifyToken("pin")
 async def competitionTeamExchangeAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.exchangeTeams()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "flip"}))
@@ -45,7 +41,6 @@ async def competitionTeamExchangeAjax(request):
 @routes.post('/competition/team1/resume')
 @ajaxVerifyToken("pin")
 async def competitionTeam1ResumeAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.resumeTeam1()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "start team 1"}))
@@ -54,7 +49,6 @@ async def competitionTeam1ResumeAjax(request):
 @routes.post('/competition/team2/resume')
 @ajaxVerifyToken("pin")
 async def competitionTeam2ResumeAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.resumeTeam2()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "start team 2"}))
@@ -63,7 +57,6 @@ async def competitionTeam2ResumeAjax(request):
 @routes.post('/competition/team1/pause')
 @ajaxVerifyToken("pin")
 async def competitionTeam1PauseAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.pauseTeam1()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "pause team 1"}))
@@ -72,7 +65,6 @@ async def competitionTeam1PauseAjax(request):
 @routes.post('/competition/team2/pause')
 @ajaxVerifyToken("pin")
 async def competitionTeam2PauseAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     CurlingClockManager.manager.timers.competition.pauseTeam2()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "pause team 2"}))
@@ -101,7 +93,7 @@ def gameSetup(teamTime, teamColour, team1Name, team2Name, intermissionTime):
     else:
         CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
 
-
+    
 @routes.post('/competition/setup')
 @ajaxVerifyToken("pin")
 async def competitionSetupAjax(request):
@@ -169,6 +161,7 @@ async def competitionIntermissionStartPost(request):
     CurlingClockManager.manager.timers.intermission.setTime(seconds)
     CurlingClockManager.manager.timers.intermission.resume()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.intermissionUpdate)
+    
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.intermission.ajaxResponse({"operation": "start",
                                                                                                    "timer": "intermission"}))
 
@@ -178,6 +171,7 @@ async def competitionIntermissionStartPost(request):
 async def intermissionCancelAjax(request):
     CurlingClockManager.manager.timers.intermission.pause()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
+    
     return aiohttp_web.json_response({"operation": "start"})
 
 
@@ -211,8 +205,6 @@ async def competitionTimeoutStartAjax(request):
 @routes.post('/competition/timeout/done')
 @ajaxVerifyToken("pin")
 async def competitionTimeoutDoneAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
-
     timer = CurlingClockManager.manager.timers.timeout
     timer.team.remainingTimeouts -= 1
     timer.pause()
@@ -231,7 +223,7 @@ async def competitionTimeoutDoneAjax(request):
 @routes.post('/competition/timeout/cancel')
 @ajaxVerifyToken("pin")
 async def competitionTimeoutCancelAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
+
     CurlingClockManager.manager.timers.timeout.pause()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.competitionUpdate)
     return aiohttp_web.json_response({"operation": "cancel"})

@@ -1,0 +1,48 @@
+name=Wednesday Ladies date=2024-01-05 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    4    Underhill            Peet L              
+    5    Speaker              Robins W            
+    6    Shunter              Bambrick W          
+name=Wednesday Ladies date=2024-01-12 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Robins               Underhill L         
+    2    Peet                 Bambrick W          
+    3    Speaker              Shunter L           
+name=Wednesday Ladies date=2024-01-19 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    4    Shunter              Robins W            
+    5    Underhill            Bambrick W          
+    6    T Speaker            Peet T              
+name=Wednesday Ladies date=2024-01-26 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Speaker              Bambrick            
+    2    Shunter              Underhill           
+    3    Robins               Peet                
+name=Wednesday Ladies date=2024-02-02 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    4    Speaker              Underhill           
+    5    Peet                 Shunter             
+    6    Bambrick             Robins              
+name=Wednesday Ladies date=2024-02-09 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Underhill            Peet                
+    2    Speaker              Robins              
+    3    Shunter              Bambrick            
+name=Wednesday Ladies date=2024-02-16 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    4    Bambrick             Peet                
+    5    Robins               Underhill           
+    6    Shunter              Speaker             
+name=Wednesday Ladies date=2024-02-23 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Robins               Shunter             
+    2    Underhill            Bambrick            
+    3    Peet                 Speaker             
+name=Wednesday Ladies date=2024-03-02 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    3    Peet                 Robins              
+    4    Speaker              Bambrick            
+    6    Underhill            Shunter             
+name=Wednesday Ladies date=2024-03-09 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    3    Speaker              Underhill           
+    5    Peet                 Shunter             
+    6    Bambrick             Robins              
+name=Wednesday Ladies date=2024-03-16 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Underhill            Peet                
+    2    Robins               Speaker             
+    3    Shunter              Bambrick            
+name=Wednesday Ladies date=2024-03-23 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    4    Bambrick             Peet                
+    5    Robins               Underhill           
+    6    Shunter              Speaker             

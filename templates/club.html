@@ -17,17 +17,12 @@
       {{ actionIcon("Draws", "list-ol", "panelNavigate('clubDraws')" ) }}
       <div class="w-100"></div>
       {{ actionIcon("More", "three-dots", "panelNavigate('clubMore')" ) }}
-      {{ actionIcon("Admin", "shield-lock", "panelNavigate('clubAdmin')", id="club-admin-icon") }}
+      {{ actionIcon("Admin", "shield-lock", "panelNavigate('clubAdmin')", id="club-admin-icon", class="security-adminOnly") }}
    </div>
 </div>
 
 <script>
  function club_enter() {
-    if (loginInfo && loginInfo.isAdmin) {
-       $("#club-admin-icon").removeClass("d-none")
-    } else {
-       $("#club-admin-icon").addClass("d-none")
-    }
  }
 
  function club_exit() {

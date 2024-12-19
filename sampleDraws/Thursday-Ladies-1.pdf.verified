@@ -1,0 +1,33 @@
+name=Thursday Ladies date=2024-01-06 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    3    Joy                  Underhill L         
+    4    Dietrich             Benko W             
+name=Thursday Ladies date=2024-01-13 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Joy                  Benko               
+    2    Underhill            Dietrich L          
+name=Thursday Ladies date=2024-01-20 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    5    Dietrich             Joy                 
+    6    Underhill            Benko               
+name=Thursday Ladies date=2024-01-27 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    3    Benko                Dietrich            
+    4    Underhill            Joy                 
+name=Thursday Ladies date=2024-02-03 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Dietrich             Underhill           
+    2    Benko                Joy                 
+name=Thursday Ladies date=2024-02-10 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    5    Benko                Underhill           
+    6    Joy                  Dietrich            
+name=Thursday Ladies date=2024-02-17 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Joy                  Underhill           
+    2    Dietrich             Benko               
+name=Thursday Ladies date=2024-02-24 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    5    Joy                  Benko               
+    6    Underhill            Dietrich            
+name=Thursday Ladies date=2024-03-10 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    3    Dietrich             Joy                 
+    4    Underhill            Benko               
+name=Thursday Ladies date=2024-03-17 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Benko                Dietrich            
+    2    Underhill            Joy                 
+name=Thursday Ladies date=2024-03-24 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    5    Underhill            Dietrich            
+    6    Benko                Joy                 

@@ -17,7 +17,8 @@ class Timers():
                                           defaults.finishedMessageColour,
                                           defaults.finishedMessageDisplayTime)
         self.countDown.setLastEndMessage(defaults.lastEndMessage,
-                                         defaults.lastEndMessageColour)
+                                         defaults.lastEndMessageColour,
+                                         defaults.lastEndMessageDisplayTime)
         self.elapsedTime = ElapsedTimeTimer(0)
         self.intermission = CountDownTimer(8 * 60)
         self.intermission.colour = "white"

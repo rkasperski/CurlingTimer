@@ -1,4 +1,4 @@
-from Logger import warning, info, debug, logEntries, getEffectiveLevel, clearLogs
+from Logger import warning, info, debug, error, logEntries, getEffectiveLevel, clearLogs, getLevelName
 import Logger
 import asyncio
 import time
@@ -384,7 +384,7 @@ async def ptpdRestartHtmlPost(request):
 @routes.get('/adminlogs')
 @ajaxVerifyToken("admin")
 async def adminlogsHtmlGet(request):
-    level = getEffectiveLevel() <= Logger.DEBUG
+    level = getLevelName()
     return aiohttp_web.json_response({"headers": ("Time", "Level", "Who", "Message", "Traceback"),
                                       "data": list(logEntries),
                                       "level": level})
@@ -393,14 +393,9 @@ async def adminlogsHtmlGet(request):
 @routes.get('/debuglevel')
 @ajaxVerifyToken("admin")
 async def debugLevelAjaxGet(request):
-    level = getEffectiveLevel() <= Logger.DEBUG
+    level = getLeveNamel()
     return aiohttp_web.json_response({"level": level})
 
-
-@routes.get('/debugoff')
-@ajaxVerifyToken("admin")
-async def debugOffAjaxGet(request):
-    return
 
 mapState = {"PTP_SLAVE": "secondary",
             "PTP_MASTER": "primary"}
@@ -548,8 +543,8 @@ async def loginAjaxPost(request):
                                           "admin":  isAdministrator(user),
                                           "accessToken": tkn})
     
-    debug("security: User: %s passwd: %s does not match %s",
-          user, password,  Config.display.users.get(user, None))
+    warning("security: User: %s passwd: %s does not match %s",
+            user, password,  Config.display.users.get(user, None))
 
     return aiohttp_web.json_response({"msg": "login failed",
                                       "accessToken": None,
@@ -580,7 +575,7 @@ async def loginPinAjaxPost(request):
     else:
         msg = "pin is either not current or it belongs to a different sheet"
 
-    debug("security: pin: %s failed", pin)
+    warning("security: pin: %s failed", pin)
 
     return aiohttp_web.json_response({"msg": msg,
                                       "rc": False,
@@ -592,12 +587,20 @@ async def loginPinAjaxPost(request):
 async def logLevelAjaxPost(request):
     json = await request.json()
 
-    if json.get("level", 0):
-        Logger.setLevel(Logger.DEBUG)
-    else:
-        Logger.setLevel(Logger.WARNING)
+    level = json.get("level", None).lower()
+    levelName = "debug"
+    if level in Logger.levelMap:
+        levelName = level
+    elif level.isdigit():
+        if int(level):
+            levelName = "debug"
+        else:
+            levelName = "warning"
 
-    level = getEffectiveLevel() <= Logger.DEBUG
+    Logger.setLevel(Logger.levelMap[levelName])
+    level = getLevelName()
+    error("Logger: set level to %s: %s", levelName, level)
+    
     return aiohttp_web.json_response({"level": level})
 
 
@@ -605,7 +608,7 @@ async def logLevelAjaxPost(request):
 @ajaxVerifyToken("admin")
 async def lofClearAjaxPost(request):
     clearLogs()
-    level = getEffectiveLevel() <= Logger.DEBUG
+    level = getLevelName()
     return aiohttp_web.json_response({"level": level})
 
 

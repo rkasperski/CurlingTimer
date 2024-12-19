@@ -262,3 +262,15 @@ function setupClickHack() {
         }, btnClickTime);
     });
 }
+
+function security_enableAdminPages(isAdmin) {
+    if (isAdmin === undefined) {
+        isAdmin = loginInfo && loginInfo.isAdmin;
+    }
+
+    if (isAdmin) {
+        $(".security-adminOnly").show();
+    } else {
+        $(".security-adminOnly").hide();
+    }
+}

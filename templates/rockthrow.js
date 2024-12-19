@@ -14,11 +14,13 @@ class RockTimingEvents {
         if (mode == "half") {
             this.timePatterns = [["dbX", [["h1", 0], ["s1", 4]]]];
         } else if (mode == "h2h") {
-            this.timePatterns = [["dbBX", [["h1", 0], ["h2", 30]]],
-                                 ["dbBX", [["h2", 0], ["h1", 30]]]];
+            this.timePatterns = [["DbBX", [["h1", 0], ["h2", 20]]],
+                                 ["DbBX", [["h2", 0], ["h1", 20]]],
+                                 ["f", [["h1", 0]]],
+                                 ["f", [["h2", 0]]]];
         } else if (mode == "full") {
-            this.timePatterns = [["dDbBX", [["h2", 0], ["h1", 30], ["s1", 4]]],
-                                 ["dDbBX", [["h1", 0], ["h2", 30], ["s2", 4]]],
+            this.timePatterns = [["dDbBX", [["h2", 0], ["h1", 20], ["s1", 4]]],
+                                 ["dDbBX", [["h1", 0], ["h2", 20], ["s2", 4]]],
                                  ["db", [["h1", 0], ["s1", 4]]],
                                  ["db", [["h2", 0], ["s2", 4]]]];
         } else {
@@ -150,6 +152,11 @@ class RockTimingEvents {
                                          21.945 / td]);
                     } else if (selector == "X") {
                         this.times = [];
+                    } else if (selector == "f") {
+                        throwTimes.push([timePatternMatch[0][3],
+                                         this.placementToColourMap.get(timePatternMatch[0][0]),
+                                         "Near Hog-Line",
+                                         this.diameter / timePatternMatch[0][3]]);
                     }
                 }
 

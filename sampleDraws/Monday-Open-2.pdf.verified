@@ -1,0 +1,55 @@
+name=Monday Open date=2024-01-03 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Fahselt              Thompson            
+    2    Ducharme             Wood W              
+    3    Firman               Hedlund L           
+    4    Webster              Lind W              
+    5    Ronmark              Ralston L           
+name=Monday Open date=2024-01-10 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Ducharme             Lind L              
+    2    T Ralston            Firman T            
+    3    Ronmark              Webster L           
+    4    Fahselt              Wood W              
+    6    Thompson             Hedlund W           
+name=Monday Open date=2024-01-17 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Firman               Webster L           
+    2    Hedlund              Fahselt W           
+    3    Ralston              Thompson W          
+    5    Wood                 Lind L              
+    6    Ducharme             Ronmark L           
+name=Monday Open date=2024-01-24 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Ronmark              Wood                
+    2    Thompson             Webster             
+    4    Ralston              Hedlund             
+    5    Firman               Ducharme            
+    6    Fahselt              Lind                
+name=Monday Open date=2024-01-31 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Fahselt              Ralston             
+    2    Lind                 Ronmark             
+    4    Ducharme             Thompson            
+    5    Webster              Hedlund             
+    6    Wood                 Firman              
+name=Monday Open date=2024-02-07 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Firman               Lind                
+    2    Hedlund              Ducharme            
+    3    Wood                 Thompson            
+    5    Ronmark              Fahselt             
+    6    Webster              Ralston             
+name=Monday Open date=2024-02-14 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Hedlund              Wood                
+    2    Webster              Fahselt             
+    3    Ducharme             Ralston             
+    4    Ronmark              Firman              
+    6    Lind                 Thompson            
+name=Monday Open date=2024-02-28 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Ronmark              Thompson            
+    2    Wood                 Ralston             
+    3    Fahselt              Firman              
+    4    Hedlund              Lind                
+    5    Ducharme             Webster             
+name=Monday Open date=2024-03-07 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Ralston              Lind                
+    2    Hedlund              Ronmark             
+    4    Webster              Wood                
+    5    Thompson             Firman              
+    6    Fahselt              Ducharme            
+name=Monday Open date=2024-03-14 time=None colour=white show=15 autoDelete=2880 atStart=yes

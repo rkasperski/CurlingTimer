@@ -14,9 +14,10 @@ ERROR = logging.ERROR
 WARNING = logging.WARNING
 INFO = logging.INFO
 DEBUG = logging.DEBUG
+ALL = 1
 NONE = 0
 
-logLevel = WARNING
+logLevel = INFO
 
 class TailLogHandler(logging.Handler):
     def __init__(self, logEntries=100, toStderr=False):
@@ -59,8 +60,8 @@ levelMap = {"critical": CRITICAL,
             "error":    ERROR,
             "warning":  WARNING,
             "info":     INFO,
-            "all":      DEBUG,
             "debug":    DEBUG,
+            "all":      1,
             "none":     0}
 
 logger = logging.getLogger(__name__)
@@ -74,7 +75,7 @@ log_handler = tail.handler
 log_handler.setFormatter(formatter)
 logger.addHandler(log_handler)
 
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.INFO)
 
 debug = logger.debug
 info = logger.info
@@ -85,11 +86,25 @@ exception = logger.exception
 log = logger.log
 getEffectiveLevel = logger.getEffectiveLevel
 
+def getLevelName():
+    level = getEffectiveLevel()
+
+    if level <= DEBUG:
+        return "debug"
+
+    elif level <= INFO:
+        return "info"
+
+    elif level <= WARNING:
+        return "warning"
+
+    return "error"
+
 traceback = tb.print_stack
 
 setLevel = logger.setLevel
 
-envDebug = os.environ.get("DEBUG", None) or os.environ.get("DEBUGFILE", None)
+envDebug = os.environ.get("DEBUG", None)
 fileDebug = os.path.exists("DEBUG") or os.environ.get("DEBUGFILE", None)
 
 
@@ -115,4 +130,5 @@ if envDebug:
                 warning("logger", "Could not parse DEBUG: <level>", envDebug)
 
 logger.setLevel(logLevel)
-info("logger: logging level is set to: %s", getEffectiveLevel())
+info("logger: logging level is set to: %s %s", getEffectiveLevel(), getLevelName())
+

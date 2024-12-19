@@ -1,11 +1,20 @@
 <div class="display-view d-none" id="adminLogsDisplay">
    {% if type == "display" %}
-      {{ navPanel("adminLogsDisplay", "adminLogs" , "Admin - Logs") }}
+      {{ navPanel("adminLogsDisplay", "adminLogs" , "Admin - Logs", idTitle="adminLogsDisplay-title" ) }}
    {% else %}
-      {{ navPanel("adminLogsDisplay", "breaktimerAdmin" , "Logs - " ~ name) }}
+      {{ navPanel("adminLogsDisplay", "breaktimerAdmin" , "Logs - " ~ name, idTitle="adminLogsDisplay-title" ) }}
    {% endif %}
    <div class="row justify-content-evenly">
-      {{ actionIcon("Verbose - is off", "toggle-off", "adminLogsDisplay_toggleVerbose()", idIcon="adminLogsDisplay_toggle" , idTitle="adminLogsDisplay_title") }}
+      <div class="col-auto align-content-center">
+         <select class="form-select" id="adminLogsDisplay-level" onchange="adminLogsDisplay_changeLevel()">
+            <option default value="error">ERROR</option>
+            <option value="warning">WARNING</option>
+            <option value="info">INFO</option>
+            <option value="debug">DEBUG</option>
+            <option value="all">ALL</option>
+         </select>
+      </div>
+         
       {{ actionIcon("Refresh", "arrow-clockwise", "adminLogsDisplay_refresh()") }}
       {{ actionIcon("Clear Logs", "trash", "adminLogsDisplay_clearLogs()") }}
    </div>
@@ -46,12 +55,6 @@
 </div>
 <script>
  var adminLogsDisplayIP = "";
- var adminLogsDisplay_toggleVerboseState = false;
-
- function adminLogsDisplay_setVerbose() {
-    toggleIcon($('#adminLogsDisplay_toggle'), adminLogsDisplay_toggleVerboseState, "toggle-on", "toggle-off");
-    $('#adminLogsDisplay_title').text(adminLogsDisplay_toggleVerboseState ? "Verbose - is on" : "Verbose - is off");
- }
 
  function adminLogsDisplay_clearLogs() {
     jsonCall('LogLevel', `{{scheme}}://${adminLogsDisplayIP}:{{port}}/ajax/log/clear`, {}, {METHGOD:"POST"})
@@ -87,17 +90,16 @@
               animationTarget:"#adminLogs"})
        .done(function(response) {	     
           renderTableData("adminLogsDisplay-table", response.headers, response.data);
-          adminLogsDisplay_toggleVerboseState = response.level;
+          $("#adminLogsDisplay-level").val(response.level);
           adminLogsDisplay_filterText();
        })
-       .always(adminLogsDisplay_setVerbose)
  }
  
- function adminLogsDisplay_toggleVerbose() {
-    adminLogsDisplay_toggleVerboseState = !adminLogsDisplay_toggleVerboseState;
-    jsonCall('LogLevel', `{{scheme}}://${adminLogsDisplayIP}:{{port}}/ajax/log/level`, {level:  adminLogsDisplay_toggleVerboseState}, {})
+ function adminLogsDisplay_changeLevel() {
+    let level = $("#adminLogsDisplay-level").val();
+    jsonCall('LogLevel', `{{scheme}}://${adminLogsDisplayIP}:{{port}}/ajax/log/level`, {level:  level}, {})
        .done(function(response) {	     
-          adminLogsDisplay_toggleVerboseState = response.level;
+          $("#adminLogsDisplay-level").val(level);
        })
        .always(adminLogsDisplay_refresh)
  }

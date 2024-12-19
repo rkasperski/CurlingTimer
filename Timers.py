@@ -4,18 +4,19 @@ from Utils import secondsToStr, strToSeconds
 
 
 class CountDownTimer:
-    def __init__(self, timeAmt=40*60):
+    def __init__(self, timeAmt=40*60, hasHours=False):
         self.hasHours = False
-        self.setTime(timeAmt)
+        self.setTime(timeAmt, hasHours)
         self.finishedMessage = None
         self.finishedMessageColour = "green"
         self.finishedMessageDisplayTime = 0
         self.lastEndMessage = None
         self.lastEndMessageColour = "red"
+        self.lastEndMessageDisplayTime = 0
         self.__expired = False
         self.expiredTime = None
 
-    def setTime(self, timeAmt):
+    def setTime(self, timeAmt, hasHours=False):
         if isinstance(timeAmt, str):
             timeAmt = strToSeconds(timeAmt, default=60)
 
@@ -23,7 +24,7 @@ class CountDownTimer:
         self.timeLeft = timeAmt
         self.__paused = True
         self.timerStartTime = 0.0
-        self.hasHours = timeAmt >= 3600
+        self.hasHours = hasHours
         self.__expired = self.timeLeft < 0
         self.expiredTime = time.monotonic() if self.__expired else None
 
@@ -35,9 +36,13 @@ class CountDownTimer:
         self.finishedMessageColour = colour
         self.finishedMessageDisplayTime = displayTime
 
-    def setLastEndMessage(self, msg, colour="white"):
+    def setLastEndMessage(self, msg, colour="white", displayTime=0):
+        if isinstance(displayTime, str):
+            displayTime = strToSeconds(displayTime)
+
         self.lastEndMessage = msg
         self.lastEndMessageColour = colour
+        self.lastEndMessageDisplayTime = displayTime
 
     def paused(self):
         return self.__paused or self.__expired
@@ -89,7 +94,7 @@ class CountDownTimer:
 
     def __str__(self):
         displayTime = self.timeRemaining() + 0.99
-        if self.hasHours:
+        if self.hasHours or displayTime > 3600:
             formatted = str(int(displayTime/3600.0)) + ":" + ("0" + str(int(displayTime / 60 % 60.0)))[-2:] + ":" + ("0" + str(int(displayTime % 60)))[-2:]
         else:
             formatted = (" " + str(int(displayTime/60.0)))[-2:] + ":" + ("0" + str(int(displayTime % 60)))[-2:]
@@ -98,9 +103,10 @@ class CountDownTimer:
 
     
 class ElapsedTimeTimer:
-    def __init__(self, timeAmt=40*60, hasHours=False):
+    def __init__(self, timeAmt=40*60, hasHours=False, showTenths=False):
         self.hasHours = hasHours
         self.setInitialTime(timeAmt)
+        self.showTenths = showTenths
 
     def setInitialTime(self, timeAmt):
         if isinstance(timeAmt, str):
@@ -145,7 +151,8 @@ class ElapsedTimeTimer:
 
         return (int(t / 3600), int(t / 60) % 60, int(t) % 60, int(t * 10) % 10)
 
-    def format(self, p, showTenths=False):
+    def format(self, p, showTenths=None):
+        showTenths = showTenths or (showTenths is None and self.showTenths)
         tenths = f".{p[3]}" if showTenths else ""
         
         if p[0]:

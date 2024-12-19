@@ -24,7 +24,7 @@ function timer_tracker(ip, who, url, stateChangeCallback, up) {
     }
     
     function timer_handleResponse(r) {
-        timer_markSeconds = new Date().getTime() / 1000;
+        timer_markSeconds = Date.now() / 1000;
         timer_sumReponseTimes += timer_markSeconds - timer_callTime;
         timer_nResponses += 1
 
@@ -48,7 +48,7 @@ function timer_tracker(ip, who, url, stateChangeCallback, up) {
     }
     
     function timer_intervalStatus() {
-        timer_callTime =  new Date().getTime() / 1000
+        timer_callTime =  Date.now() / 1000
         Status(ip, url)
             .done(timer_handleResponse)
             .fail(function (output) {
@@ -59,7 +59,7 @@ function timer_tracker(ip, who, url, stateChangeCallback, up) {
     
     function timer_displayHandler() {
         if (timer_active === true) {
-            let curTime = new Date().getTime() / 1000;
+            let curTime = Date.now() / 1000;
             let avgResponseTime = timer_sumReponseTimes / timer_nResponses;
             let localRunningTime = Math.max(0, timer_remoteStartTime + timer_direction * (curTime - timer_localStartTime) - avgResponseTime * 0.9);
             

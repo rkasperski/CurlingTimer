@@ -68,12 +68,12 @@ class BreakTimerServer(BreakTimes):
         self.setFilterTime(filterTime)
         
         if id not in self.listeners:
-            info("breaksensor:register: sensor=%s id=%s tgtPort=%s", sensor, id, tgtPort)
+            info("breaktimerserver: register: sensor=%s id=%s tgtPort=%s", sensor, id, tgtPort)
             self.listeners[id] = (sensor, tgtPort, ws)
 
     def unregister(self, id):
         if id in self.listeners:
-            info("breaksensor:unregister: tgt-ip=%s", id)
+            info("breaktimerserver:unregister: tgt-ip=%s", id)
             del self.listeners[id]
 
     def resetTimes(self, reset=True, filterTime=5):
@@ -85,7 +85,7 @@ class BreakTimerServer(BreakTimes):
         for id, (sensor, tgtPort, ws) in list(self.listeners.items()):
             response = await ws.sendTime(breakTime)
 
-            info("breaksensor:sendTime: %s %s -> %s time=%s response=%s",
+            info("breaktimerserver:sendTime: %s %s -> %s time=%s response=%s",
                  self.name, sensor, id, breakTime, response)
 
     def recordingStateChangeNotification(self, canRecord):

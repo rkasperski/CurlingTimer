@@ -1,0 +1,84 @@
+name=Wednesday Mens date=2024-01-05 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Lind                 Ducharme W          
+    2    Ronmark              Meekes L            
+    3    T Ralston            Drennan T           
+    4    Firman               Haberstock L        
+    5    Storm                O'Connor L          
+    6    Jenson               Terrill L           
+name=Wednesday Mens date=2024-01-12 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Ronmark              Haberstock L        
+    2    Firman               Terrill L           
+    3    Meekes               Lind L              
+    4    Storm                Jenson L            
+    5    Ducharme             Drennan L           
+    6    Ralston              O'Connor L          
+name=Wednesday Mens date=2024-01-19 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Ralston              Jenson W            
+    2    Lind                 Drennan W           
+    3    Ducharme             O'Connor L          
+    4    Ronmark              Terrill L           
+    5    Meekes               Haberstock L        
+    6    Firman               Storm L             
+name=Wednesday Mens date=2024-01-26 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Drennan              O'Connor            
+    2    Meekes               Terrill             
+    3    Ronmark              Storm               
+    4    Ducharme             Jenson              
+    5    Ralston              Firman              
+    6    Haberstock           Lind                
+name=Wednesday Mens date=2024-02-02 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Meekes               Storm               
+    2    Ronmark              Ralston             
+    3    Haberstock           Terrill             
+    4    Lind                 O'Connor            
+    5    Drennan              Jenson              
+    6    Ducharme             Firman              
+name=Wednesday Mens date=2024-02-09 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Terrill              Lind                
+    2    O'Connor             Jenson              
+    3    Drennan              Firman              
+    4    Haberstock           Storm               
+    5    Ducharme             Ronmark             
+    6    Meekes               Ralston             
+name=Wednesday Mens date=2024-02-16 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Drennan              Ronmark             
+    2    Haberstock           Ralston             
+    3    Lind                 Jenson              
+    4    Meekes               Ducharme            
+    5    O'Connor             Firman              
+    6    Terrill              Storm               
+name=Wednesday Mens date=2024-02-23 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Jenson               Firman              
+    2    Drennan              Meekes              
+    3    Haberstock           Ducharme            
+    4    Terrill              Ralston             
+    5    Storm                Lind                
+    6    O'Connor             Ronmark             
+name=Wednesday Mens date=2024-03-02 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Terrill              Ducharme            
+    2    Lind                 Firman              
+    3    Storm                Ralston             
+    4    O'Connor             Meekes              
+    5    Jenson               Ronmark             
+    6    Haberstock           Drennan             
+name=Wednesday Mens date=2024-03-09 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    O'Connor             Haberstock          
+    2    Storm                Ducharme            
+    3    Terrill              Drennan             
+    4    Firman               Ronmark             
+    5    Ralston              Lind                
+    6    Jenson               Meekes              
+name=Wednesday Mens date=2024-03-16 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Lind                 Ronmark             
+    2    Jenson               Haberstock          
+    3    Firman               Meekes              
+    4    Storm                Drennan             
+    5    Terrill              O'Connor            
+    6    Ralston              Ducharme            
+name=Wednesday Mens date=2024-03-23 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Drennan              Ralston             
+    2    Terrill              Ronmark             
+    3    Ducharme             O'Connor            
+    4    Haberstock           Meekes              
+    5    Firman               Storm               
+    6    Lind                 Jenson              

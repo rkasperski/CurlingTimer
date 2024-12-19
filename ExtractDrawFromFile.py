@@ -23,10 +23,10 @@ class Draw:
         self.atStart = atStart
         self.sheets = []
 
-    def dump(self):
-        print(f'name={self.name} date={self.date} time={self.time} colour={self.colour} show={self.show} autoDelete={self.autoDelete} atStart={self.atStart}')
+    def dump(self, file=sys.stdout):
+        print(f'name={self.name} date={self.date} time={self.time} colour={self.colour} show={self.show} autoDelete={self.autoDelete} atStart={self.atStart}', file=file)
         for s in self.sheets:
-            print(f"    {s['sheet']:4} {s['team1']:20} {s['team2']:20}")
+            print(f"    {s['sheet']:4} {s['team1']:20} {s['team2']:20}", file=file)
 
     def asDict(self):
         return {"name": self.name,
@@ -40,10 +40,10 @@ class Draw:
     
 
 def pdfTextBlobsToDraws(txtList, startTime, autoDelete, colour, show, atStart, verbose):
-    reSheet1 = re.compile("(?P<time>\d+:\d\d(\s*(am|pm))?)?\s*(?P<sheet>\d+)\s+(?P<team1>[\w./ '\-]*)\s+vs\s+(?P<team2>[\w./ '\-]*)", re.I)
-    reSheet2 = re.compile("(?P<date>(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(\.|,)?\s*\d+(\s*,?\s*\d\d+)?)\s+(?P<sheet>\d+)\s+(?P<team1>[\w./ '\-]*)\s+vs\s+(?P<team2>[\w./ '\-]*)", re.I)
-    reSheet3 = re.compile("(?P<date>(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(\.|,)?\s*\d+\s+)?((w|l)\s)?(?P<team1>[\w./ '\-]*) (?P<sheet>\d+) (?P<team2>[\w./ '\-]*)( (w|l))?$", re.I)
-    reDate = re.compile("(?P<date>(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(\.|,)?\s*\d+(\s*,?\s*\d\d+)?)", re.I)
+    reSheet1 = re.compile(r"(?P<time>\d+:\d\d(\s*(am|pm))?)?\s*(?P<sheet>\d+)\s+(?P<team1>[\w./ '\-]*)\s+vs\s+(?P<team2>[\w./ '\-]*)", re.I)
+    reSheet2 = re.compile(r"(?P<date>(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(\.|,)?\s*\d+(\s*,?\s*\d\d+)?)\s+(?P<sheet>\d+)\s+(?P<team1>[\w./ '\-]*)\s+vs\s+(?P<team2>[\w./ '\-]*)", re.I)
+    reSheet3 = re.compile(r"(?P<date>(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(\.|,)?\s*\d+\s+)?((w|l)\s)?(?P<team1>[\w./ '\-]*) (?P<sheet>\d+) (?P<team2>[\w./ '\-]*)( (w|l))?$", re.I)
+    reDate = re.compile(r"(?P<date>(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(\.|,)?\s*\d+(\s*,?\s*\d\d+)?)", re.I)
     name = "Unknown"
     draws = []
 
@@ -154,6 +154,8 @@ class MyTxtLine:
         self.bbox = src.bbox
         self.column = column
 
+def normBox(box):
+    return [round(d) for d in box]
         
 def extractTextBlobsFromPDF(fn, verbose=0):
     laparams = LAParams()
@@ -171,7 +173,7 @@ def extractTextBlobsFromPDF(fn, verbose=0):
             for t in p:
                 if not isinstance(t, (LTRect, LTPage, LTLine)):
                     txt = t.get_text().strip()
-                    txtList.append(TxtLine(txt, pgNo, t.bbox))
+                    txtList.append(TxtLine(txt, pgNo, normBox(t.bbox)))
 
     minX = min([t.bbox[0] for t in txtList])
     maxX = max([t.bbox[2] for t in txtList])
@@ -320,8 +322,8 @@ def readPDF(fileName, startTime, autoDelete, colour, show, atStart, verbose=0):
     
     return pdfTextBlobsToDraws(blobs, startTime, autoDelete, colour, show, atStart, verbose=verbose)
 
-reXLSDate = re.compile("(?P<date>((jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\.?\s*\d+,\s*\d\d\d*)|(\d\d\d\d-\d\d-\d\d))", re.I)
-reTime = re.compile("(?P<time>\d+:\d\d\s*(am|pm)?)",re.I)
+reXLSDate = re.compile(r"(?P<date>((jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\.?\s*\d+,\s*\d\d\d*)|(\d\d\d\d-\d\d-\d\d))", re.I)
+reTime = re.compile(r"(?P<time>\d+:\d\d\s*(am|pm)?)",re.I)
 
 
 def gatherExcelDraw(wb_sheet, r, c, name, startTime, autoDelete, colour, show, atStart, verbose):
@@ -343,29 +345,44 @@ def gatherExcelDraw(wb_sheet, r, c, name, startTime, autoDelete, colour, show, a
         row = wb_sheet[r]
         r += 1
 
+        if verbose >= 2:
+            print("---")
+            for cell in row:
+                print(cell, cell.value, isinstance(cell.value, str))
+
         v0 = row[c].value
         v1 = row[c + 1].value
         v2 = row[c + 2].value
+        v1s = str(row[c + 1].value).strip()
+        v2s = str(row[c + 2].value).strip()
 
-        if (not v2) and v0 is not None and isinstance(v0, str) and v1 is not None:
+        #print(f"{v0=}:{type(v0)} {v1=}:{type(v1)}:{v1s} {v2=}:{type(v2)}:{v2s}")
+        if (not v2) and (v0 is not None and isinstance(v0, str) and v1s):
+            #print("set {v0}='{v1s}'")
             v0l = v0.lower().replace('-', ' ').replace(' ', '')
 
-            if (not isinstance(v1, str)) or v1:
+            if v1s:
                 if v0l in ['start', "starttime", "time"]:
-                    data.time = v1
+                    data.time = v1s
                 elif v0l in ["delete", "autodelete"]:
-                    data.autoDelete = v1
+                    data.autoDelete = v1s
                 elif v0l in ["colour", "color"]:
-                    data.colour = v1
+                    data.colour = v1s
                 elif v0l in ["show", "showbefore"]:
-                    data.show = v1
+                    data.show = v1s
                 elif v0l in ["clock", "startclock", "atstart"]:
-                    data.atStart = v1
+                    data.atStart = v1s
 
                 continue
 
-        if v2 is None or (isinstance(v2, str) and v2.strip() == ""):
+        if v1 is None or (isinstance(v1, str) and v1.strip() == ""):
             break
+
+        if v2 is None or (isinstance(v2, str) and v2.strip() == ""):
+            continue
+
+        if len(row) < c + 3:
+            continue
 
         if isinstance(v0, float):
             tv = 86400 * v0
@@ -390,7 +407,7 @@ def gatherExcelDraw(wb_sheet, r, c, name, startTime, autoDelete, colour, show, a
         else:
             t2 = row[c + offset + 2]
 
-        data.sheets.append({"sheet": sn, "team1": row[c + 2].value.strip(), "team2": t2.value.strip()})
+        data.sheets.append({"sheet": sn, "team1": row[c + offset + 1].value.strip(), "team2": t2.value.strip()})
 
     return (r, data)
 
@@ -408,6 +425,11 @@ def inspectExcelSheet(wb_sheet, draws, startTime, autoDelete, colour, show, atSt
         nextR += 1
 
         row = wb_sheet[r]
+
+        if verbose >= 2:
+            print("===")
+            for cell in row:
+                print(cell, cell.value, isinstance(cell.value, str))
 
         for c, v in enumerate(row):
             if isinstance(v.value, str):
@@ -485,10 +507,18 @@ def extractDrawsFromFile(fileName, ext, startTime=None, autoDelete=2880, colour=
         print(">>> before date normalization <<<")
         for draw in draws:
             draw.dump()
-            
+
+    rDraws = []
     # normalize times and dates
     for draw in draws:
+        #print(draw.date, draw.time, len(draw.sheets))
+
+        if draw.date is None and draw.time is None and len(draw.sheets) == 0:
+            continue
+
         try:
+            if ', ' not in draw.date:
+                draw.date = ", ".join(draw.date.rsplit(",", 1))
             d = date_parser(draw.date)
         except TypeError:
             Logger.warning("ExtractDrawFromFile: name=%s date=%s time=%s colour=%s show=%s autoDelete=%s atStart=%s",
@@ -506,23 +536,73 @@ def extractDrawsFromFile(fileName, ext, startTime=None, autoDelete=2880, colour=
             nt = t.strftime("%-H:%M")
             draw.time = nt
 
-    return draws
+        rDraws.append(draw)
+
+    return rDraws
 
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
+    import os
+    import argparse
+    import filecmp
 
-    verbose = 0
-    while args[0] == "-v":
-        verbose += 1
-        args.pop(0)
+    parser = argparse.ArgumentParser()
 
-    for fn in args:
-        print()
-        print()
-        print(f"=== {fn} ===")
-        draws = extractDrawsFromFile(fn, fn.rsplit(".")[-1], verbose=verbose)
+    parser.add_argument("-t", "--test", action="store_true",
+                        help="run in test mode")
 
-        draws.sort(key=lambda d: d.date if d.date else "")
-        for draw in draws:
-            draw.dump()
+    parser.add_argument("-v", "--verbose", action="count", default=0, help="Increase verbosity level")
+
+    parser.add_argument("-q", "--quiet", action="count", default=0, help="only show mismatches")
+
+    parser.add_argument("file", nargs="+")
+
+    args = parser.parse_args();
+
+    verbose = args.verbose
+    quiet = args.quiet
+    testMode = args.test
+
+    for fn in args.file:
+        ext = fn.rsplit(".")[-1]
+
+        if ext in ["test", "verified"]:
+            continue
+
+        if verbose:
+            print()
+            print()
+            print()
+            print(f">>> {fn} <<<")
+
+        if testMode:
+            draws = extractDrawsFromFile(fn, ext, verbose=verbose)
+            draws.sort(key=lambda d: d.date if d.date else "")
+            testFn = f"{fn}.test"
+            with open(testFn, "w") as f:
+                for draw in draws:
+                    draw.dump(f)
+
+            resultFn = f"{fn}.verified"
+
+            if os.path.exists(resultFn):
+                isSame = filecmp.cmp(resultFn, testFn)
+                if quiet:
+                    if not isSame:
+                        print(f"{fn}: {'matches' if isSame else 'differs'}")
+                else:
+                     print(f"{fn}: {'matches' if isSame else 'differs'}")
+
+                if isSame:
+                    os.remove(testFn)
+            else:
+                print(f"{fn}: missing verified version")
+        else:
+            print()
+            print()
+            print(f"=== {fn} ===")
+
+            draws = extractDrawsFromFile(fn, fn.rsplit(".")[-1], verbose=verbose)
+            draws.sort(key=lambda d: d.date if d.date else "")
+            for draw in draws:
+                draw.dump()

@@ -49,20 +49,18 @@
          <div class="row justify-content-center mt-3">
             <div class="col-auto" id="clubLogin-sheet">
 	       <label for="clubLogin-sheets">Choose Sheet</label>
-               <select id="clubLogin-sheets">
+               <select class="form-control" id="clubLogin-sheets">
                   {% for s in sheets %}
-                     <option value="{{s.ip}}|{{loop.index0}}" {% if s.ip =='Unassigned' %} disabled {% endif %}> {{s.name}}
+                     <option value="{{s.ip}}|{{loop.index0}}" {% if s.ip =='Unassigned' %} disabled {% endif %}> 
                         {{s.name}}
                      </option>
                   {% endfor %}
                </select>
             </div>
-            <div class="row justify-content-center mt-3">
-	       <div class="col-auto">
-	          <label for="clubLogin-pin">PIN:</label>
-	          <input type="text" class="form-control" id="clubLogin-pin">
-	       </div>
-            </div>
+	    <div class="col-4">
+	       <label for="clubLogin-pin">PIN:</label>
+	       <input type="text" class="form-control" id="clubLogin-pin">
+	    </div>
          </div>
          
          <div class="row justify-content-center mt-3">
@@ -90,14 +88,9 @@
     $("#clubLogin-attempt-msg").text("");
     loginUser($("#clubLogin-user").val(), $("#clubLogin-password").val())
        .done(function (res) {
-          {% if type == "timer" %}
-          if (!res.admin) {
-             $("#clubLogin-attempt-msg").text("Only admin users can log in");
-             return;
-          }
-          {% endif %}
           if (res.rc) {
              loginRecordUser(res.user, res.admin, res.accessToken);
+             security_enableAdminPages();
              $(".nav-up").show();
              {% if type == "display" %}
              if (res.admin && setupStage == 1) {
@@ -106,14 +99,16 @@
                 panelNavigate("club");
              }
              {% else %}
-             panelNavigate("breaktimerAdmin");
+             panelNavigate("club");
              {% endif %}
              
           } else {
+             security_enableAdminPages(false);
              $("#clubLogin-attempt-msg").text(res.msg);
           }
        })
        .fail(function() {
+          security_enableAdminPages(false);
           $("#clubLogin-attempt-msg").text("login failed")
        })
  }
@@ -129,12 +124,15 @@
           if (res.rc) {
              loginRecordPIN(res.accessToken, sheetInfo[1], sheetInfo[0]);
              $(".nav-up").hide()             
+             security_enableAdminPages();
              panelNavigate("sheet" + res.id)
           } else {
+             security_enableAdminPages(false);
              $("#clubLogin-attempt-msg").text(res.msg);
           }
        })
        .fail(function() {
+          security_enableAdminPages(false);
           $("#clubLogin-attempt-msg").text("login failed")
        })
        .always(function() {

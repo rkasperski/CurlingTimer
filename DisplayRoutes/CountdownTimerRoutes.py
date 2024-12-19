@@ -9,7 +9,6 @@ routes = aiohttp_web.RouteTableDef()
 @routes.post('/countdown/show')
 @ajaxVerifyToken("pin")
 async def countDownShowAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownUpdate)
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "countdown:show"}))
 
@@ -17,7 +16,6 @@ async def countDownShowAjax(request):
 @routes.post('/countdown/lastend')
 @ajaxVerifyToken("pin")
 async def countDownLastEndAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.timers.countDown.pause()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownLastEnd)
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "countdown:last end"}))
@@ -26,7 +24,6 @@ async def countDownLastEndAjax(request):
 @routes.post('/countdown/pause')
 @ajaxVerifyToken("pin")
 async def countDownPauseAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownUpdate)
     CurlingClockManager.manager.timers.countDown.pause()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "countdown:pause"}))
@@ -35,7 +32,6 @@ async def countDownPauseAjax(request):
 @routes.post('/countdown/resume')
 @ajaxVerifyToken("pin")
 async def countDownResumeAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownUpdate)
     CurlingClockManager.manager.timers.countDown.resume()
     return aiohttp_web.json_response(CurlingClockManager.manager.timers.ajaxResponse({"operation": "countdown:resume"}))
@@ -44,7 +40,6 @@ async def countDownResumeAjax(request):
 @routes.post('/countdown/start')
 @ajaxVerifyToken("pin")
 async def countDownStartAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownUpdate)
     CurlingClockManager.manager.timers.countDown.resume()
 
@@ -62,8 +57,6 @@ async def countDownStatusAjax(request):
 @routes.post('/countdown/set')
 @ajaxVerifyToken("pin")
 async def countDownSetAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
-
     CurlingClockManager.manager.timers.countDown.pause()
     json = await request.json()
     CurlingClockManager.manager.timers.countDown.setTime(json["gameTime"])
@@ -76,7 +69,9 @@ async def countDownSetAjax(request):
         timers.countDown.setFinishedMessage(json["finishedMessage"],
                                             finishedMessageColour,
                                             Config.display.defaults.finishedMessageDisplayTime)
-        timers.countDown.setLastEndMessage(json["lastEndMessage"], lastEndMessageColour)
+        timers.countDown.setLastEndMessage(json["lastEndMessage"],
+                                           lastEndMessageColour,
+                                           Config.display.defaults.lastEndMessageDisplayTime)
 
         mySheet = Config.display.sheets.mySheet
         timers.competition.teams[0].name = json["team1"]
@@ -89,7 +84,6 @@ async def countDownSetAjax(request):
             CurlingClockManager.manager.setView(CurlingClockManager.manager.teamNamesCountDown)
         else:
             CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownUpdate)
-
     except KeyError:
         CurlingClockManager.manager.setView(CurlingClockManager.manager.countDownUpdate)
 

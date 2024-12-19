@@ -1,0 +1,30 @@
+name=Monday Sturling date=2024-01-09 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    3    Chris/Ross           Denise/Wayne        
+    4    Anne/Dave            Harvey/Blaine       
+name=Monday Sturling date=2024-01-16 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Chris/Ross           Harvey/Blaine       
+    2    Denise/Wayne         Anne/Dave           
+name=Monday Sturling date=2024-01-23 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    5    Anne/Dave            Chris/Ross          
+    6    Denise/Wayne         Harvey/Blaine       
+name=Monday Sturling date=2024-01-30 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    3    Harvey/Blaine        Anne/Dave           
+    4    Denise/Wayne         Chris/Ross          
+name=Monday Sturling date=2024-02-06 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Anne/Dave            Denise/Wayne        
+    2    Harvey/Blaine        Chris/Ross          
+name=Monday Sturling date=2024-02-13 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    5    Harvey/Blaine        Denise/Wayne        
+    6    Chris/Ross           Anne/Dave           
+name=Monday Sturling date=2024-02-27 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Chris/Ross           Denise/Wayne        
+    2    Anne/Dave            Harvey/Blaine       
+name=Monday Sturling date=2024-03-06 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    5    Chris/Ross           Harvey/Blaine       
+    6    Denise/Wayne         Anne/Dave           
+name=Monday Sturling date=2024-03-13 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    3    Anne/Dave            Chris/Ross          
+    4    Denise/Wayne         Harvey/Blaine       
+name=Monday Sturling date=2024-03-20 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Harvey/Blaine        Anne/Dave           
+    2    Denise/Wayne         Chris/Ross          

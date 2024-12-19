@@ -52,6 +52,8 @@ function csrfSafeMethod(method) {
 }
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
+        xhr.url = settings.url;
+        xhr.funcName = settings.funcName;
         xhr.setRequestHeader("CC-Clock", accessToken);
         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -85,6 +87,12 @@ $.ajax = (($oldAjax) => {
     return settings => $oldAjax(settings).always(check)
 })($.ajax);
 
+function standardFailLogger(jqXHR, textStatus, errorThrown) {
+    console.log(jqXHR.funcName, ": failed to contact", jqXHR.url, textStatus, errorThrown);
+    // alert(textStatus + errorThrown);
+    return false
+}
+
 // good simple animation is "spinner".
 // add a target with of allOfIt or
 // set "ajaxAnimationTarget = <name, class, some jQuery selector. default is #allOfIt>" and then
@@ -99,6 +107,7 @@ function jsonCall(funcName,
                    timeout=ajaxTimeout,
                    retries=1,
                    async=true,
+                   failLogger=standardFailLogger,
                    animationTarget="#allOfIt" }) {
     request = { type          : method,
                 contentType   : contentType + "; charset=utf-8",
@@ -121,6 +130,7 @@ function jsonCall(funcName,
     }
 
     request.url = url;
+    request.funcName = funcName;
 
     if (animation) {
         request.animation = animation;
@@ -128,11 +138,7 @@ function jsonCall(funcName,
     }
 
     return $.ajax(request)
-      	.fail(function (jqXHR, textStatus, errorThrown) {
-                  console.log(funcName, ": failed to contact", url, textStatus, errorThrown);
-                  // alert(textStatus + errorThrown);
-                  return false;
-        });
+      	.fail(standardFailLogger);
 }
 
 function peerList() {

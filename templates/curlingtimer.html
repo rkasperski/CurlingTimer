@@ -1,9 +1,7 @@
 <!doctype html>
 {% import 'macros.html' as macros %}
-{% from "macros.html" import navPanel, actionIcon, overlayNav, selectableIcon, icon %}
+{% from "macros.html" import navPanel, actionIcon, overlayNav, selectableIcon, icon, debugMsg %}
 {% include 'helpers.css' %}
-<style>
-</style>
 <html lang="en">
    <head>
       {% include 'head.html' %}
@@ -11,156 +9,172 @@
       <title>{{organization}}</title>
    </head>
    <body class="vh-100">
-   <script>
-    var setupStage = {{setup}};
-    // var setupStage = 0;
-    {% include "clockAPI.js" %}
-    {% include 'timer.js' %}
-    {% include 'helpers.js' %}
-    {% include 'login.js' %}
-    {% include 'activity.js' %}
-    {% include 'navigation.js' %}
-    {% include 'websocket.js' %}
-    {% include 'breaktimer.js' %}
-    {% include 'breaktimerdisplay.js' %}
-    {% include 'rockthrow.js' %}
-    {% include 'rockthrow-test.js' %}
-   </script>
-   {% include "sheetCompetitionSetup.html" %}
-   {% include "sheetCompetitionTimer.html" %}
-   {% include "sheetCompetitionTimerUtility.html" %}
-   {% include "sheetCompetitionTimerAdjust.html" %}
-   {% include "clubClock.html" %}
-   {% include "clubKapow.html" %}
-   {% include "sheetMessage.html" %}
-   {% include "sheetCountdown.html" %}
-   {% include "sheetCountdownSetTime.html" %}
-   {% include "clubManagePins.html" %}
-   {% include "clubElapsedTimer.html" %}
-   {% include "clubBlank.html" %}
-   {% include "sheets.html" %}
-   {% include "sheet.html" %}
-   {% include "clubMore.html" %}
-   {% include "clubMessage.html" %}
-   {% include "clubCountdown.html" %}
-   {% include "clubDrawsInfo.html" %}
-   {% include "clubDrawsYesNo.html" %}
-   {% include "clubDrawsUpload.html" %}
-   {% include "clubDrawsAdd.html" %}
-   {% include "clubDraws.html" %}
-   {% include "clubCompetition.html" %}
-   {% include "clubAbout.html" %}
-   {% include "club.html" %}
-   {% include "clubLogout.html" %}
-   {% include "clubLogin.html" %}
-   {% include "clubTraining.html" %}
-   {% include "clubSettings.html" %}
-   {% include "sheetKapow.html" %}
-   {% include "clubPassword.html" %}
-   {% include "sheetElapsed.html" %}
-   {% include "sheetElapsedSetTime.html" %}
-   {% include "sheetTrainingSetup.html" %}
-   {% include "sheetTraining.html" %}
-   {% include "clubColours.html" %}
-   {% include "clubColoursAdd.html" %}
-   {% include "clubClockStatus.html" %}
-   {% include "clubAdmin.html" %}
-   {% include "adminSecret.html" %}
-   {% include "adminUpdate.html" %}
-   {% include "adminUpdateClean.html" %}
-   {% include "adminUsers.html" %}
-   {% include "adminUsersAdd.html" %}
-   {% include "adminShutdown.html" %}
-   {% include "adminSetClock.html" %}
-   {% include "adminHardware.html" %}
-   {% include "adminHardwareSettings.html" %}
-   {% include "adminOrganization.html" %}
-   {% include "adminSSL.html" %}
-   {% include "adminSheets.html" %}
-   {% include "adminDebug.html" %}
-   {% include "adminLogs.html" %}
-   {% include "adminLogsDisplay.html" %}
-   {% include "adminMemory.html" %}
-   {% include "adminMemoryDisplay.html" %}
-   {% include "adminPTPDStatus.html" %}
-   {% include "adminPTPDStats.html" %}
-   {% include "adminPTPDLogs.html" %}
-   {% include "adminPTPDOffset.html" %}
-   {% include "adminShowVersions.html" %}
-   {% include "adminGotoDevice.html" %}
+      <script>
+       var setupStage = {{setup}};
+       var debug = {{debug}};
+       var loginInfo = null;
+       const queryString = window.location.search;
+       const urlParams = new URLSearchParams(queryString);
+       
+       {% include "console.js" %}
+       {% include "clockAPI.js" %} 
+       {% include 'timer.js' %}
+       {% include 'helpers.js' %}
+       {% include 'login.js' %}
+       {% include 'activity.js' %}
+       {% include 'navigation.js' %}
+       {% include 'websocket.js' %}
+       {% include 'breaktimer.js' %}
+       {% include 'breaktimerdisplay.js' %}
+       {% include 'rockthrow.js' %}
+       {% include 'rockthrow-test.js' %}
+      </script>
+      {% include "sheetCompetitionSetup.html" %}
+      {% include "sheetCompetitionTimer.html" %}
+      {% include "sheetCompetitionTimerUtility.html" %}
+      {% include "sheetCompetitionTimerAdjust.html" %}
+      {% include "clubClock.html" %}
+      {% include "clubKapow.html" %}
+      {% include "sheetMessage.html" %}
+      {% include "sheetCountdown.html" %}
+      {% include "sheetCountdownSetTime.html" %}
+      {% include "clubManagePins.html" %}
+      {% include "clubElapsedTimer.html" %}
+      {% include "clubBlank.html" %}
+      {% include "sheets.html" %}
+      {% include "sheet.html" %}
+      {% include "clubMore.html" %}
+      {% include "clubMessage.html" %}
+      {% include "clubCountdown.html" %}
+      {% include "clubDrawsInfo.html" %}
+      {% include "clubDrawsYesNo.html" %}
+      {% include "clubDrawsUpload.html" %}
+      {% include "clubDrawsAdd.html" %}
+      {% include "clubDraws.html" %}
+      {% include "clubCompetition.html" %}
+      {% include "clubAbout.html" %}
+      {% include "club.html" %}
+      {% include "clubLogout.html" %}
+      {% include "clubLogin.html" %}
+      {% include "clubTraining.html" %}
+      {% include "clubSettings.html" %}
+      {% include "sheetKapow.html" %}
+      {% include "clubPassword.html" %}
+      {% include "sheetElapsed.html" %}
+      {% include "sheetElapsedSetTime.html" %}
+      {% include "sheetTrainingSetup.html" %}
+      {% include "sheetTraining.html" %}
+      {% include "clubColours.html" %}
+      {% include "clubColoursAdd.html" %}
+      {% include "clubClockStatus.html" %}
+      {% include "clubAdmin.html" %}
+      {% include "adminSecret.html" %}
+      {% include "adminUpdate.html" %}
+      {% include "adminUpdateClean.html" %}
+      {% include "adminUsers.html" %}
+      {% include "adminUsersAdd.html" %}
+      {% include "adminShutdown.html" %}
+      {% include "adminSetClock.html" %}
+      {% include "adminHardware.html" %}
+      {% include "adminHardwareSettings.html" %}
+      {% include "adminOrganization.html" %}
+      {% include "adminSSL.html" %}
+      {% include "adminSheets.html" %}
+      {% include "adminDebug.html" %}
+      {% include "adminLogs.html" %}
+      {% include "adminLogsDisplay.html" %}
+      {% include "adminMemory.html" %}
+      {% include "adminMemoryDisplay.html" %}
+      {% include "adminPTPDStatus.html" %}
+      {% include "adminPTPDStats.html" %}
+      {% include "adminPTPDLogs.html" %}
+      {% include "adminPTPDOffset.html" %}
+      {% include "adminShowVersions.html" %}
+      {% include "adminGotoDevice.html" %}
+      {% include "adminJSLogs.html" %}
    </body>
 </html>
 <script>
- loginInfo = null;
-
- function verifyLoggedIn() {
-    let result = null;
+  function verifyLoggedIn() {
+    let name = null;
     Status(ip, "competition/status", {}, false)
-       .fail(function () {
-          logoutRecord();
-          result = "clubLogin";
-       })
+      .fail(function () {
+        logoutRecord();
+        result = "clubLogin";
+      })
     
     return result;
- }
- 
- $(document).ready(function() {
+  }
+  
+  $(document).ready(function() {
     if (typeof(Storage) !== "undefined") {
-       let s = localStorage.getItem("logininfo")
-       if (s) {
-          loginInfo = JSON.parse(s);
-       }
+      let s = localStorage.getItem("logininfo")
+      if (s) {
+        loginInfo = JSON.parse(s);
+      }
     }
     
     if (setupStage == 0) {
-       Status(ip, "competition/status", false)
-       adminSecret_directShow(name, ip)
+      $(".security-adminOnly").show();
+      Status(ip, "competition/status", false)
+      adminSecret_directShow(name, ip)
     } else if (setupStage == 1) {
+       $(".security-adminOnly").show();
        Status(ip, "competition/status", {}, false)
           .done(function () {
              if (loginInfo && loginInfo.isAdmin) {
+                security_enableAdminPages();
                 panelNavigate("adminSheets");
              } else {
                 logoutRecord();
+                security_enableAdminPages();
                 panelNavigate("clubLogin");
              }
           })
           .fail(function () {
              logoutRecord();
+             security_enableAdminPages();            
              panelNavigate("clubLogin");
           });
     } else {
-       if (loginInfo && loginInfo.user) {
-          accessToken = loginInfo.accessToken;
-          Status(ip, "competition/status", {}, false)
-             .done(() => panelNavigate("club"))
-             .fail(function () {
-                logoutRecord();
-                panelNavigate("clubLogin");
-             })
-       } else if (loginInfo && loginInfo.pinSheetID && loginInfo.pinSheetIP) {
-          accessToken = loginInfo.accessToken;
-          ip = loginInfo.pinSheetIP;
-          Status(ip, "competition/status", false)
-             .done(() => panelNavigate("sheet" + loginInfo.pinSheetID))
-             .fail(function () {
-                logoutRecord();
-                panelNavigate("clubLogin");
-             })
-       } else {
-          logoutRecord();
-          panelNavigate("clubLogin");
-       }
+      if (loginInfo && loginInfo.user) {
+        accessToken = loginInfo.accessToken;
+        Status(ip, "competition/status", {}, false)
+          .done(function() {
+             security_enableAdminPages();
+             panelNavigate("club");
+          })
+          .fail(function () {
+             logoutRecord();
+             security_enableAdminPages();
+             panelNavigate("clubLogin");
+          })
+      } else if (loginInfo && loginInfo.pinSheetID && loginInfo.pinSheetIP) {
+        accessToken = loginInfo.accessToken;
+        ip = loginInfo.pinSheetIP;
+        Status(ip, "competition/status", false)
+           .done(() => panelNavigate("sheet" + loginInfo.pinSheetID))
+           .fail(function () {
+              logoutRecord();
+              security_enableAdminPages();
+              panelNavigate("clubLogin");
+           })
+      } else {
+         logoutRecord();
+         security_enableAdminPages();
+         panelNavigate("clubLogin");
+      }
     }
     
     setupClickHack();
- });
- 
- unauthorizedCallback = function(jqXHR, status, errorThrown) {
+  });
+  
+  unauthorizedCallback = function(jqXHR, status, errorThrown) {
     logoutRecord();
+    security_enableAdminPages();
     panelNavigate("clubLogin");
- }
- 
+  }
+
 </script>
 </html>
 

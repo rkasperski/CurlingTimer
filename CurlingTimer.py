@@ -5,6 +5,7 @@ import sys
 import asyncio
 import atexit
 import signal
+import time
 from urllib.parse import urlparse, urlunparse, ParseResult
 
 import HardwareClock
@@ -62,16 +63,25 @@ async def cleanupBackgroundTasks(app):
     await curlingClockManager.stopTasks(app)
     await CommonRoutes.stopTasks(app)
 
-    
+
+trackPathTime = {}
 @middleware
 async def middleware(request, handler):
+    global trackPathTime
+    
     peername = request.transport.get_extra_info('peername')
 
-    if request.url.path.endswith("status"):
-        debug("%s %s %s", request.method, request.url, peername)
-    else:
-        info("%s %s %s", request.method, request.url, peername)
+    curTime = time.monotonic()
+    lastTimeData = trackPathTime.get(request.url.path, [0, 0])
 
+    if lastTimeData[0] + 5 < curTime or lastTimeData[1] > 60:
+        info("%s %s %s%s", request.method, request.url, peername, f": skipped {lastTimeData[1]}" if lastTimeData[1] else "")
+        lastTimeData = [curTime, 0]
+    else:
+        lastTimeData = [curTime, lastTimeData[1] + 1]
+
+    trackPathTime[request.url.path] = lastTimeData
+        
     try:
         resp = await handler(request)
     except Exception as e:
@@ -243,6 +253,7 @@ def gatherDisplayInfo(info):
     info["idle"] = str(curlingClockManager.getIdleTime()) + " " + curlingClockManager.getIdleResetter()
     info["hwClock"] = "Yes" if HardwareClock.hasHardwareClock else "No"
     info["drawServer"] = Config.display.defaults.drawServer
+    info["clockServer"] = Config.display.rink.clockServer
     info["display"] = "Yes"
     mySheet = Config.display.sheets.mySheet
     info["name"] = mySheet.name if mySheet else Utils.myHostName()

@@ -82,8 +82,8 @@ disabled
       <i class="bi bi-{{icon}} {% if kwargs.class %}{{kwargs.class}}{% endif %}"{% if kwargs.id %} id="{{kwargs.id}}"{% endif %}{% if kwargs.style %} style="{{kwargs.style}}"{% endif %}></i>
 {% endmacro %}
 
-{% macro actionIcon(title, icon, action ) %}
-   <div class="actionIcon col-3 col-md-2 text-center mb-1 mt-2 
+{% macro actionIcon(title, icon, action, class="") %}
+   <div class="actionIcon col-3 col-md-2 text-center mb-1 mt-2 {{class}}
                {% if kwargs.unassigned %} xd-out {% endif %}
                {% if kwargs.disabled or kwargs.unassigned %} disabled {% endif %}"
         {% if kwargs.idActionIcon %} id="{{kwargs.idActionIcon}}" {% endif %}
@@ -104,8 +104,8 @@ disabled
    </div>
 {% endmacro %}
 
-{% macro selectableIcon(id, checkedClass, title, icon, data) %}
-   <div class="col-auto text-center mb-4 actionIcon selectable-icon-{{checkedClass}} 
+{% macro selectableIcon(id, checkedClass, title, icon, data, class="") %}
+   <div class="col-auto text-center mb-4 actionIcon selectable-icon-{{checkedClass}} {{class}}
                {% if kwargs.disabled or kwargs.unassigned %} disabled {% endif %}
                {% if kwargs.unassigned %} xd-out {% endif %}"
                id="{{id}}">
@@ -142,3 +142,4 @@ disabled
       </div>
    </div>            
 {% endmacro %}
+

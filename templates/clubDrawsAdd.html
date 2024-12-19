@@ -3,14 +3,14 @@
    <div class="container">
       <div class="row gy-3">
          <div class="col-auto">
-	    <span id="clubDrawsAdd-title">Add Draw</span>:
+	    <span id="clubDrawsAdd-addModal-title">Name:</span>
          </div>
          <div class="col-auto">
-	    <input type="text" class="form-control verify-draw" id="clubDrawsAdd-draw-name" value="">
+	    <input type="text" class="form-control verify-draw" id="clubDrawsAdd-addModal-name" value="">
          </div>
          
          <div class="col-auto">
-	    <button type="button" class="btn btn-outline-dark submit-target" id="clubDrawsAdd-btn-add" onclick="clubDrawsAdd_save();">Add</button>
+	    <button type="button" class="btn btn-outline-dark submit-target" id="clubDrawsAdd-addModal-btn-add" onclick="clubDrawsAdd_save();">Add</button>
          </div>
          <div class="col-auto">
 	    <button type="button" class="btn btn-outline-dark" onclick="overlayHide('clubDrawsAdd');" >Cancel</button>
@@ -18,16 +18,16 @@
       </div>
       <div class="row">
          <div class="col-4 mt-2">
-	    <label for="clubDrawsAdd-draw-date">Date:</label>
-	    <input type="date" class="form-control verify-draw" id="clubDrawsAdd-draw-date" value="">
+	    <label for="clubDrawsAdd-addModal-date">Date:</label>
+	    <input type="date" class="form-control verify-draw" id="clubDrawsAdd-addModal-date" value="">
          </div>
          <div class="col-4 mt-2">
-	    <label for="clubDrawsAdd-draw-time">Time:</label>
-	    <input type="time" class="form-control verify-draw" id="clubDrawsAdd-draw-time" value="">
+	    <label for="clubDrawsAdd-addModal-time">Time:</label>
+	    <input type="time" class="form-control verify-draw" id="clubDrawsAdd-addModal-time" value="">
          </div>
          <div class="col-4 mt-2">
-	    <label for="clubDrawsAdd-auto-delete">Auto Delete:</label>
-	    <select class="form-control" id="clubDrawsAdd-auto-delete">
+	    <label for="clubDrawsAdd-addModal-auto-delete">Auto Delete:</label>
+	    <select class="form-control" id="clubDrawsAdd-addModal-auto-delete">
 	       <option value="No">Don't Delete</option>
 	       <option value="1">after a day</option>
 	       <option selected="selected" value="2">after 2 days</option>
@@ -42,13 +42,13 @@
       </div>
       <div class="row mt-4">
          <div class="col-4">
-	    <label for="clubDrawsAdd-team-teamColour">Team Colour:</label>
-	    {{macros.colorSelector(colours, "clubDrawsAdd-team-colour", "clubDrawsAdd-team-colour", "board", default="white")}}
+	    <label for="clubDrawsAdd-addModal-team-teamColour">Team Colour:</label>
+	    {{macros.colorSelector(colours, "clubDrawsAdd-addModal-team-colour", "clubDrawsAdd-addModal-team-colour", "board", default="white")}}
          </div>
          
          <div class="col-4">
-	    <label for="clubDrawsAdd-draw-show">Before Show:</label>
-	    <select class="form-control" id="clubDrawsAdd-draw-show">
+	    <label for="clubDrawsAdd-addModal-before-show">Before Show:</label>
+	    <select class="form-control" id="clubDrawsAdd-addModal-before-show">
 	       <option value="blank">Blank</option>
 	       <option value="5">Teams 5m</option>
 	       <option value="10">Teams 10m</option>
@@ -57,8 +57,8 @@
 	    </select>
          </div>			
          <div class="col-4">
-	    <label for="clubDrawsAdd-at-start">At Start:</label>
-	    <select class="form-control" id="clubDrawsAdd-at-start">
+	    <label for="clubDrawsAdd-at-addModal-start">At Start:</label>
+	    <select class="form-control" id="clubDrawsAdd-addModal-at-start">
 	       <option value="blank">Blank</option>
 	       <option value="countdown">Start CountDown</option>
 	       <option value="5">Show Teams 5m</option>
@@ -83,7 +83,7 @@
 	       <div class="sm-rock my-auto bg-{{s.topColour}}"></div>
 	    </div>
 	    <div class="col-auto ml-2">
-	       <input type="text" class="form-control" name="team-top{{s.ordinal}}" id="clubDrawsAdd-team-top{{s.ordinal}}">
+	       <input type="text" class="form-control" name="team-top{{s.ordinal}}" id="clubDrawsAdd-addModal-team-top{{s.ordinal}}">
 	    </div>
          </div>
          <div class="row mt-2">
@@ -93,7 +93,7 @@
 	       <div class="sm-rock my-auto  bg-{{s.bottomColour}}"></div>
 	    </div>
 	    <div class="col-auto ml-2">
-	       <input type="text" class="form-control" name="team-bottom{{s.ordinal}}" id="clubDrawsAdd-team-bottom{{s.ordinal}}">
+	       <input type="text" class="form-control" name="team-bottom{{s.ordinal}}" id="clubDrawsAdd-addModal-team-bottom{{s.ordinal}}">
 	    </div>
          </div>
       {%endfor %}		    
@@ -107,32 +107,32 @@
     if (draw.type == "edit") {
        $("#clubDrawsAdd").data("id", draw.id);
        $('#clubDrawsAdd .nav-title').text('Edit Draw');
-       $('#clubDrawsAdd-btn-add').text('Update');
+       $('#clubDrawsAdd-addModal-btn-add').text('Update');
        
-       $('#clubDrawsAdd-draw-name').val(draw.name);
-       $('#clubDrawsAdd-draw-date').val(draw.date);
-       $('#clubDrawsAdd-draw-time').val(draw.time);
-       $('#clubDrawsAdd-team-colour').val(draw.colour);
-       $('#clubDrawsAdd-draw-show').val(draw.show);
-       $('#clubDrawsAdd-auto-delete').val(draw.autoDelete);
-       $('#clubDrawsAdd-draw-at-start').val(draw.atStart);
+       $('#clubDrawsAdd-addModal-name').val(draw.name);
+       $('#clubDrawsAdd-addModal-date').val(draw.date);
+       $('#clubDrawsAdd-addModal-time').val(draw.time);
+       $('#clubDrawsAdd-addModal-team-colour').val(draw.colour);
+       $('#clubDrawsAdd-addModal-before-show').val(draw.show);
+       $('#clubDrawsAdd-addModal-auto-delete').val(draw.autoDelete);
+       $('#clubDrawsAdd-addModal-at-start').val(draw.atStart);
        for (p in draw.sheets) {
-          $(`#clubDrawsAdd-team-top${p}`).val(draw.sheets[p].team1);
-          $(`#clubDrawsAdd-team-bottom${p}`).val(draw.sheets[p].team2);
+          $(`#clubDrawsAdd-addModal-team-top${p}`).val(draw.sheets[p].team1);
+          $(`#clubDrawsAdd-addModal-team-bottom${p}`).val(draw.sheets[p].team2);
        }
     } else {
        $('#clubDrawsAdd .nav-title').text('Add New Draw');
-       $('#clubDrawsAdd-btn-add').text('Save');
+       $('#clubDrawsAdd-addModal-btn-add').text('Save');
 
        let d = new Date();
-       $('#clubDrawsAdd-draw-name').val('');
-       $('#clubDrawsAdd-draw-show').val('15');
-       $('#clubDrawsAdd-draw-date').val(d.toDateInputValue());
-       $('#clubDrawsAdd-draw-time').val(d.toTimeInputValue());
-       $('#clubDrawsAdd-team-colour').val('white');
+       $('#clubDrawsAdd-addModal-name').val('');
+       $('#clubDrawsAdd-addModal-before-show').val('15');
+       $('#clubDrawsAdd-addModal-date').val(d.toDateInputValue());
+       $('#clubDrawsAdd-addModal-time').val(d.toTimeInputValue());
+       $('#clubDrawsAdd-addModal-team-colour').val('white');
        {% for s in sheets %}
-       $('#clubDrawsAdd-team-top{{s.ordinal}}').val('');
-       $('#clubDrawsAdd-team-bottom{{s.ordinal}}').val('');
+       $('#clubDrawsAdd-addModal-team-top{{s.ordinal}}').val('');
+       $('#clubDrawsAdd-addModal-team-bottom{{s.ordinal}}').val('');
        {% endfor %}
        
     }
@@ -147,21 +147,21 @@
                    type: type,
                    id: id,
                    draw: {
-		      name: $('#clubDrawsAdd-draw-name').val(),
-		      date: $('#clubDrawsAdd-draw-date').val(),
-		      time: $('#clubDrawsAdd-draw-time').val(),
-		      colour: $('#clubDrawsAdd-team-colour').val(),
-		      show: $('#clubDrawsAdd-draw-show').val(),
-		      autoDelete: $('#clubDrawsAdd-auto-delete').val(),
-		      atStart: $('#clubDrawsAdd-at-start').val(),
+		      name: $('#clubDrawsAdd-addModal-name').val(),
+		      date: $('#clubDrawsAdd-addModal-date').val(),
+		      time: $('#clubDrawsAdd-addModal-time').val(),
+		      colour: $('#clubDrawsAdd-addModal-team-colour').val(),
+		      show: $('#clubDrawsAdd-addModal-before-show').val(),
+		      autoDelete: $('#clubDrawsAdd-addModal-auto-delete').val(),
+		      atStart: $('#clubDrawsAdd-addModal-at-start').val(),
 		      sheets: [
 		         {% for s in sheets %}
 		         {
-		            team1: $('#clubDrawsAdd-team-top{{s.ordinal}}').val(),
-		            team2: $('#clubDrawsAdd-team-bottom{{s.ordinal}}').val(),
+		            team1: $('#clubDrawsAdd-addModal-team-top{{s.ordinal}}').val(),
+		            team2: $('#clubDrawsAdd-addModal-team-bottom{{s.ordinal}}').val(),
 		         },
 		         {% endfor %}
-		      ]}})
+    ]}})
  }
  
 

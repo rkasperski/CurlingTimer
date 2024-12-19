@@ -1,0 +1,77 @@
+name=Round 2 date=2022-01-07 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+       1 O'Connor             Jones               
+       2 Izsak                Ronmark             
+       3 Tholl                Jenson              
+       4 Gowan                Pavlis              
+       5 Ralston              Fahselt             
+       6 Easton               Samuelson           
+name=Round 2 date=2022-01-14 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+       1 Izsak                Pavlis              
+       2 Gowan                Samuelson           
+       3 Ronmark              O'Connor            
+       4 Ralston              Easton              
+       5 Jones                Jenson              
+       6 Tholl                Fahselt             
+name=Round 2 date=2022-01-21 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+       1 Tholl                Easton              
+       2 O'Connor             Jenson              
+       3 Jones                Fahselt             
+       4 Izsak                Samuelson           
+       5 Ronmark              Pavlis              
+       6 Gowan                Ralston             
+name=Round 2 date=2022-01-28 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+       1 Jenson               Fahselt             
+       2 Ronmark              Samuelson           
+       3 Izsak                Ralston             
+       4 Jones                Easton              
+       5 Tholl                Gowan               
+       6 Pavlis               O'Connor            
+name=Round 2 date=2022-02-04 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+       1 Ronmark              Ralston             
+       2 Izsak                Tholl               
+       3 Pavlis               Samuelson           
+       4 O'Connor             Fahselt             
+       5 Jenson               Easton              
+       6 Jones                Gowan               
+name=Round 2 date=2022-02-11 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+       1 Samuelson            O'Connor            
+       2 Fahselt              Easton              
+       3 Jenson               Gowan               
+       4 Pavlis               Ralston             
+       5 Jones                Izsak               
+       6 Ronmark              Tholl               
+name=Round 2 date=2022-02-18 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+       1 Jenson               Izsak               
+       2 Pavlis               Tholl               
+       3 O'Connor             Easton              
+       4 Ronmark              Jones               
+       5 Fahselt              Gowan               
+       6 Samuelson            Ralston             
+name=Round 2 date=2022-02-25 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+       1 Easton               Gowan               
+       2 Jenson               Ronmark             
+       3 Pavlis               Jones               
+       4 Samuelson            Tholl               
+       5 Ralston              O'Connor            
+       6 Fahselt              Izsak               
+name=Round 2 date=2022-03-11 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+       1 Samuelson            Jones               
+       2 O'Connor             Gowan               
+       3 Ralston              Tholl               
+       4 Fahselt              Ronmark             
+       5 Easton               Izsak               
+       6 Pavlis               Jenson              
+name=Round 2 date=2022-03-18 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+       1 Fahselt              Pavlis              
+       2 Ralston              Jones               
+       3 Samuelson            Jenson              
+       4 Gowan                Izsak               
+       5 Tholl                O'Connor            
+       6 Easton               Ronmark             
+name=Round 2 date=2022-03-25 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+       1 Gowan                Ronmark             
+       2 Easton               Pavlis              
+       3 Tholl                Jones               
+       4 Ralston              Jenson              
+       5 Samuelson            Fahselt             
+       6 O'Connor             Izsak               

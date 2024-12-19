@@ -1,0 +1,88 @@
+<div class="display-view d-none" id="adminJSLogs">
+   {% if type == "display" %}
+      {{ navPanel("adminJSLogs", "clubAdmin" , "Admin - JS Logs") }}
+   {% else %}
+      {{ navPanel("adminJSLogs", "breaktimerAdmin" , "BreakTimer - JS Logs") }}
+   {% endif %}
+   <div class="row justify-content-evenly">
+      {{ actionIcon("Refresh", "arrow-clockwise", "adminJSLogs_refresh()") }}
+      {{ actionIcon("Clear Logs", "trash", "adminJSLogs_clearLogs()") }}
+   </div>
+   <div class="row justify-md-content-center gy-2 mt-2">
+      <div class="col-2 col-md-auto" >
+         <label for="adminLogsDisplay-filterText">Filter:</label>
+      </div>
+      <div class="col-9 col-md-3" >
+	 <input type="text"
+                class="form-control"
+                id="adminJSLog-filterText"
+                onchange="adminJSLogs_filterText()"
+                onkeyup="adminJSLogs_filterText()"
+         >
+      </div>
+      <div class="form-check col-auto ms-3">
+         <input class="form-check-input"
+                type="checkbox"
+                value=""
+                id="adminJSLogs-showMatching"
+                onchange="adminJSLogs_filterText()" 
+         >
+         <label class="form-check-label" for="adminJSLogs-showMatching">
+            Show Matching:
+         </label>
+      </div>
+   </div>
+   <div class="row mt-2">
+      <div class="col-auto display-table">
+	 <table class="table table-striped no-more-tables" id="adminJSLogs-table" >
+	    <thead class="thead-light">
+	    </thead>
+	    <tbody>
+	    </tbody>
+	 </table>
+      </div>
+   </div>
+</div>
+<script>
+ var adminLogsDisplayIP = "";
+
+ function adminJSLogs_clearLogs() {
+    log_dequeue.empty()
+ }
+
+ function adminJSLogs_filterText() {
+    let includeText = $("#adminJSLogs-filterText").val();
+    let showMatching = $("#adminJSLogs-showMatching").is(":checked")
+    $("#adminJSLogs-table td").css('color', "");
+    
+    $("#adminJSLogs-table tr").show();
+
+    let matchingCells = $("#adminJSLogs-table tr td").filter(function() {
+       return $(this).text().includes(includeText);
+    });
+
+    matchingCells.css('color','red');
+    if (showMatching) {
+       let containingRows = matchingCells.parent('tr');
+       $("#adminJSLogs-table tr").hide();
+       containingRows.show();
+    }
+ }
+
+ function adminJSLogs_refresh() {
+    emptyTable("adminJSLogs-table");
+    renderTableData("adminJSLogs-table", ["when", "level", "description"], log_dequeue.items());
+ }
+ 
+ function adminJSLogs_enter() {
+    $("#adminJSLogs-filterText").val("");
+    $("#adminJSLogs-showMatching").prop('checked', false);
+    
+    adminJSLogs_refresh();
+ }
+ 
+ function adminJSLogs_exit() {
+ }
+
+</script>
+

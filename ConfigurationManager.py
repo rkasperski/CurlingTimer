@@ -1,15 +1,15 @@
-from Logger import info
 import time
 import asyncio
 
-from Utils import myIPAddress
+from Logger import info, debug
+from Utils import myIPAddress, traceback
 import HTTP_Utils as httpUtils
 from HTTP_Utils import postUrlJSONResponse, scheme, CLOCK_HDR
 from Identify import whoareyou
 import Config
-from Utils import traceback
 import AccessVerification
 import Devices
+
 
 async def updateOneConfig(ip, configStr):
     tkn = AccessVerification.tokenAuthenticator.create(expires=int(time.time()) + 3600, audience="config")
@@ -20,12 +20,13 @@ async def updateOneConfig(ip, configStr):
                                              headers={CLOCK_HDR: tkn},
                                              timeout=10)
 
+    info("config: send update ip=%s result='%s'", ip, jsonResponse) 
     return jsonResponse
 
 
 async def updateAllConfigs(save=True, force=True, ipList=None):
+    info("config: config save=%s", save)
     if save:
-        info("config: saving config")
         Config.display.save()
 
     allCurrent = True
@@ -89,7 +90,7 @@ async def startTasks(app):
 
 async def stopTasks(app):
     if 'config_update' in app:
-        info("ConfigurationManager: stop tasks - cancel")
+        debug("ConfigurationManager: stop tasks - cancel")
         app['config_update'].cancel()
 
-        info("ConfigurationManager: stop tasks - done")
+        debug("ConfigurationManager: stop tasks - done")

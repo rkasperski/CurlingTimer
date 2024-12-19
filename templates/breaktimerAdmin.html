@@ -1,23 +1,25 @@
 <div id="club" class="display-view d-none" >
    {{ navPanel("", "", "Break Timer - " ~ name) }}
    <div class="row justify-content-evenly">
-      {{ actionIcon("About", "info-circle", "panelNavigate('clubAbout')" ) }}
-      {{ actionIcon("Training", "trophy", "panelNavigate('deviceTrainingList')" ) }}
-      <div class="w-100"></div>
-      {{ actionIcon("Logs", "file-ruled", "panelNavigate('adminLogsDisplay')") }}
-      {{ actionIcon("Logout", "shield-slash", "panelNavigate('clubLogout')" ) }}
-      <div class="w-100"></div>
-      {{ actionIcon("Password", "lock", "panelNavigate('clubPassword')" ) }}
-      {{ actionIcon("Shared Secret", "incognito", "panelNavigate('adminSecret')") }}
-      <div class="w-100"></div>
-      {{ actionIcon("Setup SSL", "key", "panelNavigate('adminSSL')") }}
-      {{ actionIcon("Hardware", "motherboard", "panelNavigate('adminHardwareSettings')") }}
+     {{ actionIcon("About", "info-circle", "panelNavigate('clubAbout')" ) }}
+     {{ actionIcon("Training", "trophy", "panelNavigate('deviceTrainingList')" ) }}
+     <div class="w-100"></div>
+     {{ actionIcon("Logs", "file-ruled", "panelNavigate('adminLogsDisplay')", class="security-adminOnly") }}
+     {{ actionIcon("Logout", "shield-slash", "panelNavigate('clubLogout')" ) }}
+     <div class="w-100 security-adminOnly"></div>
+     {{ actionIcon("Password", "lock", "panelNavigate('clubPassword')" , class="security-adminOnly") }}
+     {{ actionIcon("Shared Secret", "incognito", "panelNavigate('adminSecret')" , class="security-adminOnly")}}
+     <div class="w-100 security-adminOnly"></div>
+     {{ actionIcon("Setup SSL", "key", "panelNavigate('adminSSL')", class="security-adminOnly") }}
+     {{ actionIcon("Hardware", "motherboard", "panelNavigate('adminHardwareSettings')", class="security-adminOnly") }}
+     <div class="w-100 security-adminOnly"></div>
+     {{ actionIcon("JS Logs", "list-columns", "panelNavigate('adminJSLogs')", class="security-adminOnly") }}
    </div>
 </div>
 
 <script>
  function club_enter() {
-    $("#club-user").text(loginInfo.user);
+   $("#club-user").text(loginInfo.user);
  }
 
  function club_exit() {

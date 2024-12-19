@@ -1,0 +1,88 @@
+name=Friday Mixed date=2024-01-06 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Benko                Christensen         
+    2    McCrea               Robins              
+    3    Joy                  Stewart             
+    4    Hager                Minichiello         
+    5    Macaulay             Dyer                
+    6    Walker               Woods               
+name=Friday Mixed date=2024-01-13 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Dyer                 Minichiello         
+    2    Hager                Christensen         
+    3    Woods                Robins              
+    4    Macaulay             Hedlund             
+    5    Stewart              Duncalfe            
+    6    Kinder               Joy                 
+name=Friday Mixed date=2024-01-19 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Thursday Kinder      Duncalfe            
+    2    Joy                  Woods               
+    3    Minichiello          Benko               
+    4    Walker               McCrea              
+    5    Hager                Hedlund             
+name=Friday Mixed date=2024-01-20 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Macaulay             Robins              
+    2    Dyer                 Walker              
+    3    Kinder               Christensen         
+    4    Benko                Stewart             
+    5    Minichiello          McCrea              
+    6    Hedlund              Duncalfe            
+name=Friday Mixed date=2024-01-27 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Woods                Hedlund             
+    2    Macaulay             Duncalfe            
+    3    McCrea               Hager               
+    4    Robins               Christensen         
+    5    Walker               Joy                 
+    6    Kinder               Stewart             
+name=Friday Mixed date=2024-02-03 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Duncalfe             McCrea              
+    2    Hedlund              Benko               
+    3    Joy                  Minichiello         
+    4    Dyer                 Woods               
+    5    Christensen          Stewart             
+    6    Walker               Macaulay            
+name=Friday Mixed date=2024-02-09 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Thursday Walker      Christensen         
+    2    Kinder               Hager               
+    3    Stewart              Woods               
+    4    Macaulay             Benko               
+    5    Robins               Dyer                
+name=Friday Mixed date=2024-02-17 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Benko                Joy                 
+    2    Minichiello          Christensen         
+    3    Robins               Duncalfe            
+    4    Hedlund              McCrea              
+    5    Walker               Kinder              
+    6    Hager                Dyer                
+name=Friday Mixed date=2024-02-24 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Hedlund              Stewart             
+    2    Dyer                 Joy                 
+    3    Kinder               Macaulay            
+    4    Hager                Duncalfe            
+    5    Woods                Minichiello         
+    6    Benko                Robins              
+name=Friday Mixed date=2024-03-09 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Thursday Woods       Macaulay            
+    2    McCrea               Stewart             
+    4    Christensen          Dyer                
+    5    Robins               Hedlund             
+    6    Minichiello          Duncalfe            
+name=Friday Mixed date=2024-03-10 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Kinder               Minichiello         
+    2    Walker               Duncalfe            
+    3    McCrea               Dyer                
+    4    Joy                  Robins              
+    5    Hager                Benko               
+    6    Hedlund              Christensen         
+name=Friday Mixed date=2024-03-17 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    McCrea               Benko               
+    2    Macaulay             Hager               
+    3    Robins               Stewart             
+    4    Walker               Minichiello         
+    5    Hedlund              Joy                 
+    6    Woods                Kinder              
+name=Friday Mixed date=2024-03-24 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Hager                Walker              
+    2    Kinder               Dyer                
+    3    Duncalfe             Joy                 
+    4    Woods                Benko               
+    5    McCrea               Christensen         
+    6    Macaulay             Stewart             

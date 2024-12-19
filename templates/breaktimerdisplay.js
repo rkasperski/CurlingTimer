@@ -1,24 +1,33 @@
 var global_timingStyle = "raw";
+var sheetTraining_activeSensors = null
+var sheetTraining_ws = null
 
 class WSBreakTimerDisplay extends WSSocket {
     cmd_registered(msgData, cbData) {
-        console.log(`registered: ${msgData}`);
+        console.log("WSBreakTimerDisplay: cmd_registered:", this.url, msgData);
+        this.registered = true;
     }
 
     cmd_event(msgData, cbData) {
-        console.log(`event: ${msgData}`);
+        console.log("WSBreakTimerDisplay cmd_event:", this.url, msgData);
     }
 
     cmd_reset(msgData, cbData) {
-        console.log(`reset: ${msgData}`);
+        console.log("WSBreakTimerDisplay cmd_reset:", this.url, msgData);
     }
 
     socketClose(event, cbData) {
-        console.log("breakTimeDisplay_close");
+        console.log("WSBreakTimerDisplay: socketClose", this.url);
+        this.registered = false;
     }
 
+    connectionFailed() {
+        console.log("WSBreakTimerDisplay: connectFailed", this.url);
+        this.registered = false;
+    }        
+
     socketOpen(event, cbData) {
-        console.log("breakTimeDisplay_open");
+        console.log("WSBreakTimerDisplay: socketOpen", this.url);
     
         this.sendMsg("register", {tkn: accessToken,
                                   id: global_id,
@@ -26,14 +35,16 @@ class WSBreakTimerDisplay extends WSSocket {
                                   style: global_timingStyle});
     }
 
+    cmd_endsession(msgData, cbData) {
+        console.log("WSBreakTimerDisplay: cmd_endsession", this.url, msgData);
+        sheetTraining_clearSensors()
+    }
+
     socketError(event, cbData) {
-        console.log("breakTimeDisplay_error");
+        console.log("WSBreakTimerDisplay: socketError", this.url, event);
+    }
+
+    reset(filterTime) {
+        this.sendMsg("reset", {filterTime: filterTime})
     }
 }
-
-function connectToBreakTimerDisplay(ip, sensors) {
-    let ws = new WSBreakTimerDisplay();
-    ws.connect(`ws://${ip}:80/ws/breaktimerdisplay`, sensors);
-    return ws;
-}
- 

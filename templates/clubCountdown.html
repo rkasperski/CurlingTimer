@@ -199,12 +199,7 @@
 
  function clubCountdown_onOff(id, ip) {
     let btn = $(`#clubCountdown-btn-onOff${id}`);
-    if (btn.data("state") == "off") {
-       CountDownShow(ip);
-    } else {
-       DisplayBlank(ip);
-    }
-
+    DisplayBlank(ip, btn.data("state") != "off");
     sheetCheckActive(clubCountdown_activeCallback)
  }
 

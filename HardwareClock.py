@@ -2,7 +2,7 @@ import os
 import sys
 from datetime import datetime, timezone
 
-from Logger import warning, error
+from Logger import warning, error, info, exception
 import time
 try:
     import USB_DS3231
@@ -71,40 +71,50 @@ def updateClockTime(newTimeSecsFromMidnight=None, newDate=None, newTimeZone=None
     warning("clock: set request secsFromMidnight=%s date=%s tz=%s", newTimeSecsFromMidnight, newDate, newTimeZone)
     outputList = []
     nn = "\n"
+
+    try:
+        if newTimeZone:
+            cmd = f'sudo timedatectl set-timezone "{newTimeZone}"'
+            rc, output = runCommand(cmd)
+
+            if rc:
+                outputList.append(output)
+                error("clock: failed to set timezone; timezone=%s cmd='%s' rc=%s output=%s", newTimeZone, cmd, rc, output)
+                return f"failed to set timezone: {newTimeZone}\ncmd='{cmd}' rc={rc}\n{nn.join(outputList)}"
+            else:
+                outputList.append(f"set new timezone {newTimeZone}")
+                info("clock: Set timezone; timezone=%s", newTimeZone)
     
-    if newTimeZone:
-        cmd = f'sudo timedatectl set-timezone "{newTimeZone}"'
-        rc, output = runCommand(cmd)
-        warning("clock: Set timezone; cmd='%s' rc=%s output=%s", cmd, rc, output)
-        if rc:
-            outputList.append(output)
-            return f"failed to set timezone: {newTimeZone}\ncmd='{cmd}' rc={rc}\n{nn.join(outputList)}"
+        if newTimeSecsFromMidnight:
+            newTimeSecsFromMidnight = newTimeSecsFromMidnight + (time.monotonic() - startTime)
+            timeStr = f"{int(newTimeSecsFromMidnight / 3600)}:{int(newTimeSecsFromMidnight % 3600/60):-02d}:{int(newTimeSecsFromMidnight % 60):02d}"
+            
+            cmd = f'sudo /bin/date +"%T" -s "{timeStr}"'
+            rc, output = runCommand(cmd)
 
-        outputList.append(f"set new timezone {newTimeZone}")
-    
-    if newTimeSecsFromMidnight:
-        newTimeSecsFromMidnight = newTimeSecsFromMidnight + (time.monotonic() - startTime)
-        timeStr = f"{int(newTimeSecsFromMidnight / 3600)}:{int(newTimeSecsFromMidnight % 3600/60):-02d}:{int(newTimeSecsFromMidnight % 60):02d}"
-
-        cmd = f'sudo /bin/date +"%T" -s "{timeStr}"'
-        rc, output = runCommand(cmd)
-        print(cmd, "\n",  output)
-        warning("clock: Set time; cmd='%s' rc=%s output=%s", cmd, rc, output)
-        if rc:
-            outputList.append(output)
-            return f"failed to set time({timeStr}; cmd='{cmd}' rc={rc}\n{nn.join(outputList)}"
-
-        outputList.append("set time done")
+            if rc:
+                outputList.append(output)
+                error("failed to set time; time=%s cmd='%s' rc=%s output=%s", timeStr, cmd, rc, output)
+                return f"failed to set time({timeStr}; cmd='{cmd}' rc={rc}\n{nn.join(outputList)}"
+            else:
+                outputList.append("set time done")
+                info("clock: Set time; time='%s'", timeStr)
                 
-    if newDate:
-        cmd = f'sudo /bin/date +"%F" -s "{newDate} $(date +%H:%M:%S)"'
-        rc, output = runCommand(cmd)
-        warning("clock: Set date; cmd='%s' rc=%s output=%s", cmd, rc, output)
-        if rc:
-            outputList.append(output)
-            return f"failed to set date({newDate};\ncmd='{cmd}' rc={rc}\n{nn.join(outputList)}"
+        if newDate:
+            cmd = f'sudo /bin/date +"%F" -s "{newDate} $(date +%H:%M:%S)"'
+            rc, output = runCommand(cmd)
+            
+            if rc:
+                outputList.append(output)
+                error("failed to set date; new date=%s cmd='%s' rc=%s output=%s", newDate, cmd, rc, output)
+                return f"failed to set date({newDate};\ncmd='{cmd}' rc={rc}\n{nn.join(outputList)}"
+            else:
+                outputList.append("set date done")
+                info("clock: Set date; date=%s", newDate)
 
-        outputList.append("set date done")
+    except Exception as e:
+        outputList.append(f"badness {e}")
+        exception("set timedate '%s'", data)
 
     return nn.join(outputList)
 

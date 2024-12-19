@@ -38,7 +38,6 @@ async def altHtmlGet(request):
 @routes.post('/text')
 @ajaxVerifyToken("pin")
 async def textAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     json = await request.json()
     CurlingClockManager.manager.setScrollingText(json.get("text", "hello"), json.get("colour", "white"))
     CurlingClockManager.manager.setView(CurlingClockManager.manager.displayScrollingText)
@@ -59,7 +58,6 @@ async def clockStatusAjax(request):
 @routes.post('/clock/show')
 @ajaxVerifyToken("pin")
 async def clockShowAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setView(CurlingClockManager.manager.clockUpdate)
     return aiohttp_web.json_response({"time": time.time()})
 
@@ -67,7 +65,6 @@ async def clockShowAjax(request):
 @routes.post('/showip')
 @ajaxVerifyToken("pin")
 async def showIPAjax(request):
-    CurlingClockManager.manager.resetIdleTime()
     CurlingClockManager.manager.setFlashText(myIPAddress())
     CurlingClockManager.manager.setView(CurlingClockManager.manager.displayFlashText)
 
@@ -86,8 +83,7 @@ async def configAjax(request):
     Config.display.sheets.modified = True
 
     if CurlingClockManager.manager:
-        CurlingClockManager.manager.welcomeMessage = Config.display.defaults.welcomeMessage
-        CurlingClockManager.manager.setScrollingText(CurlingClockManager.manager.welcomeMessage)
+        CurlingClockManager.manager.setDefaultsFromConfig()
 
     return aiohttp_web.json_response({"time": time.time(),
                                       "configUpdate": True,
