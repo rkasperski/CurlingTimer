@@ -8,7 +8,7 @@ from aiohttp import web as aiohttp_web
 from aiohttp import MultipartReader as aiohttp_MultipartReader
 from AccessVerification import ajaxVerifyToken
 import SetupApp
-from Identify import getVersion, getBuildDate
+from Identify import versionNo, buildDate, getVersion, getBuildDate
 
 routes = aiohttp_web.RouteTableDef()
 

@@ -1,67 +1,67 @@
-name=Monday Open date=2024-01-09 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Monday Open date=2025-01-09 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Gross                Wood                
     2    Heald                Ronmark             
     3    ActivityBase         Lind                
     4    Firman               Hedlund             
     5    Wilson               Ralston             
     6    O'Connor             Ducharme            
-name=Monday Open date=2024-01-16 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Monday Open date=2025-01-16 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Heald                Hedlund             
     2    Firman               Ducharme            
     3    Ronmark              Gross               
     4    Wilson               O'Connor            
     5    Wood                 Lind                
     6    ActivityBase         Ralston             
-name=Monday Open date=2024-01-23 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Monday Open date=2025-01-23 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    ActivityBase         O'Connor            
     2    Gross                Lind                
     3    Wood                 Ralston             
     4    Heald                Ducharme            
     5    Ronmark              Hedlund             
     6    Firman               Wilson              
-name=Monday Open date=2024-01-30 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Monday Open date=2025-01-30 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Lind                 Ralston             
     2    Ronmark              Ducharme            
     3    Heald                Wilson              
     4    Wood                 O'Connor            
     5    ActivityBase         Firman              
     6    Hedlund              Gross               
-name=Monday Open date=2024-02-06 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Monday Open date=2025-02-06 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Ronmark              Wilson              
     2    Heald                ActivityBase        
     3    Hedlund              Ducharme            
     4    Gross                Ralston             
     5    Lind                 O'Connor            
     6    Wood                 Firman              
-name=Monday Open date=2024-02-13 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Monday Open date=2025-02-13 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Ducharme             Gross               
     2    Ralston              O'Connor            
     3    Lind                 Firman              
     4    Hedlund              Wilson              
     5    Wood                 Heald               
     6    Ronmark              ActivityBase        
-name=Monday Open date=2024-02-27 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Monday Open date=2025-02-27 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Lind                 Heald               
     2    Hedlund              ActivityBase        
     3    Gross                O'Connor            
     4    Ronmark              Wood                
     5    Ralston              Firman              
     6    Ducharme             Wilson              
-name=Monday Open date=2024-03-06 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Monday Open date=2025-03-06 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    O'Connor             Firman              
     2    Lind                 Ronmark             
     3    Hedlund              Wood                
     4    Ducharme             ActivityBase        
     5    Wilson               Gross               
     6    Ralston              Heald               
-name=Monday Open date=2024-03-13 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Monday Open date=2025-03-13 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Ducharme             Wood                
     2    Gross                Firman              
     3    Wilson               ActivityBase        
     4    Ralston              Ronmark             
     5    O'Connor             Heald               
     6    Hedlund              Lind                
-name=Monday Open date=2024-03-20 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Monday Open date=2025-03-20 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Ralston              Hedlund             
     2    Wilson               Wood                
     3    Ducharme             Lind                

@@ -30,7 +30,7 @@ class CurlingClockManager:
         self.config = config
 
         self.blankTime = strToSeconds(config.defaults.blankTime)
-        self.nextBlankTime = None
+        self.nextBlankTime = 0
         self.lastInteractionTime = time.monotonic()
         self.lastInteractionResetter = "main"
 
@@ -121,7 +121,11 @@ class CurlingClockManager:
             if self.nextBlankTime >= cur_time:
                 return False
 
-            self.nextBlankTime = None
+            info("isIdle: display period expired: curTime=%s blankTime=%s", cur_time, self.nextBlankTime)
+            self.nextBlankTime = 0
+            self.forceIdle()
+
+            return True
 
         idle = self.lastInteractionTime + self.blankTime < cur_time
         return idle
@@ -130,11 +134,21 @@ class CurlingClockManager:
         self.blankTime = blankTime
 
     def resetIdleTime(self, activeUntil=None, activeInterval=None):
-        self.nextBlankTime = activeUntil
-        if activeInterval:
-            self.nextBlankTime = max(activeUntil if activeUntil else 0, time.monotonic() + activeInterval)
+        mTime = time.monotonic()
+        if activeUntil is not None:
+            # activeUntil is local time so convert to monotonic time
+            curLclTime = time.time()
+            self.nextBlankTime = mTime + max(activeUntil - curLclTime, 0)
+            info("resetIdleTime curTime=%s mTime=%s until=%s:%s", curLclTime, mTime, self.nextBlankTime, self.nextBlankTime - mTime , )
+        else:
+            self.nextBlankTime = 0
 
-        self.lastInteractionTime = time.monotonic()
+        if activeInterval:
+            info("resetIdleTime for=%s", activeInterval)
+
+            self.nextBlankTime = max(self.nextBlankTime, mTime + activeInterval)
+
+        self.lastInteractionTime = mTime
         self.lastInteractionResetter = sys._getframe().f_back.f_code.co_name
 
     def adjustIdleTime(self, amt):

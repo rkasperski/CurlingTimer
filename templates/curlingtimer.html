@@ -96,7 +96,7 @@
 </html>
 <script>
   function verifyLoggedIn() {
-    let name = null;
+    let result = null;
     Status(ip, "competition/status", {}, false)
       .fail(function () {
         logoutRecord();

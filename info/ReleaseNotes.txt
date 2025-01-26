@@ -1,3 +1,11 @@
+5.19 - Wed Jan 22 16:27:18 2025
+- fix clock status to report unreachable/offline clocks as offline
+- version comes from loaded module. Fixes the version when a new load has been unpacked.
+5.18 - Tue Jan 21 13:09:28 2025
+- fix idling of the display after teams were displayed for draw and the time has expired
+- fix parsing of draws that had a separate date line between the header and the sheets
+- extract draw name for selected file
+- default draw behaviour is to show countdown timer
 5.17 - Wed Dec 18 17:13:46 2024
 - simplify single and two line drawing code.
 - share most rendering code between TB and LED display

@@ -1,0 +1,66 @@
+name=Tuesday Doubles date=2025-01-07 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Harris               BroadswithBrooms W  
+    2    Benko/Thompson       Fahselt L           
+    3    Pavlis/Hopkins       The Bibbys L        
+    4    Gross/Hull           Wilson W            
+    5    Kasperski/O'Connor   Ladies of Leisure L 
+name=Tuesday Doubles date=2025-01-14 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Benko/Thompson       Wilson              
+    2    Ladies of Leisure    Pavlis/Hopkins      
+    3    Kasperski/O'Connor   Gross/Hull          
+    4    Harris               Fahselt             
+    6    BroadswithBrooms     The Bibbys          
+name=Tuesday Doubles date=2025-01-21 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Pavlis/Hopkins       Gross/Hull          
+    2    The Bibbys           Harris              
+    3    Ladies of Leisure    BroadswithBrooms    
+    5    Fahselt              Wilson              
+    6    Benko/Thompson       Kasperski/O'Connor  
+name=Tuesday Doubles date=2025-01-28 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Kasperski/O'Connor   Fahselt             
+    2    BroadswithBrooms     Gross/Hull          
+    4    Ladies of Leisure    The Bibbys          
+    5    Pavlis/Hopkins       Benko/Thompson      
+    6    Harris               Wilson              
+name=Tuesday Doubles date=2025-02-04 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Harris               Ladies of Leisure   
+    2    Wilson               Kasperski/O'Connor  
+    4    Benko/Thompson       BroadswithBrooms    
+    5    Gross/Hull           The Bibbys          
+    6    Fahselt              Pavlis/Hopkins      
+name=Tuesday Doubles date=2025-02-11 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Pavlis/Hopkins       Wilson              
+    2    The Bibbys           Benko/Thompson      
+    3    Fahselt              BroadswithBrooms    
+    5    Kasperski/O'Connor   Harris              
+    6    Gross/Hull           Ladies of Leisure   
+name=Tuesday Doubles date=2025-02-18 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    The Bibbys           Fahselt             
+    2    Gross/Hull           Harris              
+    3    Benko/Thompson       Ladies of Leisure   
+    4    Kasperski/O'Connor   Pavlis/Hopkins      
+    6    Wilson               BroadswithBrooms    
+name=Tuesday Doubles date=2025-02-25 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Kasperski/O'Connor   BroadswithBrooms    
+    2    Fahselt              Ladies of Leisure   
+    3    Harris               Pavlis/Hopkins      
+    4    The Bibbys           Wilson              
+    5    Benko/Thompson       Gross/Hull          
+name=Tuesday Doubles date=2025-03-03 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Ladies of Leisure    Wilson              
+    2    The Bibbys           Kasperski/O'Connor  
+    4    Gross/Hull           Fahselt             
+    5    BroadswithBrooms     Pavlis/Hopkins      
+    6    Harris               Benko/Thompson      
+name=Tuesday Doubles date=2025-03-11 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Benko/Thompson       Fahselt             
+    2    Wilson               Gross/Hull          
+    4    Harris               BroadswithBrooms    
+    5    Ladies of Leisure    Kasperski/O'Connor  
+    6    Pavlis/Hopkins       The Bibbys          
+name=Tuesday Doubles date=2025-03-18 time=None colour=white show=15 autoDelete=2880 atStart=yes
+    1    Pavlis/Hopkins       Gross/Hull          
+    2    BroadswithBrooms     Ladies of Leisure   
+    3    Fahselt              Wilson              
+    4    Kasperski/O'Connor   Benko/Thompson      
+    5    The Bibbys           Harris              

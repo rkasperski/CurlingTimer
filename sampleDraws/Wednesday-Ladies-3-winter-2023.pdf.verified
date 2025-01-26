@@ -1,59 +1,59 @@
-name=Wednesday Ladies date=2024-01-04 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-01-04 time=None colour=white show=15 autoDelete=2880 atStart=yes
     3    Shunter              Hedlund             
     4    Roberts              Speaker             
     5    Stewart              Peet                
     6    Firth                Robins              
-name=Wednesday Ladies date=2024-01-11 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-01-11 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Roberts              Robins              
     2    Speaker              Shunter             
     3    Stewart              Firth               
     4    Hedlund              Peet                
-name=Wednesday Ladies date=2024-01-18 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-01-18 time=None colour=white show=15 autoDelete=2880 atStart=yes
     3    Speaker              Robins              
     4    Roberts              Stewart             
     5    Hedlund              Firth               
     6    Peet                 Shunter             
-name=Wednesday Ladies date=2024-01-25 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-01-25 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Speaker              Stewart             
     2    Peet                 Firth               
     5    Robins               Shunter             
     6    Hedlund              Roberts             
-name=Wednesday Ladies date=2024-02-01 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-02-01 time=None colour=white show=15 autoDelete=2880 atStart=yes
     3    Peet                 Roberts             
     4    Shunter              Firth               
     5    Speaker              Hedlund             
     6    Robins               Stewart             
-name=Wednesday Ladies date=2024-02-08 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-02-08 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Roberts              Firth               
     2    Robins               Hedlund             
     3    Stewart              Shunter             
     4    Peet                 Speaker             
-name=Wednesday Ladies date=2024-02-15 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-02-15 time=None colour=white show=15 autoDelete=2880 atStart=yes
     3    Firth                Speaker             
     4    Hedlund              Stewart             
     5    Robins               Peet                
     6    Shunter              Roberts             
-name=Wednesday Ladies date=2024-02-22 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-02-22 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Shunter              Hedlund             
     2    Stewart              Peet                
     4    Firth                Robins              
     5    Speaker              Roberts             
-name=Wednesday Ladies date=2024-03-01 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-03-01 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Stewart              Firth               
     2    Roberts              Robins              
     3    Peet                 Hedlund             
     4    Speaker              Shunter             
-name=Wednesday Ladies date=2024-03-08 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-03-08 time=None colour=white show=15 autoDelete=2880 atStart=yes
     3    Roberts              Stewart             
     4    Firth                Hedlund             
     5    Shunter              Peet                
     6    Robins               Speaker             
-name=Wednesday Ladies date=2024-03-15 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-03-15 time=None colour=white show=15 autoDelete=2880 atStart=yes
     1    Shunter              Robins              
     2    Speaker              Stewart             
     5    Hedlund              Roberts             
     6    Peet                 Firth               
-name=Wednesday Ladies date=2024-03-22 time=None colour=white show=15 autoDelete=2880 atStart=yes
+name=Wednesday Ladies date=2025-03-22 time=None colour=white show=15 autoDelete=2880 atStart=yes
     3    Shunter              Firth               
     4    Peet                 Roberts             
     5    Robins               Stewart             

@@ -238,12 +238,21 @@ class DrawManager:
                     with open(fileName, "wb+") as f:
                         f.write(text)
 
+        if verbose:
+            print(f"{ext=} {startTime=} {autoDelete=} {colour=} {show=} {atStart=}")
+            
         if fileName:
+            if verbose:
+                print(f"Extract {fileName=}")
+                
             draws = extractDrawsFromFile(fileName, ext, startTime, autoDelete, colour, show, atStart)
 
             for draw in draws:
                 await asyncio.sleep(0.001)
                 draw, msg = self.addDraw(draw, drawName=drawName)
+                if verbose:
+                    print(f"add draw {draw}\n\t{msg}")
+                    
                 if msg:
                     msgs.append(msg)
                     
@@ -546,7 +555,7 @@ class DrawManager:
             except asyncio.CancelledError:
                 return
             except Exception as e:
-                error("draw: show task %s", e)
+                error("draw: show task %s", e, stack_info=True)
 
     async def startTasks(self, app):
         info("DrawManager: tasks - start")

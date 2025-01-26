@@ -7,6 +7,12 @@ import HTTP_Utils as httpUtils
 from HTTP_Utils import getUrlJSONResponse
 import Config
 
+try:
+    from Version import versionNo, buildDate
+except ImportError:
+    versionNo = "unassigned"
+    buildDate = "unknown"
+
 gatherDeviceInfo = None
 myApp = None
 
@@ -84,8 +90,8 @@ def whoami():
         "epochTimestamp": time.time(),
         "time": displayTime,
         "configVersion": config.version(),
-        "buildVersion": getVersion(),
-        "buildDate": getBuildDate(),
+        "buildVersion": versionNo,
+        "buildDate": buildDate,
         "hostname": myHostName(),
         "configDate": config.modificationDate(),
         }

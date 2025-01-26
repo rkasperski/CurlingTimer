@@ -18,7 +18,7 @@ from Utils import MemUsage, memUsage, yearInSeconds, headTail, runCommand
 from AccessVerification import ajaxVerifyToken, verifyUser, isAdministrator, getAuthenticator
 import AccessVerification
 import Config
-from Identify import whoareyou, getVersion, whoami, getApp
+from Identify import whoareyou, whoami, getApp, versionNo
 from ClockAuthenticator import pinExpireTime
 import SetupApp
 import Devices
@@ -228,7 +228,7 @@ async def secretTestHtmlPost(request):
     return aiohttp_web.json_response({"enc": msgEncoded,
                                       "msg": msg,
                                       "config": config.version(),
-                                      "build":  getVersion(),
+                                      "build":  versionNo,
                                       "offset": offset,
                                       "correction": ptpd2Data.get("correction", '-')})
 
@@ -240,7 +240,7 @@ async def secretTestPost(testIp, name):
                                                    jsonData={})
 
     if not response:
-        return "failed"
+        return [testIp, name, "offline", "", "", "", ""]
 
     msg = AccessVerification.tokenAuthenticator.decode(response.get("enc", "bogus message"))
     

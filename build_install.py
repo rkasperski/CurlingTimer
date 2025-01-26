@@ -81,6 +81,10 @@ def main():
 
     versionNo = UpdateVersion.getVersion(fn="info/version.txt")
     buildDate = UpdateVersion.getBuildDate(fn="info/buildDate.txt")
+
+    with open("Version.py", "w") as f:
+        print(f'versionNo="{versionNo}"', file=f)
+        print(f'buildDate="{buildDate}"', file=f)
             
     if args.skip_release_notes:
         print("skipping release notes generaton")

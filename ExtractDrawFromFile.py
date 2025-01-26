@@ -52,16 +52,15 @@ def pdfTextBlobsToDraws(txtList, startTime, autoDelete, colour, show, atStart, v
         
     for txt in txtList:
         if verbose:
-            print("--- blob ---")
+            print("--- blob start ---")
             print(txt.replace("\n", "\\n"))
             print("---")
             print(txt)
-            print("--- blob ---")
-
-        if txt.lower().startswith("date"):
-            continue
+            print("--- blob end ---")
 
         sp = txt.split("\n")
+        if sp[0].lower().startswith("date"):
+            del sp[0]
 
         if len(sp) == 1:
             if name == "Unknown" or "league" in txt.lower():
@@ -160,7 +159,7 @@ def normBox(box):
 def extractTextBlobsFromPDF(fn, verbose=0):
     laparams = LAParams()
     laparams.line_margin = 0
-    laparams.char_margin = 1
+    laparams.char_margin = 0.5
     laparams.boxes_flow = 0
 
     TxtLine = namedtuple('TxtLine', 'txt pgNo bbox')
@@ -185,9 +184,14 @@ def extractTextBlobsFromPDF(fn, verbose=0):
         print(f"{minX=}")
         print(f"{maxX=}")
         print(f"{midPoint=}")
-        txtList.sort(key=lambda t: (t.pgNo, -t.bbox[1], t.bbox[0]))
+        txtList.sort(key=lambda t: (t.pgNo, -t.bbox[3], t.bbox[0]))
         print(">>> page, -bbox.top left <<<")
+        print_top = None
         for t in txtList:
+            if print_top is not None and print_top != t.bbox[3]:
+                print()
+
+            print_top = t.bbox[3]
             print(t.pgNo, t.bbox, t.txt)
 
     def posToColumn(t):
@@ -195,7 +199,7 @@ def extractTextBlobsFromPDF(fn, verbose=0):
 
     txtList = [MyTxtLine(t, posToColumn(t)) for t in txtList]
 
-    txtList.sort(key=lambda t: (t.column, t.pgNo, -t.bbox[1], t.bbox[0]))
+    txtList.sort(key=lambda t: (t.column, t.pgNo, -t.bbox[3], t.bbox[0]))
 
     if verbose >= 2:
         print("====== step 1 B =======")
@@ -300,7 +304,7 @@ def extractTextBlobsFromPDF(fn, verbose=0):
     txtList = vMerge
 
     if verbose >= 2:
-        print("====== step 1 E =======")
+        print("====== step 1 F =======")
         for t in txtList:
             print()
             print(t.pgNo, t.bbox)

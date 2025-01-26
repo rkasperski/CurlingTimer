@@ -1,94 +1,103 @@
 <div id="clubDrawsUpload" class="display-view d-none">
-   {{ overlayNav("clubDrawsUpload", "Upload Draw") }}
-   <form class="row col-12 justify-content-center"
-         id="clubDrawsUpload-file-form"
-         action="{{scheme}}://{{drawServer}}:{{port}}/draw/upload"
-         enctype="multipart/form-data"
-         method="post"
-         name="fileinfo">
-      <div class="row">
-	 <div class="col-auto">
-	    <input type="file" class="form-control" required id="clubDrawsUpload-excel-file" name="excelFileUpload">
-         </div>
+  {{ overlayNav("clubDrawsUpload", "Upload Draw") }}
+  <form class="row col-12 justify-content-center"
+        id="clubDrawsUpload-file-form"
+        action="{{scheme}}://{{drawServer}}:{{port}}/draw/upload"
+        enctype="multipart/form-data"
+        method="post"
+        name="fileinfo">
+    <div class="row">
+	  <div class="col-auto">
+	    <input type="file"
+               class="form-control"
+               required id="clubDrawsUpload-excel-file"
+               name="excelFileUpload"
+               onchange="clubDrawsUpload_uploadFileNameChange()">
       </div>
-      <div class="row mt-4">
-	 <div class="col-4">
+    </div>
+    <div class="row mt-4">
+	  <div class="col-4">
 	    <label for="clubDrawsUpload-draw-name">League/Draw:</label>
-         </div>
-	 <div class="col-auto">
-	    <input type="text" class="form-control" name="drawName" id="clubDrawsUpload-draw-name" value="">
-	 </div>
       </div>
-      <div class="row mt-4">
-	 <div class="col-4">
+	  <div class="col-auto">
+	    <input type="text"
+               class="form-control"
+               name="drawName"
+               id="clubDrawsUpload-draw-name"
+               value=""
+               onchange="clubDrawsUpload_uploadDrawNameChange()">
+	  </div>
+    </div>
+    <div class="row mt-4">
+	  <div class="col-4">
 	    <label for="clubDrawsUpload-default-time">Start Time(default):</label>
-         </div>
-	 <div class="col-auto">
+      </div>
+	  <div class="col-auto">
 	    <input type="time" class="form-control verify-draw" name="defaultTime" id="clubDrawsUpload-default-time" value="19:00">
-	 </div>
-      </div>
-      <div class="row mt-4">
- 	 <div class="col-4">
+	  </div>
+    </div>
+    <div class="row mt-4">
+ 	  <div class="col-4">
 	    <label for="clubDrawsUpload-default-auto-delete">Auto Delete(default):</label>
-         </div>
-	 <div class="col-auto">
+      </div>
+	  <div class="col-auto">
 	    <select class="form-control" name="defaultAutoDelete" id="clubDrawsUpload-default-auto-delete">
-	       <option value="No">Don't Delete</option>
-	       <option value="1">after a day</option>
-	       <option selected="selected" value="2">after 2 days</option>
-	       <option value="3">after 3 days</option>
-	       <option value="4">after 4 days</option>
-	       <option value="5">after 5 days</option>
-	       <option value="6">after 6 days</option>
-	       <option value="7">after 1 week</option>
-	       <option value="14">after 2 weeks</option>
+	      <option value="No">Don't Delete</option>
+	      <option value="1">after a day</option>
+	      <option selected="selected" value="2">after 2 days</option>
+	      <option value="3">after 3 days</option>
+	      <option value="4">after 4 days</option>
+	      <option value="5">after 5 days</option>
+	      <option value="6">after 6 days</option>
+	      <option value="7">after 1 week</option>
+	      <option value="14">after 2 weeks</option>
 	    </select>
-	 </div>
+	  </div>
+    </div>
+    <div class="row mt-4">
+ 	  <div class="col-4">
+        <label for="clubDrawsUpload-default-colour">Team Colour(default):</label>
       </div>
-      <div class="row mt-4">
- 	 <div class="col-4">
-            <label for="clubDrawsUpload-default-colour">Team Colour(default):</label>
-         </div>
-	 <div class="col-auto">
+	  <div class="col-auto">
 	    {{macros.colorSelector(colours, "clubDrawsUpload-defaultColour", "clubDrawsUpload-default-colour", "board", default="white")}}
-	 </div>
-      </div>
-      <div class="row mt-4">
-         <div class="col-4">
+	  </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col-4">
 	    <label for="clubDrawsUpload-default-show-draw">Before Draws Show(default):</label>
-         </div>
-	 <div class="col-auto">
+      </div>
+	  <div class="col-auto">
 	    <select class="form-control" name="defaultShowDraw" id="clubDrawsUpload-default-show-draw">
-	       <option value="blank">Blank</option>
-	       <option value="5">Teams 5m</option>
-	       <option value="10">Teams 10m</option>
-	       <option selected="selected" value="15">Teams 15m</option>
-	       <option value="30">Teams 30m</option>
+	      <option value="blank">Blank</option>
+	      <option value="5">Teams 5m</option>
+	      <option value="10">Teams 10m</option>
+	      <option selected="selected" value="15">Teams 15m</option>
+	      <option value="30">Teams 30m</option>
 	    </select>
-	 </div>
-      </div>
-      <div class="row mt-4">
-	 <div class="col-4">
+	  </div>
+    </div>
+    <div class="row mt-4">
+	  <div class="col-4">
 	    <label for="clubDrawsUpload-default-at-start">At Draw Start(default):</label>
-         </div>
-	 <div class="col-auto">
+      </div>
+	  <div class="col-auto">
 	    <select class="form-control" name="defaultAtStart" id="clubDrawsUpload-default-at-start">
-	       <option value="blank">Blank</option>
-	       <option value="countdown">Start CountDown</option>
-	       <option value="5">Show Teams 5m</option>
-	       <option value="10">Show Teams 10m</option>
-	       <option value="30">Show Teams 30m</option>
-	       <option value="60">Show Teams 1h</option>
-	       <option selected="selected" value="120">Show Teams 2h</option>
+	      <option value="blank">Blank</option>
+	      <option  selected="selected" value="countdown">Start CountDown</option>
+	      <option value="5">Show Teams 5m</option>
+	      <option value="10">Show Teams 10m</option>
+	      <option value="30">Show Teams 30m</option>
+	      <option value="60">Show Teams 1h</option>
+	      <option value="120">Show Teams 2h</option>
 	    </select>
-	 </div>
-      </div>
-      <div class="row mt-4">
-         <div class="col-auto">
+	  </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col-auto">
 	    <button class="btn btn-outline-dark" id="clubDrawsUpload-btn-upload" type="button" onclick="clubDrawsUpload_uploadFile();">Upload</button>
-         </div>
       </div>
-   </form>
+    </div>
+  </form>
 </div>
 
 <script>
@@ -96,7 +105,34 @@
     $('#clubDrawsUpload').waitMe("hide");
     overlayHide("clubDrawsUpload", data);
  }
- 
+  
+ var clubDrawsUpload_drawNameSet = false;
+
+ function clubDrawsUpload_uploadFileNameChange() {
+    if ( clubDrawsUpload_drawNameSet) {
+       return;
+    }
+
+    let fileName = $("#clubDrawsUpload-excel-file")[0].files[0].name;
+
+    fileName = fileName.replace(/\.[^/.]+$/, "");
+
+    fileName = fileName.replace(/^[0-9\-]+/g, '');
+    fileName = fileName.replace(/[0-9\-]+$/g, '');
+    fileName = fileName.replace(/-round-[0-9]*/gi, '');
+    fileName = fileName.replace(/(schedule|winter|fall|spring)-/gi, ' ');
+    fileName = fileName.replace(/-(schedule|winter|fall|spring)/gi, ' ');
+
+    fileName = fileName.replace(/-/g, " ");
+    fileName = fileName.replace(/  /g, " ");
+
+    $("#clubDrawsUpload-draw-name").val(fileName.trim());
+ }
+
+ function clubDrawsUpload_uploadDrawNameChange() {
+     clubDrawsUpload_drawNameSet = true;
+ }
+
  function clubDrawsUpload_uploadFile() {
     let fileUploadForm = $('#clubDrawsUpload-file-form')[0];
     let formData = new FormData(fileUploadForm);
@@ -125,6 +161,7 @@
  }
 
  function clubDrawsUpload_show() {
+    clubDrawsUpload_drawNameSet = false;
     $('#clubDraws-excelFileupload').on('change',function() {
        clubDrawsUpload_verifyFileField('#clubDrawsUpload-excel-file', '#clubDrawsUpload-btn-upload');
     });
