@@ -1,0 +1,241 @@
+#!/bin/bash
+getSoftware="yes"
+buildPython="yes"
+updateRequirements="yes"
+pythonVersion="3.13.3"
+incrementBuildNo="--no-version-update"
+badParm=""
+while true
+do
+    case "$1" in
+        "-skip-dev")
+            getSoftware="no"
+            shift
+            ;;
+        
+        "-skip-python")
+            buildPython="no"
+            shift
+            ;;
+
+        "-skip-requirements")
+            updateRequirements="no"
+            shift
+            ;;
+
+        "-new-version")
+            incrementBuildNo=""
+            shift
+            ;;
+
+        "-tv")
+            tv="--tv"
+            shift
+            ;;
+        
+        "-python")
+            shift
+            pythonVersion="$1"
+            shift
+            ;;
+
+        -*)
+            badParm="$1"
+            break
+            ;;
+        
+        *)
+            break
+            ;;
+    esac
+done
+
+venv="$1"   
+if [ -z "$venv" ] || [ ! -z "$badParm" ]
+then
+    if [ ! -z "$badParm" ]
+    then
+        echo "found unknown parameter '$badParm'"
+    fi
+    echo "build-clock-software [-new-version] [-python <version>] [-skip-dev] [-skip-python] [-skip-requirements] -[-tv]  <venv-path>"
+    echo "    -new-version: usually a build increases the build number. When present"
+    echo "                  the minor version number is increased"  
+    echo "    -python <version>: specifies the python version to build for."
+    echo "    -skip-dev: when present skips downloading and updating of required libraries."
+    echo "    -skip-python: when present python wont be built."
+    echo "    -skip-requirements: when present the package requirements are considered to be current."
+    echo "    -tv: build for display on tv."
+    echo "    <venv-path>: path to directory for the virtual environment."
+    
+    exit
+fi
+
+pyenv=(which pyenv)
+echo "[pyenv=$pyenv]"
+pyenv version
+if [ "$?" != "0" ]
+#if [ -z "$pyenv" ]
+then
+    curl -fsSL https://pyenv.run | bash
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init - bash)"
+
+    echo "if the above install of pyenv wasnt's succesful then see
+see https://github.com/pyenv/pyenv?tab=readme-ov-file#linuxunix
+install commands are 
+    echo 'export PYENV_ROOT=\"$HOME/.pyenv\"' >> ~/.profile
+    echo '[[ -d $PYENV_ROOT/bin ]] && export PATH=\"$PYENV_ROOT/bin:$PATH\"' >> ~/.profile
+    echo 'eval \"$(pyenv init - bash)\"' >> ~/.profile
+"
+    pyenv version
+    if [ "$?" != "0" ]
+    then
+        exit
+    fi
+fi
+
+if [ "$getSoftware" == "yes" ]
+then
+    echo "installing software build prereqeuisites"
+    sudo apt-get -y install build-essential \
+         curl \
+         git \
+         libbz2-dev \
+         libffi-dev \
+         libfreetype6-dev \
+         libfribidi-dev \
+         libharfbuzz-dev \
+         libjpeg-dev \
+         liblcms2-dev \
+         liblzma-dev \
+         libncurses5-dev \
+         libncursesw5-dev \
+         libopenjp2-7-dev \
+         libreadline-dev \
+         libsqlite3-dev \
+         libssl-dev \
+         libtiff-dev \
+         libwebp-dev \
+         libudev-dev \
+         libxcb1-dev \
+         llvm \
+         libusb-dev \
+         make \
+         python3-openssl \
+         python3-tk \
+         tcl8.6-dev \
+         tk-dev \
+         tk8.6-dev \
+         wget \
+         xz-utils \
+         zlib1g-dev
+
+    echo "checking for rust"
+    rust=$(which rustc)
+    
+    if [ -z "$rust" ]
+    then
+        echo "installing rust"
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    fi
+    
+    rustup=$(which rustup)
+    
+    if [ ! -z "$rustup" ]
+    then
+        echo "updating rust"
+        rustup update
+    fi
+
+    # if you see the dreaded (libusb-1.0 >= 1.0.9) message when pip installing hidapi you
+    # will need to build a moer current libusb
+    # wget http://downloads.sourceforge.net/libusb/libusb-1.0.9.tar.bz2
+    # tar -xf libusb-1.0.9.tar.bz2
+    # cd libusb-1.0.9/
+    # ./configure --prefix=/usr --disable-static &&
+    # make
+    # echo "this is required to install a modern libusb 
+    # sudo make install
+fi
+
+if [ "$tv" == "--tv" ]
+then
+    sudo apt-get -y qt5-default
+fi
+
+if [ "$buildPython" == "yes" ]
+then
+    echo "checking python version"
+    (pyenv version) | grep "$pythonVersion"
+    if [ "$?" != "0" ]
+    then
+        echo "Installing python version $pythonVersion"
+        env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install "$pythonVersion"
+        if [ "$?" != "0" ]
+        then
+            echo "install of python version $pythonVersion failed"
+            exit
+        fi
+    else
+        echo "python version $pythonVersion already installed"
+    fi
+    pyenv local "$pythonVersion"
+fi
+
+if [ ! -d "$venv" ]
+then
+    echo "building virtual environment '$venv'"
+    python -m venv "$venv"
+    updateRequirements="yes"
+fi
+
+# install Pillow and build and install rpi-rgb-matrix before
+# installing requirements(no edit of pip freeze file)
+
+echo "ACTIVATING virtual environment '$venv'"
+source "$venv/bin/activate"
+
+if [ "$updateRequirements" == "yes" ]
+then
+    echo "upgrading pip"
+    pip install --upgrade pip
+
+    echo "installing pyinstaller from git"
+    pip install git+https://github.com/pyinstaller/pyinstaller
+
+    #install Pillow as pre-requisites before building rpi-led
+    echo "installing Pillow cython"
+    pip install Pillow cython
+
+    # might have to sof link cython to cython3
+    cython=$(which cython)
+    cython3=`dirname "$cython"`/cython3
+    
+    if [ ! -e "$cython3" ]
+    then
+        ln -s "$cython" "$cython3"
+    fi
+    
+    echo "build anmd install rpi rgb matrix software"
+    rm -rf rpi-led-matrix
+    git clone https://github.com/hzeller/rpi-rgb-led-matrix.git
+    cd rpi-rgb-led-matrix
+    make build-python PYTHON=$(which python)
+    make install-python PYTHON=$(which python)
+    cd ..
+    
+    echo "insetall all remaining prerequsites"
+    sed -e '/^rgbmatrix/d' -e '/^pyinstaller @/d' -e '/^pillow/d' -e '/^Cython/d' -e '/^PySide6/d' -e '/^qasync/d' -e '/^shiboken/d' requirements.txt >  requirements.install
+    pip install -r requirements.install
+
+    if [ "$tv" == "--tv" ]
+    then
+        pip install PySide6 qasync
+    fi
+fi
+
+echo "all the pieces should be in place. build the actual software"
+set -x
+python build_install.py ${tv+"$tv"} ${incrementBuildNo+"$incrementBuildNo"}
+set +x
