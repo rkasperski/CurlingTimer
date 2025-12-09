@@ -1,0 +1,34 @@
+<div class="modal fade" id="yesNo-modal" tabindex="-1" role="dialog">
+   <div class="modal-dialog modal-dialog" role="document">
+      <div class="modal-content modal-content">
+         <div class="modal-header bg-medium">
+            <h5 class="modal-title" id="yesNo-modal-title">Do You Want to do X?</h5>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         <div class="modal-body">
+            <span id="yesNo-modal-body"></span>
+         </div>
+         <div class="modal-footer bg-medium">
+            <a class="btn btn-primary" id="yesNo-modal-do-it" role="button">Yes</a>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+         </div>
+      </div>
+   </div>
+</div>
+
+<script>
+  function yesNoModal(title, body, actionFunction) {
+    $("#yesNo-modal-title").text(title);
+    $("#yesNo-modal-body").html(body);
+    $("#yesNo-modal-do-it").click(actionFunction);
+
+    $('#yesNo-modal').modal('show')
+ }
+
+function yesNoModal_hide() {
+  $('#yesNo-modal').modal('hide');
+}
+  
+</script>

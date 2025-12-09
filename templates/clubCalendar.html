@@ -1,0 +1,185 @@
+<div id="clubCalendar"  class="display-view d-none">
+   {{ navPanel("clubCalendar", "club" , "Club - Calendar") }}
+   <div class="row justify-content-center">
+      <div id="clubCalendar-container">
+         
+      </div>
+   </div>
+</div>
+
+<script>
+   function clubCalendar_eventClick(info) {
+      let drawId = info.event.extendedProps.id;
+      dataValid = false;
+      jsonCall('GetDraw',
+               '{{scheme}}://{{drawServer}}:{{port}}/draw/get',
+               {id: drawId},
+               {})
+         .done(function(response) {
+            response.draw.type = "edit";
+            response.draw.id = drawId;
+            response.draw.showActions = true;
+            overlayShow("clubDrawsAdd", response.draw);
+            dataValid = true;
+         });
+   }
+  
+   function clubCalendar_dateClick(info) {
+      overlayShow("clubDrawsAdd", {type: "add",
+                                   dateTime: info.date
+                                });
+      console.log(`dateClick ${info.dateStr}`);
+   }
+  
+   function clubCalendar_eventDrop(info) {
+      let draw = info.event.extendedProps;
+      draw.date = toDateInputValue(info.event.start);
+      draw.time = toTimeInputValue(info.event.start);
+      jsonCall('SetDraw',
+               '{{scheme}}://{{drawServer}}:{{port}}/draw/set',
+               {id: draw.id,
+                draw: draw},
+               {async: false})
+   }
+  
+   function clubCalendar_eventMouseEnter(info) {
+      console.log(`eventMouseEnter ${info.event.extendedProps.id}`);
+   }
+  
+   function clubCalendar_eventMouseLeave(info) {
+      console.log(`eventMouseLeave ${info.event.extendedProps.id}`);
+   }
+  
+  
+   var clubCalendar_ec = new EventCalendar(document.getElementById('clubCalendar-container'), {
+      view: 'timeGridWeek',
+      eventClick: clubCalendar_eventClick,
+      dateClick: clubCalendar_dateClick,
+      eventDrop: clubCalendar_eventDrop,
+      eventMouseEnter:  clubCalendar_eventMouseEnter,
+      eventMouseLeave:  clubCalendar_eventMouseLeave,
+      flexibleSlotTimeLimits: true,
+      
+      headerToolbar: {
+         start: 'prev,next today',
+         center: 'title',
+         end: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth,resourceTimelineMonth'
+      },
+      resources: [
+         {% for s in sheets %}
+            { id: {{loop.index}}, title: "{{s.name}}" },
+         {% endfor %}
+      ],
+      scrollTime: '09:00:00',
+      // slotDuration: '00:15:00',
+      views: {
+         timeGridWeek: {pointer: true},
+         resourceTimeGridWeek: {pointer: true},
+         resourceTimelineWeek: {
+            pointer: true,
+            slotMinTime: '09:00',
+            slotMaxTime: '21:00',
+            slotWidth: 80,
+            resources: [
+               {% for s in sheets %}
+                  { id: {{loop.index}}, title: "{{s.name}}" },
+               {% endfor %}
+            ]
+         }
+      },
+      dayMaxEvents: true,
+      nowIndicator: true,
+      selectable: true,
+      slotMinTime: "07:00:00",
+      slotMaxTime: "23:00:00",
+   });
+
+
+   function _pad(num) {
+      let norm = Math.floor(Math.abs(num));
+      return (norm < 10 ? '0' : '') + norm;
+  }
+  
+  function addTime(tm, amtInSecs) {
+      return new Date(tm.getTime() + amtInSecs * 1000);
+  }
+
+  function clubCalendar_toEvent(id, draw) {
+    let startTime = toISODateTime(draw.date, draw.time);
+    let endTime = addTime(startTime, 2*60*60)
+    
+    let resourceIds = [];
+    
+    for (const sheet of draw.sheets) {
+      if (sheet.team1 || sheet.team2) {
+        resourceIds.push(parseInt(sheet.sheet))
+      }
+    }
+
+    draw.id = id;
+    
+    return {start: draw.date,
+            title: {html: htmlToText(draw.name)},
+            start: startTime,
+            end: endTime, 
+            id: draw.id,
+            resourceIds: resourceIds,
+            extendedProps: draw};               
+  }
+
+  function clubCalendar_populateEvents() {
+      let eventIds =  clubCalendar_ec.getEvents().map(ev => ev.id);
+      for (const id of eventIds) {
+          clubCalendar_ec.removeEventById(id);          
+      }
+      
+      jsonCall('GetDrawList',
+               '{{scheme}}://{{drawServer}}:{{port}}/draw/list',
+               {},
+               {timeout:5000})
+          .done(function(response) {
+              dbHash = response.hash;
+              for (const draw of response.draws) {
+                  clubCalendar_ec.addEvent(clubCalendar_toEvent(draw.id, draw))             
+              }
+          });
+  }
+
+function clubCalendar_updateEvent(response) {
+    clubCalendar_ec.updateEvent(clubCalendar_toEvent(response.id, response.draw));
+}
+
+function clubCalendar_addEvent(response) {
+    clubCalendar_ec.addEvent(clubCalendar_toEvent(response.id, response.draw));
+}
+
+function clubCalendar_showFromOverlay_clubDrawsAdd(data) {
+    if (data) {
+       if (data.type == "edit") {
+          jsonCall('SetDraw',
+	           '{{scheme}}://{{drawServer}}:{{port}}/draw/set',
+	           {id: data.id,
+	            draw: data.draw},
+                   {async: false})
+           .done(clubCalendar_updateEvent);
+       } else if (data.type == "delete") {
+          clubCalendar_ec.removeEventById(data.id);          
+       } else {
+          jsonCall('AddDraw',
+	           '{{scheme}}://{{drawServer}}:{{port}}/draw/add',
+                   data.draw,
+                   {async: false})
+             .done(clubCalendar_addEvent);	     
+       }
+    }
+ }
+
+  
+  function clubCalendar_enter() {
+      clubCalendar_populateEvents();
+  }
+  
+  function clubCalendar_exit() {
+  }
+  </script>
+
