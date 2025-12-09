@@ -16,23 +16,25 @@
 	    <h2>Login using user name and password</h2>
 	 </div>
       </div>
-      <div class="row justify-content-center mt-3">
-	 <div class="col-auto">
-	    <label for="clubLogin-user">User:</label>
-	    <input type="text" class="form-control" name="user"  id="clubLogin-user">
-	 </div>
-      </div>      
-      <div class="row justify-content-center mt-3">
-	 <div class="col-auto">
-	    <label for="clubLogin-password">password:</label>
-	    <input type="password" class="form-control" name="password" id="clubLogin-password">
-	 </div>
-      </div>
-      <div class="row justify-content-center mt-3">
-         <div class="col-auto">
-            <button type="submit" class="btn btn-outline-dark" onclick="clubLogin_loginUser()"> Login </button>
-         </div>
-      </div>
+      <form>
+        <div class="row justify-content-center mt-3">
+	      <div class="col-auto">
+	        <label for="clubLogin-user">User:</label>
+	        <input type="text" class="form-control" name="user"  id="clubLogin-user">
+	      </div>
+        </div>
+        <div class="row justify-content-center mt-3">
+	      <div class="col-auto">
+	        <label for="clubLogin-password">password:</label>
+	        <input type="password" class="form-control" name="password" id="clubLogin-password">
+	      </div>
+        </div>
+        <div class="row justify-content-center mt-3">
+          <div class="col-auto">
+            <button type="button" class="btn btn-outline-dark" onclick="clubLogin_loginUser()"> Login </button>
+          </div>
+        </div>
+      </form>
       {% if type == "display" %}      
          <div class="row justify-content-center mt-3">
 	    <div class="col-3">

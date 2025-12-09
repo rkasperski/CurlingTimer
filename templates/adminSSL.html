@@ -25,7 +25,7 @@
       <div class="row">
          <div class="input-group mb-3">
             <input type="file" class="form-control" placeholder="SSL Key File" aria-label="sslKeyFile" id="adminSSL-sslKey">
-	    <button class="btn btn-outline-dark" id="btn_sslKey" type="button" onclick="adminSSL-uploadFile('adminSSL-key', 'adminSSL-sslKey');">Upload Key</button>
+	    <button class="btn btn-outline-dark" id="btn_sslKey" type="button" onclick="adminSSL_uploadFile('adminSSL-key', 'adminSSL-sslKey');">Upload Key</button>
          </div>                       
       </div>
       <div class="row mt-4">
@@ -41,14 +41,14 @@
       <div class="row">
 	 <div class="col-auto">
 	    <h4>SSL Info </h4>
-	    <button class="btn btn-outline-dark" id="adminSSL-btn=-" showInfo" type="button" onclick="adminSSL-infoSSLConfig();">Show Info</button>
+	    <button class="btn btn-outline-dark" id="adminSSL-btn-showInfo" type="button" onclick="adminSSL_infoSSLConfig();">Show Info</button>
 	 </div>
       </div>
       <hr class="divider mt-2">
       <div class="row mt-2" id="adminSSL-certDetails" style="visibility: hidden">
 	 <div class="col-auto">
 	    <h4>Certificate Details - <span id="adminSSL-certType"> </span></h4>
-	    <div id="certInfo">
+	    <div id="adminSSL-certInfo">
 	    </div>
 	 </div>
       </div>
@@ -58,16 +58,16 @@
 <script>
 
  function adminSSL_populateCertDetails(type, info) {
-    $('#adminSSL-certType').text(type);
     function formatItem(item) {
        return `<div class="hanging-indent mt-1"><b>${htmlToText(item[0])}:</b> ${htmlToText(item[1])}</div>`;
     }
     
+    $('#adminSSL-certType').text(type);
     $('#adminSSL-certInfo').html(info.map(formatItem).join(''));
-    $('#adminSSL-certDetails').css('visibility', 'visible')
+    $('#adminSSL-certDetails').css('visibility', 'visible');
  }
  
- function uploadFile(name, fileSrc) {
+ function  adminSSL_uploadFile(name, fileSrc) {
     function transferFailed(evt) {
        alert(`upload failed of ${name}; please try again`);
     }
@@ -81,8 +81,6 @@
     let formData = new FormData();
     formData.append(name, file);
 
-    // let formData = new FormData();
-
     let xhr = new XMLHttpRequest();
     // Add any event handlers here...
     xhr.open('POST', '{{scheme}}://{{ip}}:{{port}}/sslconfig/upload', true);
@@ -94,23 +92,23 @@
     xhr.send(formData);
  }
 
- function infoSSLConfig() {
+ function adminSSL_infoSSLConfig() {
     return jsonCall('GenerateSSL','{{scheme}}://{{ip}}:{{port}}/sslconfig/info', {}, {}, "POST", "application/json", "json", {}, 30000)
        .done(function(response) {
-	  adminSSL-populateCertDetails(response.type, response.info)
+          adminSSL_populateCertDetails(response.type, response.info);
        })
        .fail(function(response) {
-	  alert("generation of local SSL configuration failed; Retry");
+	      alert("generation of local SSL configuration failed; Retry");
        });
  }
  
- function generateSSLConfig() {
+ function adminSSL_generateSSLConfig() {
     return jsonCall('GenerateSSL','{{scheme}}://{{ip}}:{{port}}/sslconfig/generate', {}, {}, "POST", "application/json", "json", {}, 30000)
        .done(function(response) {
-	  adminSSL-populateCertDetails(response.type, response.info)
+          adminSSL_populateCertDetails(response.type, response.info);
        })
        .fail(function(response) {
-	  alert("generation of local SSL configuration failed; Retry");
+          alert("generation of local SSL configuration failed; Retry");
        });
  }
 

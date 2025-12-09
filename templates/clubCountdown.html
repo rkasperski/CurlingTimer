@@ -4,18 +4,18 @@
    <div class="container">
       <div class="row">
          <div class="col-auto">
-	    <label for="clubCountdown-welcomeMessage">Message:</label>
+	    <label for="clubCountdown-message">Message:</label>
          </div>
       </div>				
       <div class="row mb-3">
          <div class="col-7">
-	    <input type="text" class="form-control" id="clubCountdown-welcomeMessage" value="">
+	    <input type="text" class="form-control" id="clubCountdown-message" value="">
          </div>
          <div class="col-3 col-md-auto">
-	    {{macros.colorSelector(colours, "clubCountdown-welcomeMessageColour", "clubCountdown-welcomeMessageColour")}}
+	    {{macros.colorSelector(colours, "clubCountdown-messageColour", "clubCountdown-messageColour")}}
          </div>
          <div class="col-auto">
-	    <button type="button" id="clubCountdown-btn-msg" class="btn btn-outline-dark icon-button icon-mirror-h ml-2" onclick='MessageAll($("#clubCountdown-welcomeMessage").val(),$("#clubCountdown-welcomeMessageColour").val())'>{{icon("reply-all")}}</button>
+	    <button type="button" id="clubCountdown-btn-msg" class="btn btn-outline-dark icon-button icon-mirror-h ml-2" onclick='MessageAll($("#clubCountdown-message").val(),$("#clubCountdown-messageColour").val())'>{{icon("reply-all")}}</button>
          </div>
       </div>
       
@@ -47,21 +47,22 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-4 col-md-2">
-	    <label for="clubCountdown-gameTime">Game Time:</label>
-	    <input type="text" class="form-control clubCountdown-check-time" id="clubCountdown-gameTime" value="">
+          <div class="col-4 col-md-2">
+	          <label for="clubCountdown-gameTime">Game Time:</label>
+	          <input type="text" class="form-control clubCountdown-check-time" id="clubCountdown-gameTime" value=""
+                     data-verify-type="time">
          </div>
          <div class="col-4 col-md-auto ml-2">
-	    <label for="clubCountdown-teamColour">Team Colour:</label>
-	    {{macros.colorSelector(colours, "clubCountdown-teamColour", "clubCountdown-teamColour", extra="board", default="white")}}
+	         <label for="clubCountdown-teamColour">Team Colour:</label>
+	         {{macros.colorSelector(colours, "clubCountdown-teamColour", "clubCountdown-teamColour", extra="board", default="white")}}
          </div>
          <div class="col-auto">
-	    <label for="clubCountdown-btn-clearAll">&nbsp;</label>
-	    <div class="form-control unpadded-btn-group ml-1">
-	       <button type="button" id="clubCountdown-btn-clearAll" class="icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick='clubCountdown_clearAll();'>{{icon("backspace")}}</button>
-	       <button type="button" id="clubCountdown-btn-setAll" class="disabled icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick="clubCountdown_setupAll();">{{icon("box-arrow-up-right")}}</button>
-	       <button type="button" id="clubCountdown-btn-startAll" class="icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick="CountDownResumeAll();">{{icon("play-fill")}}</button>
-	       <button type="button" id="clubCountdown-btn-pauseAll" class="icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick="CountDownPauseAll();">{{icon("pause-fill")}}</button>
+	         <label for="clubCountdown-btn-clearAll">&nbsp;</label>
+	         <div class="form-control unpadded-btn-group ml-1">
+	             <button type="button" id="clubCountdown-btn-clearAll" class="icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick='clubCountdown_clearAll();'>{{icon("backspace")}}</button>
+	             <button type="button" id="clubCountdown-btn-setAll" class="disabled icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick="clubCountdown_setupAll();">{{icon("box-arrow-up-right")}}</button>
+	             <button type="button" id="clubCountdown-btn-startAll" class="icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick="CountDownResumeAll();">{{icon("play-fill")}}</button>
+	             <button type="button" id="clubCountdown-btn-pauseAll" class="icon-button btn btn-outline-dark clubCountdown-submit-target mx-2" onclick="CountDownPauseAll();">{{icon("pause-fill")}}</button>
 	    </div>
          </div>
       </div>
@@ -150,11 +151,15 @@
 	                <button type="button" id="clubCountdown-btn-lastEnd{{loop.index0}}" class="icon-button btn btn-outline-dark clubCountdown-submit-target" onclick='CountDownLastEnd("{{s.ip}}")'>LE</button>
                      </div>
                   </div>
-                  <div class="col-auto ms-4" >
+                  <div class="col-auto ms-4 pe-0" >
                      <button type="button" class="icon-button btn btn-outline-dark clubCountdown-submit-target" data-state="off" onclick="clubCountdown_onOff('{{loop.index0}}', '{{s.ip}}')">
                         {{icon("toggle-off", id="clubCountdown-btn-onOff" ~ loop.index0)}}
                      </button>
                   </div>
+	          <div class="col-auto pe-0">
+		     <button type="button" id="clubCountdown-message-show{{s.ordinal}}" class="btn btn-outline-dark icon-button icon-mirror-h"
+                             onclick='Message("{{s.ip}}", $("#clubCountdown-message").val(), $("#clubCountdown-messageColour").val())'>{{icon("reply")}}</button>
+	          </div>
 	       </div>
             </div>
          {% endif %}
@@ -226,8 +231,8 @@
 
     getDefaultsAjax(ip, false)
        .done(function(response) {
-          $("#clubCountdown-welcomeMessage").val(response.welcomeMessage);
-          setColour("#clubCountdown-welcomeMessageColour", "white");
+          $("#clubCountdown-message").val(response.welcomeMessage);
+          setColour("#clubCountdown-messageColour", "white");
           $("#clubCountdown-finishedMessage").val(response.finishedMessage);
           setColour("#clubCountdown-finishedMessageColour", response.finishedMessageColour);
           $("#clubCountdown-lastEndMessage").val(response.lastEndMessage);
@@ -247,7 +252,7 @@
     } else {
        grabNamesFromPeers("#clubCountdown-team-top", "#clubCountdown-team-bottom");
     }
-    checkTime(".clubCountdown-check-time", ".clubCountdown-submit-target");
+    enableFieldChecking(".clubCountdown-check-time", ".clubCountdown-submit-target");
     
  }
 

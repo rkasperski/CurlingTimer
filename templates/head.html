@@ -10,17 +10,27 @@
 <script src="/static/js/utilscript.js"></script>
 <link href="/static/css/defaultstyle.css" rel="stylesheet">
 <link rel="stylesheet" href="/static/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="/static/js/event-calendar.min.css">
+<script src="/static/js/event-calendar.min.js"></script>
 
-{% include 'data.js' %}
 <style>
-    {% for c in colours %}
-    .bg-{{c[0]}} {
-    background-color: rgb({{c[1].red}},{{c[1].green}},{{c[1].blue}});
-    }
-    .txt-{{c[0]}} {
-    color: rgb({{c[1].red}},{{c[1].green}},{{c[1].blue}});
-    }
-    {% endfor %}
+ {% for c in colours %}
+ {% if c[1].red %}
+ .bg-{{c[0]}} {
+    background-color: rgb({{c[1].red}} {{c[1].green}} {{c[1].blue}});
+ }
+ .txt-{{c[0]}} {
+    color: rgb({{c[1].red}} {{c[1].green}} {{c[1].blue}});
+  }
+ {% else %}
+ .bg-{{c[0]}} {
+    background-color: rgb({{c[1][0]}} {{c[1][1]}} {{c[1][2]}});
+ }
+ .txt-{{c[0]}} {
+    color: rgb({{c[1][0]}} {{c[1][1]}} {{c[1][2]}});
+  }
+{% endif %}
+ {% endfor %}
 </style>
     
 

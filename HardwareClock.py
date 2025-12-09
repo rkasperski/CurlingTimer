@@ -1,15 +1,10 @@
 import os
 import sys
 from datetime import datetime, timezone
+from time import monotonic as time_monotonic
 
 from Logger import warning, error, info, exception
-import time
-try:
-    import USB_DS3231
-    import DS1307
-except ModuleNotFoundError:
-    pass
-
+import DS3231
 from Utils import runCommand
 
  
@@ -28,25 +23,19 @@ def hasRealTimeClock():
         return True
 
     try:
-        dsRTC = USB_DS3231.DS3231()
-        print("found USB DS3231")
-        hwClockPath = "/usr/sbin/cc_hwclock"
+        dsRTC = DS3231.DS3231()
+    except OSError as e:
+        info("hwclock: no hardware clock clock %s", e)
+        return False
 
-    except Exception:
-        # try for an I2C bus DS1307/DS3231
-
-        try:
-            dsRTC = DS1307.DS1307()
-            print("found I2C DS1307/DS3231")
-            hwClockPath = "/usr/sbin/cc_hwclock"
-        except Exception:
-            return False
+    info("hwclock: found I2C DS3231")
+    hwClockPath = "/usr/sbin/cc_hwclock"
 
     try:
         rtcTime = dsRTC.getDateTime(utc=True)
         curTime = datetime.now(timezone.utc)
 
-        warning("hwclock: i2c read ds1307 hasRealTimeClock=1")
+        warning("hwclock: i2c read ds3231 hasRealTimeClock=1")
 
         if rtcTime.timestamp() - curTime.timestamp() > 3:
             rc, output = runCommand(f"sudo date -s '{dsRTC.getDateStr(utc=True)}'")
@@ -64,9 +53,7 @@ def hasRealTimeClock():
 
 
 def updateClockTime(newTimeSecsFromMidnight=None, newDate=None, newTimeZone=None):
-    global ds1307
-
-    startTime = time.monotonic()
+    startTime = time_monotonic()
 
     warning("clock: set request secsFromMidnight=%s date=%s tz=%s", newTimeSecsFromMidnight, newDate, newTimeZone)
     outputList = []
@@ -86,10 +73,11 @@ def updateClockTime(newTimeSecsFromMidnight=None, newDate=None, newTimeZone=None
                 info("clock: Set timezone; timezone=%s", newTimeZone)
     
         if newTimeSecsFromMidnight:
-            newTimeSecsFromMidnight = newTimeSecsFromMidnight + (time.monotonic() - startTime)
+            newTimeSecsFromMidnight = newTimeSecsFromMidnight + (time_monotonic() - startTime)
             timeStr = f"{int(newTimeSecsFromMidnight / 3600)}:{int(newTimeSecsFromMidnight % 3600/60):-02d}:{int(newTimeSecsFromMidnight % 60):02d}"
             
             cmd = f'sudo /bin/date +"%T" -s "{timeStr}"'
+            info("clock: set cmd: %s", cmd)
             rc, output = runCommand(cmd)
 
             if rc:
@@ -113,8 +101,8 @@ def updateClockTime(newTimeSecsFromMidnight=None, newDate=None, newTimeZone=None
                 info("clock: Set date; date=%s", newDate)
 
     except Exception as e:
-        outputList.append(f"badness {e}")
-        exception("set timedate '%s'", data)
+        outputList.append(f"update clock time badness {e}")
+        error("clock: exception %s set timedate '%s'", e, data, exc_info=True)
 
     return nn.join(outputList)
 
@@ -135,8 +123,8 @@ def setHardwareClock(doRestart=False):
                 
             return f"success\n{nn.join(outputList)}"
         except IOError as e:
-            warning("clock: Set hwclock; cmd='%s' error=%s", cmd, e)
-            return "return failed to set clock DS1307\ncnd='{cmd} error={e}'"
+            error("clock: Set hwclock; cmd='%s' error=%s", cmd, e)
+            return "return failed to set clock DS3231\ncnd='{cmd} error={e}'"
     else:
         # first try the regular command a bunch times
         # as the led rgb hats seem to interfere.

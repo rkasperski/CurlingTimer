@@ -2,7 +2,19 @@ two default accounts are made(in the spirit of being a curling timer)
         button good
         skip callsTheShots
 
-to generate running clock display software
+to build suitable python
+    curl -fsSL https://pyenv.run | bash
+
+    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+    echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+    echo 'eval "$(pyenv init - bash)"' >> ~/.bashrc
+
+    sudo apt-get install rustc
+    
+    sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python3-openssl
+    env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.13.3
+
+
         1. create directory
         2. unpack software into the directory
         3. cd to the directory

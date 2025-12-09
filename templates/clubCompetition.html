@@ -3,26 +3,27 @@
    <div class="container mb-3 mt-3">
       <div class="row">
 	 <div class="col-auto">
-	    <label for="clubCompetition-welcomeMessage">Message:</label>
+	    <label for="clubCompetition-message">Message:</label>
 	 </div>
       </div>				
       <div class="row mb-1"">
 	 <div class="col-6">
-	    <input type="text" class="form-control mr-sm-4" id="clubCompetition-welcomeMessage" value="">
+	    <input type="text" class="form-control mr-sm-4" id="clubCompetition-message" value="">
 	 </div>
 	 <div class="col-4 col-md-2">
-	    {{macros.colorSelector(colours, "clubCompetition-welcomeMessageColour", "clubCompetition-welcomeMessageColour")}}
+	    {{macros.colorSelector(colours, "clubCompetition-messageColour", "clubCompetition-messageColour")}}
          </div>
 	 <div class="col-auto">
-	    <button type="button" id="clubCompetition-btn-msg" class="btn btn-outline-dark icon-button icon-mirror-h ml-2" onclick='MessageAll($("#clubCompetition-welcomeMessage").val(),$("#clubCompetition-welcomeMessageColour").val())'>{{icon("reply-all")}}</button>
+	    <button type="button" id="clubCompetition-btn-msg" class="btn btn-outline-dark icon-button icon-mirror-h ml-2" onclick='MessageAll($("#clubCompetition-message").val(),$("#clubCompetition-messageColour").val())'>{{icon("reply-all")}}</button>
 	 </div>
       </div>
       <div class="row mb-1">
-	 <div class="col-5 col-md-2">
+	 <div class="col-5">
 	    <label for="clubCompetition-teamTime" class="col-form-label">Per Team Time:</label>
-	    <input type="text" class="form-control clubCompetitiion-check-time" id="clubCompetition-teamTime" value="">
+	    <input type="text" class="form-control clubCompetitiion-check-time" id="clubCompetition-teamTime" value=""
+               data-verify-type="time">
 	 </div>
-	 <div class="col-4 offset-1 col-md-2  ml-2">
+	 <div class="col-4 offset-1 ml-2">
 	    <label for="clubCompetition-teamColour" class="col-form-label" >Team Colour:</label>
 	    {{macros.colorSelector(colours, "clubCompetition-teamColour", "clubCompetition-teamColour", extra="board", default="white")}}
 	 </div>
@@ -34,7 +35,8 @@
       </div>
       <div class="row mb-1">
 	 <div class="col-auto col-md-2">
-	    <input type="text" class="form-control clubCompetitiion-check-time" id="clubCompetition-intermissionLength" value="{{intermissionLength}}">
+	    <input type="text" class="form-control clubCompetitiion-check-time" id="clubCompetition-intermissionLength" value="{{intermissionLength}}"
+               data-verify-type="time">
 	 </div>
 	 <div class="col-auto ml-1">
 	    <div class="form-control unpadded-btn-group">
@@ -69,19 +71,19 @@
                   <img class="sm-rock-img" alt="{{s.topColour}} rock" src="/static/images/Curling-Rock-{{s.topColour}}-sm.png">
 	       </div>
 	       <div class="col-8 col-md-4">
-                  <div class="input-group">
-                     <input type="text" class="form-control border-right-0 border clubCompetition-team" placeholder="top team ..." id="clubCompetition-team-top{{loop.index0}}">
-                     <span class="input-group-text" onclick='$("#team_top_{{loop.index0}}").val("")'>{{icon("x")}}</span>
-                  </div>
+               <div class="input-group">
+                   <input type="text" class="form-control border-right-0 border clubCompetition-team" placeholder="top team ..." id="clubCompetition-team-top{{loop.index0}}">
+                   <span class="input-group-text" onclick='$("#team_top_{{loop.index0}}").val("")'>{{icon("x")}}</span>
                </div>
-               <div class="col-auto ml-1">
-		  <button type="button" id="btn_countdown_flip_{{loop.index0}}" class="icon-button btn btn-outline-dark clubCompetitiion-submit-target" onclick='flip("clubCompetition-team-top{{loop.index0}}","clubCompetition-team-bottom{{loop.index0}}");'>{{icon("shuffle")}}</button>
-               </div>
+           </div>
+           <div class="col-auto ml-1">
+		       <button type="button" id="btn_countdown_flip_{{loop.index0}}" class="icon-button btn btn-outline-dark clubCompetitiion-submit-target" onclick='flip("clubCompetition-team-top{{loop.index0}}","clubCompetition-team-bottom{{loop.index0}}");'>{{icon("shuffle")}}</button>
+           </div>
 	    </div>
 	    
 	    <div class="row mt-1">
 	       <div class="col-auto my-auto">
-                  <img class="sm-rock-img" alt="{{s.bottomColour}} rock" src="/static/images/Curling-Rock-{{s.bottomColour}}-sm.png">
+               <img class="sm-rock-img" alt="{{s.bottomColour}} rock" src="/static/images/Curling-Rock-{{s.bottomColour}}-sm.png">
 	       </div>
                <div class="col-8 col-md-4">
                   <div class="input-group">
@@ -93,6 +95,12 @@
 	       <div class="col-auto ml-1">
 		  <button type="button" id="clubCompetition-btn-competition{{loop.index0}}" class="disabled icon-button btn btn-outline-dark clubCompetitiion-submit-target" onclick="clubCompetition_setup('{{s.ip}}', {{loop.index0}})">{{icon("box-arrow-up-right")}}</button>
 	       </div>
+
+	       <div class="col-auto pe-0">
+		  <button type="button" id="clubCompetition-message-show{{s.ordinal}}" class="btn btn-outline-dark icon-button icon-mirror-h"
+                          onclick='Message("{{s.ip}}", $("#clubCompetition-message").val(), $("#clubCompetition-messageColour").val())'>{{icon("reply")}}</button>
+	       </div>
+
 	    </div>
 	 {% endif %}
       {%endfor %}
@@ -101,7 +109,7 @@
 <script>
  function clubCompetition_setup(ip, i) {
     CompetitionSetup(ip, 
-                     $("#clubCompetition-welcomeMessage").val(), 
+                     $("#clubCompetition-message").val(), 
                      $("#clubCompetition-teamTime").val(), 
                      $("#clubCompetition-intermissionLength").val(), 
                      $("#clubCompetition-teamColour").val(), 
@@ -123,7 +131,7 @@
        peer = peers[p][0];
        if (peer != "Unassigned") {
 	  CompetitionSetup(peer,
-			   $("#clubCompetition-welcomeMessage").val(),
+			   $("#clubCompetition-message").val(),
 			   $("#clubCompetition-teamTime").val(),
 			   $("#clubCompetition-intermissionLength").val(),
                            $("#clubCompetition-teamColour").val(),
@@ -137,8 +145,8 @@
     startActivityCheckTimer(clubCompetition_checkActiveCallback) 
     getDefaultsAjax(ip, false)
        .done(function(response) {
-          $("#clubCompetition-welcomeMessage").val(response.welcomeMessage);
-          setColour("#clubCompetition-welcomeMessageColour", "white");
+          $("#clubCompetition-message").val(response.welcomeMessage);
+          setColour("#clubCompetition-messageColour", "white");
 
           $("#clubCompetition-intermissionLength").val(response.intermissionLength);
 
@@ -157,7 +165,7 @@
     } else {
        grabNamesFromPeers("#clubCompetition-team-top", "#clubCompetition-team-bottom");
     }
-    checkTime(".clubCompetitiion-check-time", ".clubCompetitiion-submit-target");
+    enableFieldChecking(".clubCompetitiion-check-time", ".clubCompetitiion-submit-target");
  }
 
  function clubCompetition_exit() {

@@ -13,8 +13,8 @@
       {{ actionIcon("Logout", "shield-slash", "panelNavigate('clubLogout')" ) }}
    </div>
    <div class="row justify-content-evenly">
+      {{ actionIcon("Admin", "shield-lock", "panelNavigate('clubAdmin')", id="club-admin-icon", class="security-adminOnly") }}
       {{ actionIcon("About", "info-circle", "panelNavigate('clubAbout')" ) }}
-      <div class="col-3 col-md-2" ></div>
    </div>
 </div>
 <script>

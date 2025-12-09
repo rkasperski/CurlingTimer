@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
 
 block_cipher = None
 
@@ -15,8 +16,14 @@ hiddenimports = ["zeroconf",
                  "zeroconf._handlers.answers",
                  "zeroconf._handlers.multicast_outgoing_queue",
                  "zeroconf._handlers.query_handler",
-                 "zeroconf._handlers.record_manager"
+                 "zeroconf._handlers.record_manager",
                  ]
+
+if os.path.exists("build-for-tv"):
+    print("building for tv")
+    hiddenimports += ["qasync",
+                      "TV_Display",
+                      "PySide6"]
 
 CurlingTimer_a = Analysis(['CurlingTimer.py'],
                           pathex=[],
@@ -33,7 +40,7 @@ CurlingTimer_a = Analysis(['CurlingTimer.py'],
                                  ('info/*', 'info'),
                                  ('install/*', 'install'),
                                  ('install/systemd', 'install/systemd'),
-                                 ("dist/cc_hwclock", "install")],
+                                 ],
                           hiddenimports=hiddenimports,
                           hookspath=[],
                           hooksconfig={},
@@ -102,6 +109,7 @@ BreakTimer_exe = EXE(BreakTimer_pyz,
                      target_arch=None,
                      codesign_identity=None,
                      entitlements_file=None)
+
 
 coll = COLLECT(CurlingTimer_exe,
                CurlingTimer_a.binaries,

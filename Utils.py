@@ -1,4 +1,3 @@
-from Logger import error, warning
 import fcntl
 import glob
 import os
@@ -11,9 +10,13 @@ import sys
 import time
 import traceback as tb
 import grp
-
 from collections import namedtuple
 import psutil
+
+import SetupApp
+
+from Logger import error, warning
+
 
 yearInSeconds = 365 * 86400
 
@@ -24,10 +27,10 @@ def toInt(s, default=0):
     except (TypeError, ValueError):
         return default
 
-    
+
 def secondsToStr(s):
     s += 0.99
-    
+
     days = ""
     if s > 86400:
         days = str(int(s/86400.0)) + " day(s) "
@@ -37,14 +40,14 @@ def secondsToStr(s):
     if s > 3600:
         hrs = str(int(s/3600.0)) + ":"
         s = s % 3600.0
-        
+
     return days + hrs + str(int(s / 60)) + ":" + (("0" + "%0d" % (s % 60))[-2:])
 
 
 def strToSeconds(s, default=None):
     if isinstance(s, (int, float)):
         return s
-    
+
     try:
         timeLimit = s.split(':')
         seconds = float(timeLimit[-1])
@@ -58,7 +61,7 @@ def strToSeconds(s, default=None):
             raise
 
         seconds = default
-        
+
     return seconds
 
 
@@ -80,7 +83,8 @@ def myIPAddress():
 
 def myHostName():
     return socket.gethostname()
-        
+
+
 def dropRootPrivileges(user_name=None, groups=[]):
     if os.getuid() != 0:
         return
@@ -88,7 +92,7 @@ def dropRootPrivileges(user_name=None, groups=[]):
     # Get the uid/gid from the name
     if not user_name:
         user_name = os.getenv("SUDO_USER")
-        
+
     pwnam = pwd.getpwnam(user_name)
 
     # Remove group privileges
@@ -102,7 +106,7 @@ def dropRootPrivileges(user_name=None, groups=[]):
     # Ensure a reasonable umask
     os.umask(0o22)
 
-    
+
 def singleton(name):
     lockfile = '/tmp/lock01_' + name
     fp = open(lockfile, 'w')
@@ -123,10 +127,10 @@ def memUsage():
     vm = psutil.virtual_memory()
     pm = psutil.Process().memory_full_info()
     swp = psutil.swap_memory()
-    
+
     localTime = time.localtime(time.time())
     displayTime = time.strftime("%H:%M:%S %d/%m/%y", localTime)
-    
+
     return MemUsage(displayTime,
                     int(vm.used/1024), int(vm.free/1024), int(vm.available/1024),
                     int(swp.total/1024), int(swp.used/1024), int(swp.sin/1024), int(swp.sout/1024),
@@ -156,7 +160,7 @@ def readFile(fn):
             return f.read()
     except FileNotFoundError:
         return
-    
+
 
 def getNextFileNumber(filePath):
     largestN = 0
@@ -192,14 +196,14 @@ def updateNumberedBackupFiles(filePathPairs):
         except Exception:
             raise OSError("failed to rename file: {fromFilePath} -> {toFilePath}")
 
-        
+
 def traceback(msg=None):
     if msg:
         print(msg, file=sys.stderr)
-        
+
     print("".join(tb.format_list(tb.extract_stack(limit=50)[1:])), file=sys.stderr)
 
-    
+
 # Must have root permissions to call this
 def setHostName(newhostname, newdomain=None):
     with open('/etc/hosts', 'r') as hdf:
@@ -232,41 +236,87 @@ def setHostName(newhostname, newdomain=None):
     rc = os.system('cp -p /etc/hosts /etc/hosts.old')
     if rc is None:
         raise OSError("failed to rename '/etc/hosts' to '/etc/hosts.old'")
-    
+
     rc = os.system('mv temp.hosts.txt /etc/hosts')
     if rc is None:
         raise OSError("failed to rename '/etc/hosts'")
-    
+
     warning("hostname: replaced /etc/hosts; old was renamed to /etc/hosts.old")
 
     rc = os.system('mv /etc/hostname /etc/hostname.old')
     if rc is None:
         raise OSError("failed to rename '/etc/hostname' to '/etc/hostname.old'")
-    
+
     rc = os.system('mv temp.hostname.txt /etc/hostname')
     if rc is None:
         raise OSError("failed to rename '/etc/hostname'")
-    
+
     warning("hostname: replaced /etc/hostname; old was renamed to /etc/hostname.old")
 
+
+def get_file_age_in_seconds(filepath):
+    """
+    Calculates the age of a file in seconds based on its last modification time.
+    """
+    try:
+        # Get the last modification time of the file (timestamp in seconds since epoch)
+        modification_time = os.path.getmtime(filepath)
+        
+        # Get the current time (timestamp in seconds since epoch)
+        current_time = time.time()
+        
+        # Calculate the difference
+        file_age = current_time - modification_time
+        return file_age
+    except FileNotFoundError:
+        print(f"Error: File not found at '{filepath}'")
+        return None
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
     
+def isRebootFileValid(rebootLoopDetectorFn):
+    if os.path.isfile(rebootLoopDetectorFn):
+        age = get_file_age_in_seconds(rebootLoopDetectorFn)
+
+        if age is None:
+            return False
+
+
+        return age <= 60
+
+    return False
+
+
 def checkAndSetHostName(hostName, domain, configDir):
     oldHostName = myHostName().lower()
     rebootLoopDetectorFn = os.path.join(configDir, "reboot")
+
+    rebootFileValid = isRebootFileValid(rebootLoopDetectorFn)
     if hostName != oldHostName:
-        if not os.path.isfile(rebootLoopDetectorFn):
+        if rebootFileValid:
+            warning("Hostname: reboot to change hostname failed. Manually rename to %s", hostName)
+        else:
             os.system(f"touch {rebootLoopDetectorFn}")
             warning("Hostname: changing host name; from <%s> to <%s>", oldHostName, hostName)
             setHostName(hostName, domain)
             
             warning("Hostname: rebooting so hostname change is in effect")
             os.system("reboot")
-        else:
-            warning("Hostname: reboot to change hostname failed. Manually rename to %s", hostName)
     else:
-        if os.path.isfile(rebootLoopDetectorFn):
-            os.remove(rebootLoopDetectorFn)
+        if not rebootFileValid:
+            try:
+                os.remove(rebootLoopDetectorFn)
+            except FileNotFoundError:
+                pass
+            
+def resetSetHostNameLoopDetector():
+    app = SetupApp.getApp()
+    rebootLoopDetectorFn = os.path.join(app.configDir, "reboot")
 
+    if os.path.isfile(rebootLoopDetectorFn):
+        os.remove(rebootLoopDetectorFn)
 
 def headTail(fn, headLines=1, tailLines=5, averageLineLength=132):
     if (headLines + tailLines <= 0) or not os.path.isfile(fn):

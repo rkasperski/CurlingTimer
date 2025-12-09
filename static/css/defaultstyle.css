@@ -1,4 +1,3 @@
-<style>
 .w-10 {
     width: 10% !important;
 }
@@ -140,10 +139,11 @@ input:active.invalid, textarea.invalid {
 input:focus.invalid, textarea.invalid {
     background: rgb(255,208,208);
 }
-
+/*
 input.valid, textarea.valid {
-    #border: 1px solid black;
-}
+    border: 1px solid black;
+}*/
+*/
 
 .hr-sect {
     display: flex;
@@ -454,5 +454,3 @@ input.valid, textarea.valid {
     color: #ffffff !important;
     background-color: #000000 !important
 }
-
-</style>

@@ -1,5 +1,3 @@
-from Logger import warning, info, debug, error, logEntries, getEffectiveLevel, clearLogs, getLevelName
-import Logger
 import asyncio
 import time
 import datetime
@@ -8,11 +6,15 @@ import random
 import re
 import string
 import sys
+
+from aiohttp import web as aiohttp_web
+
+from Logger import warning, info, debug, error, logEntries, clearLogs, getLevelName as logger_getLevelName, \
+    levelMap as logger_levelMap, setLevel as logger_setLevel
 import HTTP_Utils as httpUtils
 from HTTP_Utils import CLOCK_HDR
 import IOT_SSL
 
-from aiohttp import web as aiohttp_web
 
 from Utils import MemUsage, memUsage, yearInSeconds, headTail, runCommand
 from AccessVerification import ajaxVerifyToken, verifyUser, isAdministrator, getAuthenticator
@@ -147,9 +149,9 @@ async def sslConfigUploadAjax(request):
         with open(fname, "wb+") as f:
             f.write(text)
 
-    info = IOT_SSL.getInfoSSLCertificate(dirPath, "current.crt")
+    ssl_info = IOT_SSL.getInfoSSLCertificate(dirPath, "current.crt")
     return aiohttp_web.json_response({"type": "uploaded",
-                                      "info": info})
+                                      "info": ssl_info})
 
 
 @routes.post('/sslconfig/generate')
@@ -159,9 +161,12 @@ async def sslConfigGenerateLocalAjax(request):
     if Config.display.organization.hosts:
         hosts = [s.strip() for s in Config.display.organization.hosts.strip().split(",")]
         
-    dirPath = SetupApp.app.config("ssl")
+    dirPath = SetupApp.app.config("ssl/")
     keyPath = os.path.join(dirPath, "current.key")
     certPath = os.path.join(dirPath, "current.crt")
+
+    myHosts = [sheet.hostName for sheet in Config.display.sheets]
+    myIPs = [sheet.ip for sheet in Config.display.sheets if sheet.ip and sheet.ip.lower() != "unassigned"]
 
     IOT_SSL.generateSSLCertificate(certificateFile=certPath,
                                    keyFile=keyPath,
@@ -172,7 +177,8 @@ async def sslConfigGenerateLocalAjax(request):
                                    organization=Config.display.organization.organization,
                                    unit=Config.display.organization.unit,
                                    email=Config.display.organization.email,
-                                   hosts=hosts)
+                                   hosts=hosts + myHosts,
+                                   ips=myIPs)
                                 
     info = IOT_SSL.getInfoSSLCertificate(dirPath, "current.crt")
     return aiohttp_web.json_response({"type": "generated",
@@ -384,7 +390,7 @@ async def ptpdRestartHtmlPost(request):
 @routes.get('/adminlogs')
 @ajaxVerifyToken("admin")
 async def adminlogsHtmlGet(request):
-    level = getLevelName()
+    level = logger_getLevelName()
     return aiohttp_web.json_response({"headers": ("Time", "Level", "Who", "Message", "Traceback"),
                                       "data": list(logEntries),
                                       "level": level})
@@ -393,7 +399,7 @@ async def adminlogsHtmlGet(request):
 @routes.get('/debuglevel')
 @ajaxVerifyToken("admin")
 async def debugLevelAjaxGet(request):
-    level = getLeveNamel()
+    level = logger_getLeveNamel()
     return aiohttp_web.json_response({"level": level})
 
 
@@ -589,7 +595,7 @@ async def logLevelAjaxPost(request):
 
     level = json.get("level", None).lower()
     levelName = "debug"
-    if level in Logger.levelMap:
+    if level in logger_levelMap:
         levelName = level
     elif level.isdigit():
         if int(level):
@@ -597,8 +603,8 @@ async def logLevelAjaxPost(request):
         else:
             levelName = "warning"
 
-    Logger.setLevel(Logger.levelMap[levelName])
-    level = getLevelName()
+    logger_setLevel(logger_levelMap[levelName])
+    level = logger_getLevelName()
     error("Logger: set level to %s: %s", levelName, level)
     
     return aiohttp_web.json_response({"level": level})
@@ -608,7 +614,7 @@ async def logLevelAjaxPost(request):
 @ajaxVerifyToken("admin")
 async def lofClearAjaxPost(request):
     clearLogs()
-    level = getLevelName()
+    level = logger_getLevelName()
     return aiohttp_web.json_response({"level": level})
 
 
@@ -657,7 +663,8 @@ async def setSecretKeyAjaxPost(request):
 @ajaxVerifyToken("admin")
 async def hardwareAjaxGet(request):
     global hardwareConfig
-    return aiohttp_web.json_response({**hardwareConfig.hardware.items()})
+
+    return aiohttp_web.json_response({**hardwareConfig.hardware.items()} if hardwareConfig else {})
 
 
 @routes.post('/ajax/hardware')

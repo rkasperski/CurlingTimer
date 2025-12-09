@@ -1,5 +1,5 @@
 <div id="club" class="display-view d-none" >
-   {{ navPanel("", "", "Creston Curling Club") }}
+   {{ navPanel("", "", "Creston Curling Club", idTitle="club-panel-title") }}
    <div class="row justify-content-evenly">
       {{ actionIcon("Sheets", "layout-three-columns", "panelNavigate('sheets')" ) }}
       {{ actionIcon("Message", "chat-text", "panelNavigate('clubMessage')" ) }}
@@ -16,15 +16,91 @@
       {{ actionIcon("Kapow", "star", "panelNavigate('clubKapow')" ) }}
       {{ actionIcon("Draws", "list-ol", "panelNavigate('clubDraws')" ) }}
       <div class="w-100"></div>
+      {{ actionIcon("Calandar", "calendar3", "panelNavigate('clubCalendar')" ) }}
       {{ actionIcon("More", "three-dots", "panelNavigate('clubMore')" ) }}
-      {{ actionIcon("Admin", "shield-lock", "panelNavigate('clubAdmin')", id="club-admin-icon", class="security-adminOnly") }}
+   </div>
+</div>
+
+<div class="modal fade" id="club-alert-modal" tabindex="-1" role="dialog">
+   <div class="modal-dialog modal-dialog" role="document">
+      <div class="modal-content modal-content">
+         <div class="modal-header bg-medium">
+            <h5 class="modal-title" id="club-alert-modal-title">Alerts</h5>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         <div class="modal-body"  id="club-alert-modal-body">
+         </div>
+      </div>
    </div>
 </div>
 
 <script>
- function club_enter() {
- }
+   var club_clock_server = null;
+   var club_alert_list = new Map();
+   var club_club_name = "Unassigned";
+   var club_timer_id = null;
+   
+   function club_active_callback() {
+   }
 
- function club_exit() {
- }
+   function club_popup_alerts() {
+      let alert_modal = $("#club-alert-modal");
+      let body = $("#club-alert-modal-body");
+
+      club_alert_list.forEach(function(k, v) {
+         body.append(`<div class="fw-bold row">${htmlToText(v)}</div><div class="row ms-4">${htmlToText(k)}</div>`);
+      })
+
+      alert_modal.modal("show");
+   }
+   
+
+   function club_track_alert(name, active, msg) {
+      if (active) {
+         club_alert_list.set(name, msg);
+      } else {
+         if (club_alert_list.has(name)) {
+            club_alert_list.delete(name);
+         }
+      }
+
+      let title = $("#club-panel-title");
+      if (club_alert_list.size) {
+         title.html(`${htmlToText(club_club_name)} <div class="ms-2 col-auto nav-up my-auto" \
+                   onclick="club_popup_alerts()"> \
+               <i class="bi bi-exclamation-triangle text-danger"></i> \
+            </div>`);
+      } else {
+         title.text(htmlToText(club_club_name));
+      }
+   }
+   
+   function club_enter() {
+      WhoAreYou(ip)
+         .done(function(res) {
+            if (res.clockServer !=  club_clock_server) {
+               club_clock_server = res.clockServer;
+            }
+
+            if (res.clubName != club_club_name) {
+               club_club_name = res.clubName;
+            }
+
+            if (club_clock_server && club_clock_server != "Unassigned") {
+               WhoAreYou(club_clock_server)
+                  .done(function(res) {
+                     club_club_name = res.clubName;
+                     club_track_alert("Battery Level", res.batteryAlert, `check battery on ${res.clockServer}`);
+                  })
+            }
+         });
+
+      startActivityCheckTimer(club_active_callback, 5)       
+   }
+
+   function club_exit() {
+      stopActivityCheckTimer();
+   }
 </script>

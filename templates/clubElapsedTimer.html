@@ -3,84 +3,88 @@
 
    <div class="container mb-3 mt-3">
       <div class="row">
-	 <div class="col-auto">
-	    <label for="clubElapsed-message">Message:</label>
-	 </div>
+	      <div class="col-auto">
+	         <label for="clubElapsed-message">Message:</label>
+	      </div>
       </div>
       <div class="row">
-	 <div class="col-7 col-md-5 ">
-	    <input type="text" class="form-control mb-4 mr-sm-4" placeholder="message ..." id="clubElapsed-message" value="{{welcomeMessage}}">
-	 </div>
-	 <div class="col-3 col-md-2">
-	    {{macros.colorSelector(colours, "clubElapsed-messageColour", "clubElapsed-messageColour")}}
-	 </div>
-	 <div class="col-2 col-md-1">
-	    <button type="button"
-                    id="btn_msg"
-                    class="icon-button icon-mirror-h btn btn-outline-dark mb-2"
-                    onclick="MessageAll($('#clubElapsed-message').val(), $('#clubElapsed-messageColour').val())">{{icon("reply-all")}}</button>
-	 </div>
+	      <div class="col-7 col-md-5 ">
+	         <input type="text" class="form-control mb-4 mr-sm-4" placeholder="message ..." id="clubElapsed-message" value="{{welcomeMessage}}">
+	      </div>
+	      <div class="col-3 col-md-2">
+	         {{macros.colorSelector(colours, "clubElapsed-messageColour", "clubElapsed-messageColour")}}
+	      </div>
+	      <div class="col-2 col-md-1">
+	         <button type="button"
+               id="btn_msg"
+               class="icon-button icon-mirror-h btn btn-outline-dark mb-2"
+               onclick="MessageAll($('#clubElapsed-message').val(), $('#clubElapsed-messageColour').val())">{{icon("reply-all")}}</button>
+	      </div>
       </div>
       
       <div class="row">
-	 <div class="col-auto">
-	    Start Time: All
-	 </div>
+	      <div class="col-auto">
+	         Start Time: All
+	      </div>
       </div>
       <div class="row">
-	 <div class="col-4">
-	    <input type="text" class="form-control clubElapsed-check-time" placeholder="hh:mm:ss" id="clubElapsed-startTime" value="">
-	 </div>
-	 <div class="col-auto">
-	    <button type="button" id="clubElapsed-setAll" class="disabled icon-button btn btn-outline-dark clubElapsed-submit-target" onclick="ElapsedSetAll($('#clubElapsed-startTime').val())">{{icon("box-arrow-up-right")}}</button>
+	      <div class="col-4">
+	         <input type="text" class="form-control clubElapsed-check-time" placeholder="hh:mm:ss" id="clubElapsed-startTime" value=""
+               data-verify-type="time"
+               data-verify-allow-empty="1">
+	      </div>
+	      <div class="col-auto">
+	         <button type="button" class="disabled icon-button btn btn-outline-dark" id="clubElapsed-set-all-btn" onclick="ElapsedSetAll($('#clubElapsed-startTime').val())">{{icon("box-arrow-up-right")}}</button>
          </div>
-	 <div class="col-auto">
-	    <button type="button" id="clubElapsed-resumeAll" class="icon-button btn btn-outline-dark" onclick="ElapsedStartAll()">{{icon("play-fill")}}</button>
+	      <div class="col-auto">
+	         <button type="button" id="clubElapsed-resumeAll" class="icon-button btn btn-outline-dark" onclick="ElapsedStartAll()">{{icon("play-fill")}}</button>
          </div>
-	 <div class="col-auto">
-	    <button type="button" id="clubElapsed-pauseAll" class="icon-button btn btn-outline-dark" onclick="ElapsedPauseAll()">{{icon("pause-fill")}}</button>
-	 </div>
+	      <div class="col-auto">
+	         <button type="button" id="clubElapsed-pauseAll" class="icon-button btn btn-outline-dark" onclick="ElapsedPauseAll()">{{icon("pause-fill")}}</button>
+         </div>
       </div>
       
       {% for s in sheets %}
-	 {% if loop.first %}
-	    <hr class="divider">
-	 {% else  %}
-	    <hr class="half-rule">
-	 {% endif %}
-	 {% if s.ip == "Unassigned" %}
-	    <div class="row">
+	      {% if loop.first %}
+	         <hr class="divider">
+	      {% else  %}
+	         <hr class="half-rule">
+	      {% endif %}
+	      {% if s.ip == "Unassigned" %}
+	         <div class="row">
                <div class="col-auto ms-4 disabled">
-	          {{s.name}}
-	          <br>
-	          Not configured
-	       </div>
-	    </div>
-	 {% else %}			
-	    <div class="row">
-	       <div class="col-auto">
-		  <a href="javascript:panelNavigate('sheetElapsed{{loop.index0}}')")>{{s.name}}</a>
-	       </div>
-	    </div>
+	               {{s.name}}
+	               <br>
+	               Not configured
+	            </div>
+	         </div>
+	      {% else %}
+	         <div class="row">
+	            <div class="col-auto">
+		            <a href="javascript:panelNavigate('sheetElapsed{{loop.index0}}')")>{{s.name}}</a>
+	            </div>
+	         </div>
 	    
-	    <div class="row">
-	       <div class="col-4">
-		  <input type="text" class="form-control" id="clubElapsed-startTime{{loop.index0}}" placeholder="hh:mm:ss" value="">
-	       </div>
-	       <div class="col-auto">
-		  <button type="button" id="clubElapsed-btn-set{{s.ordinal}}" class="disabled icon-button btn btn-outline-dark clubElapsed-submit-target" onclick='clubElapsed_setOneTimer("{{s.ip}}", $("#clubElapsed-startTime{{s.ordinal}}").val())'>{{icon("box-arrow-up-right")}}</button>
-	       </div>
-	       <div class="col-auto">
-		  <button type="button" id="clubElapsed-btn-resume_{{s.ordinal}}" class="icon-button btn btn-outline-dark" onclick='ElapsedStart("{{s.ip}}")'>{{icon("play-fill")}}</button>
-	       </div>
-	       <div class="col-auto">
-		  <button type="button" id="clubElapsed-btn-pause{{s.ordinal}}" class="icon-button btn btn-outline-dark" onclick='ElapsedPause("{{s.ip}}")'>{{icon("pause-fill")}}</button>
-	       </div>
-	       <div class="col-auto pe-0">
-		  <button type="button" id="clubElapsed-message-show{{s.ordinal}}" class="btn btn-outline-dark icon-button icon-mirror-h" onclick='Message("{{s.ip}}", $("#message").val(), $("#messageColour").val())'>{{icon("reply")}}</button>
-	       </div>
-	    </div>
-	 {% endif %}
+	         <div class="row">
+	            <div class="col-4">
+		            <input type="text" class="form-control" id="clubElapsed-startTime{{loop.index0}}" placeholder="hh:mm:ss" value=""
+                     data-verify-type="time">
+	            </div>
+	            <div class="col-auto">
+		            <button type="button" id="clubElapsed-btn-set{{s.ordinal}}" class="disabled icon-button btn btn-outline-dark clubElapsed-submit-target" onclick='clubElapsed_setOneTimer("{{s.ip}}", $("#clubElapsed-startTime{{s.ordinal}}").val())'>{{icon("box-arrow-up-right")}}</button>
+	            </div>
+	            <div class="col-auto">
+		            <button type="button" id="clubElapsed-btn-resume_{{s.ordinal}}" class="icon-button btn btn-outline-dark" onclick='ElapsedStart("{{s.ip}}")'>{{icon("play-fill")}}</button>
+	            </div>
+	            <div class="col-auto">
+		            <button type="button" id="clubElapsed-btn-pause{{s.ordinal}}" class="icon-button btn btn-outline-dark" onclick='ElapsedPause("{{s.ip}}")'>{{icon("pause-fill")}}</button>
+	            </div>
+	            <div class="col-auto pe-0">
+		            <button type="button" id="clubElapsed-message-show{{s.ordinal}}" class="btn btn-outline-dark icon-button icon-mirror-h"
+                     onclick='Message("{{s.ip}}", $("#clubElapsed-message").val(), $("#clubElapsed-messageColour").val())'>{{icon("reply")}}</button>
+	            </div>
+	         </div>
+	      {% endif %}
       {% endfor %}
    </div>
 </div>
@@ -88,7 +92,7 @@
 
  function  clubElapsed_activeCallback(clubStatus, i, sheetStatus) {
     enableField(!sheetStatus.active, `#clubElapsed-btn-set${i}`);
-    enableField(clubStatus.active == -1, "#clubElapsed-setAll");             
+    enableField(clubStatus.active == -1, "#clubElapsed-set-all-btn");             
  }
 
  function clubElapsed_setOneTimer(ip, time) {
@@ -96,17 +100,13 @@
  }
  
  function clubElapsed_enter() {
-    startActivityCheckTimer(clubElapsed_activeCallback)
+     startActivityCheckTimer(clubElapsed_activeCallback)
 
-    for (let i = 0; i < peers.length; i++) {
-       $(`#clubElapsed-startTime${i}`).on('input', function(e) {
-          verifyTimeField(e.target, `#clubElapsed-btn-set${i}`, true);
-       });
-       $(`#clubElapsed-startTime${i}`).on('keyup', function(e) {
-          verifyTimeField(e.target, `#clubElapsed- btn-set${i}`, true);
-       });	 
-    }
-    checkTime(".clubElapsed-check-time", ".clubElapsed-submit-target", true);
+     for (let i = 0; i < peers.length; i++) {
+         enableFieldChecking(`#clubSettings-startTime${i}`, `#clubElapsed-btn-set${i}`)
+     }
+
+     enableFieldChecking(".clubElapsed-check-time", "#clubElapsed-set-all-btn")
  }
 
  function clubElapsed_exit() {

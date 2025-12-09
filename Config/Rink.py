@@ -7,4 +7,5 @@ class RinkConfigSection(ConfigSectionHandler):
     attributes = {"numberOfSheets": (int, str, 4),
                   "clockServer": "",
                   "batteryAlert": (bool, str, False),
-                  "timezone": "America/Creston"}
+                  "timezone": "America/Creston",
+                  "clubName": "Just A Rink"}

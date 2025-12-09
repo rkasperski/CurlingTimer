@@ -7,7 +7,8 @@
 	       <label for="sheetCompetitionSetup-teamTime" class="col-form-label">Time Limit Per Team:</label>
             </div>
             <div class="col-3">
-	       <input type="text" class="form-control sheetCompetitionSetup-check-time" id="sheetCompetitionSetup-teamTime" value="">
+	       <input type="text" class="form-control sheetCompetitionSetup-check-time" id="sheetCompetitionSetup-teamTime" value=""
+                  data-verify-type="time">
 	    </div>
          </div>
          <div class="row mt-4">
@@ -15,7 +16,8 @@
 	       <label for="sheetCompetitionSetup-intermissionLength" class="col-form-label">Intermission Length:</label>
             </div>
             <div class="col-3">
-	       <input type="text" class="form-control sheetCompetitionSetup-check-time" id="sheetCompetitionSetup-intermissionLength" value="">
+	       <input type="text" class="form-control sheetCompetitionSetup-check-time" id="sheetCompetitionSetup-intermissionLength" value=""
+                  data-verify-type="time">
 	    </div>
          </div>
          <div class="row mt-4">
@@ -88,16 +90,17 @@
     getDefaultsAjax(sheetCompetitionSetupIP, false)
        .done(function(response) {
           loadSettings("sheetCompetitionSetup", response);
+          enableFieldChecking(".sheetCompetitionSetup-check-time", ".sheetCompetitionSetup-submit-target");
        })
 
-    getTeamNames(sheetCompetitionSetupIP, false)
+      getTeamNames(sheetCompetitionSetupIP, false)
        .done(function(response) {
 	  $("#sheetCompetitionSetup-team1").val(response.team1);
 	  $("#sheetCompetitionSetup-team2").val(response.team2);
           $("#sheetCompetitionSetup-top-rock").attr("src", `/static/images/Curling-Rock-${response.topColour}-sm.png`)
           $("#sheetCompetitionSetup-bottom-rock").attr("src", `/static/images/Curling-Rock-${response.bottomColour}-sm.png`)
        })
-    checkTime(".sheetCompetitionSetup-check-time", ".sheetCompetitionSetup-submit-target");
+    enableFieldChecking(".sheetCompetitionSetup-check-time", ".sheetCompetitionSetup-submit-target");
  }
 
  function sheetCompetitionSetup_newGame() {

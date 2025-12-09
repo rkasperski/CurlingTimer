@@ -6,7 +6,8 @@
 	    <label for="sheetCountdownSetTime-time" class="col-form-label">Time:</label>
          </div>
 	 <div class="col-auto">
-	    <input type="text" class="form-control sheetCountdownSetTime-check-time" id="sheetCountdownSetTime-time">
+	    <input type="text" class="form-control sheetCountdownSetTime-check-time" id="sheetCountdownSetTime-time"
+               data-verify-type="time">
 	 </div>
       </div>
       <div class="row justify-content-center mt-4">
@@ -28,7 +29,7 @@
  
  function sheetCountdownSetTime_show(data) {
     $("#sheetCountdownSetTime-time").val(data.time)
-    checkTime(".sheetCountdownSetTime-check-time", ".sheetCountdownSetTime-submit-target");
+    enableFieldChecking(".sheetCountdownSetTime-check-time", ".sheetCountdownSetTime-submit-target");
  }
 
 </script>

@@ -9,13 +9,15 @@
       <title>{{organization}}</title>
    </head>
    <body class="vh-100">
-      <script>
+     <script>
        var setupStage = {{setup}};
        var debug = {{debug}};
        var loginInfo = null;
        const queryString = window.location.search;
        const urlParams = new URLSearchParams(queryString);
        
+       {% include 'utilscript.js' %}
+       {% include 'data.js' %}
        {% include "console.js" %}
        {% include "clockAPI.js" %} 
        {% include 'timer.js' %}
@@ -29,6 +31,8 @@
        {% include 'rockthrow.js' %}
        {% include 'rockthrow-test.js' %}
       </script>
+
+      {% include "yesno_modal.html" %}
       {% include "sheetCompetitionSetup.html" %}
       {% include "sheetCompetitionTimer.html" %}
       {% include "sheetCompetitionTimerUtility.html" %}
@@ -68,6 +72,7 @@
       {% include "clubColoursAdd.html" %}
       {% include "clubClockStatus.html" %}
       {% include "clubAdmin.html" %}
+      {% include "clubCalendar.html" %}
       {% include "adminSecret.html" %}
       {% include "adminUpdate.html" %}
       {% include "adminUpdateClean.html" %}
@@ -105,8 +110,15 @@
     
     return result;
   }
-  
-  $(document).ready(function() {
+
+ function setPageTitle() {
+    getOrganization()
+       .done(function (res) {
+          document.title = res.organization;
+       });
+ }
+ 
+ $(document).ready(function() {
     if (typeof(Storage) !== "undefined") {
       let s = localStorage.getItem("logininfo")
       if (s) {
@@ -142,6 +154,7 @@
         Status(ip, "competition/status", {}, false)
           .done(function() {
              security_enableAdminPages();
+             setPageTitle()
              panelNavigate("club");
           })
           .fail(function () {

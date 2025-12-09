@@ -135,7 +135,15 @@ async def clockSetHtmlPost(request):
 
         msg = "nothing asked"
         if newTime:
-            clockTimeHours, clockTimeMinutes, clockTimeSeconds = newTime.split(":")
+            sp = newTime.split(":")
+            info("ClockSet: setting time %s: %s", newTime, sp)
+            if len(sp) == 1:
+                clockTimeHours, clockTimeMinutes, clockTimeSeconds = sp + [0, 0]
+            elif len(sp) == 2:
+                clockTimeHours, clockTimeMinutes, clockTimeSeconds = sp + [0,]
+            else:
+                clockTimeHours, clockTimeMinutes, clockTimeSeconds = sp[0:3]
+                
             # adjust start time by  approximate amount do connection to match time. empirical hack
             newTimeSecsSinceMidnight = int(clockTimeHours) * 3600 + int(clockTimeMinutes) * 60 + int(clockTimeSeconds) + 0.600
             
@@ -163,8 +171,8 @@ async def clockSetHtmlPost(request):
             msg = "Setting hardware clock"
 
     except Exception as e:
-        msg = f"badness {e}"
-        exception("set timedate '%s'", data)
+        msg = f"clock set badness {e}"
+        exception("set timedate %s '%s'", msg, data, exc_info=True)
             
     return aiohttp_web.json_response({"msg": msg})
 
@@ -175,6 +183,7 @@ async def sheetsAjaxGet(request):
     return aiohttp_web.json_response({"nSheets": len(Config.display.sheets),
                                       "sheets": [s._asdict() for s in Config.display.sheets],
                                       "clockServer": Config.display.rink.clockServer,
+                                      "clubName": Config.display.rink.clubName,
                                       "drawServer": Config.display.defaults.drawServer})
 
 
@@ -225,6 +234,7 @@ async def sheetsAjaxPost(request):
                 if s.hasHardwareClock:
                     Config.display.rink.clockServer = s.ip
 
+    Config.display.rink.clubName = json.get("clubName", "Just A Club")
     Config.display.rink.modified = True
 
     Config.display.server.setup = 4

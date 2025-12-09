@@ -223,10 +223,11 @@ class WebSocketBase:
     async def close(self, msg=None):
         self.closed = True
 
-        info("%s: WebSocket(%s:%s) %s: close error=%s", time.monotonic(), self.ws_id, self.remote, self.name, msg, stacklevel=2)
+        info("%s: WebSocket(%s:%s) %s: close error=%s",
+             time.monotonic(), self.ws_id, self.remote, self.name, msg, stacklevel=2)
 
         if msg:
-            await self.onerror(msg);
+            await self.onerror(msg)
 
         if self.pingWaitTask is not None:
             self.pingWaitTask.cancel()

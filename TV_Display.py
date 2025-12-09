@@ -217,7 +217,7 @@ class ClockTimerDisplaySingleton(TV_Widget, BaseDisplay):
     def __init__(self, args, displayString=None, hardwareConfigFN=None, fontPath=["fonts"]):
         TV_Widget.__init__(self)
         BaseDisplay.__init__(self)
-        
+
         self.scrollAmt = screenWidth / 100
         self.scrollDelay = 0.033
 
@@ -232,7 +232,7 @@ class ClockTimerDisplaySingleton(TV_Widget, BaseDisplay):
                                  help="the twoline font", default=f"EncodeSansSemiCondensed-Light.ttf:{int(screenHeight * 0.45)}")
         self.parser.add_argument("--twotime-font", action="store", type=str,
                                  help="the twotime font - should be monospaced",
-                                 default=f"IBMPlexSansCondensed-Light.ttf:{int(screenHeight * 0.45)}")
+                                 default=f"IBMPlexSansCondensed-Light.ttf:{int(screenHeight * 0.55)}")
         self.parser.add_argument("--timer-font", action="store", type=str,
                                  help="the timer font", default=f"RobotoCondensed-Light.ttf:{int(screenHeight * 0.65)}")
         self.parser.add_argument("--small-font", action="store", type=str,
@@ -264,10 +264,13 @@ class ClockTimerDisplaySingleton(TV_Widget, BaseDisplay):
         self.secondsFont = self.loadFont("Seconds", self.args.seconds_font, fontPathList=self.fontPath)
         self.textFont = self.loadFont("Text", self.args.text_font, fontPathList=self.fontPath)
 
+        # want to vertical centre numbers. Assume same height as capital letters. Need to move
+        # rendered text up by half the difference of ascender - capital height.
+        self.timer_font_vertical_offset = - int((self.timerFont.ascender - self.timerFont.fontMetrics.capHeight()) / 2)
+
         w, h = self.clockFont.getSize("1")
         self.leadingOneAdjust = (w * 0.1, w * 0.2)
         self.colonAdjust = (w * 0.1, w * 0.1)
-
 
 
     def loadFont(self, name, fontFileName, default=True, fontPathList=[]):
@@ -415,9 +418,10 @@ def create(args, displayString=None, hardwareConfigFN=None, fontPath=["fonts"]):
     global display, window
 
     if not display:
-        window = MainWindow(args, displayString, hardwareConfigFN, fontPath, test=True)
+        window = MainWindow(args, displayString, hardwareConfigFN, fontPath, test=False)
 
         display = window.tvWidget
         display.startDisplay()
+        display.hardwareConfig = None
 
     return display

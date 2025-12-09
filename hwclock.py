@@ -1,30 +1,16 @@
 import sys
 
 # First we try for a USB DS3231
-import USB_DS3231
+import DS3231
 
 def help():
     print(f"""{sys.argv[0]} [-r] [--show] [--get] [-s] [--hctosys] 
         [-w] [--systohc] [-l] [--localtime]  [-u] [--utc]  [--set --date <date>]
-  Sort of like the builtin hwclock. Sets/Restores and reads DS1307/DS3231 based clocks
-  when attached using i2c or usb based. Most of the other options are recognized but
+  Sort of like the builtin hwclock. Sets/Restores and reads DS3231 based clocks
+  when attached using i2c. Most of the other options are recognized but
   ignored""")
     
 def main():
-    try:
-        ds = USB_DS3231.DS3231()
-        print("found USB DS3231")
-
-    except Exception as e:
-        # try for an I2C bus DS1307/DS3231
-        import DS1307
-
-        try:
-            ds = DS1307.DS1307()
-            print("found I2C DS1307/DS3231")
-        except Exception as e:
-            sys.exit(4)
-
     args = sys.argv[1:]
 
     if not len(args):
@@ -41,6 +27,7 @@ def main():
     delayTime = None
     verbose = False
     adjFile = None
+    busid = 1
 
     while args and args[0].startswith("-"):
         a = args.pop(0)
@@ -83,6 +70,8 @@ def main():
             pass
         elif a == "--noadjfile":
             pass
+        elif a == "-b" or a == "--bus":
+            busid = int(args.pop(0))
         elif a == "--predict":
             pass
         elif a == "--badyear":
@@ -99,6 +88,13 @@ def main():
         else:
             help()
             sys.exit()
+
+    try:
+        ds = DS3231.DS3231(twi=busid, verbose=verbose)
+        print("found DS3231")
+
+    except Exception as e:
+        sys.exit(4)
 
     if readTime:
         print(ds.getDateStr(utc=utc))

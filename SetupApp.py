@@ -69,8 +69,10 @@ class AppSetup:
         path = os.path.join(dir, fn) if fn else dir
 
         if createDir:
-            if fn is not None:
+            if fn is not None and not fn.endswith("/"):
                 dir = os.path.dirname(path)
+            else:
+                dir = path
                 
             if not os.path.exists(dir):
                 os.makedirs(dir)

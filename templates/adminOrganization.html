@@ -4,7 +4,8 @@
       <div class="row my-1 justify-content-center">
 	 <div class="col-auto">
 	    <label for="adminOrganization-organization" class="form-label">Organization:</label>
-	    <input type="text" name="organization" class="form-control" id="adminOrganization-organization">
+	    <input type="text" name="organization" class="form-control adminOrganization-check" id="adminOrganization-organization"
+               data-verify-type="notEmpty">
 	 </div>
       </div>
       <div class="row my-1 justify-content-center">
@@ -16,37 +17,43 @@
       <div class="row my-1 justify-content-center">
 	 <div class="col-auto">
 	    <label for="adminOrganization-address" class="form-label">Address</label>
-	    <input type="text" name="address" class="form-control" id="adminOrganization-address">
+	    <input type="text" name="address" class="form-control adminOrganization-check" id="adminOrganization-address"
+               data-verify-type="notEmpty">
 	 </div>
       </div>
       <div class="row my-1 justify-content-center">
 	 <div class="col-auto">
 	    <label for="adminOrganization-city" class="form-label">City</label>
-	    <input type="text" name="city" class="form-control" id="adminOrganization-city">
+	    <input type="text" name="city" class="form-control adminOrganization-check" id="adminOrganization-city"
+               data-verify-type="notEmpty">
 	 </div>
       </div>
       <div class="row my-1 justify-content-center">
 	 <div class="col-auto">
 	    <label for="adminOrganization-region" class="form-label">Region</label>
-	    <input type="text" name="region" class="form-control" id="adminOrganization-region">
+	    <input type="text" name="region" class="form-control adminOrganization-check" id="adminOrganization-region"
+               data-verify-type="notEmpty">
 	 </div>
       </div>
       <div class="row my-1 justify-content-center">
 	 <div class="col-auto">
 	    <label for="adminOrganization-country" class="form-label">Country</label>
-	    <input type="text" name="country" class="form-control" id="adminOrganization-country">
+	    <input type="text" name="country" class="form-control adminOrganization-check" id="adminOrganization-country"
+               data-verify-type="notEmpty">
 	 </div>
       </div>
       <div class="row my-1 justify-content-center">
 	 <div class="col-auto">
 	    <label for="email" class="form-label">email</label>
-	    <input type="text" name="email" class="form-control" id="adminOrganization-email" value="{{email}}">
+	    <input type="text" name="email" class="form-control adminOrganization-check" id="adminOrganization-email" value="{{email}}"
+               data-verify-type="notEmpty">
 	 </div>
       </div>
       <div class="row my-1 justify-content-center">
 	 <div class="col-auto">
 	    <label for="adminOrganization-domain" class="form-label">Domain</label>
-	    <input type="text" name="domain" class="form-control" id="adminOrganization-domain" value="{{domain}}">
+	    <input type="text" name="domain" class="form-control adminOrganization-check" id="adminOrganization-domain" value="{{domain}}"
+               data-verify-type="notEmpty">
 	 </div>
       </div>
       <div class="row my-1 justify-content-center">
@@ -62,7 +69,7 @@
 	 <div class="col-auto">
 	    <button type="submit"
                     id="adminOrganization-btn-save"
-                    class="btn btn-outline-dark submit-target"
+                    class="btn btn-outline-dark"
                     onclick="adminOrganization_save()">
                Save
             </button>
@@ -73,16 +80,21 @@
 </div>
 <script>
  function adminOrganization_save() {
-    settings = gatherSettings("adminOrganization");
+   settings = gatherSettings("adminOrganization");
     
-    setOrganization(settings)
-       .done(function() {
-          panelNavigate("clubAdmin", null, true);
-       });
+   setOrganization(settings)
+     .done(function() {
+       panelNavigate("clubAdmin", null, true);
+     });
  }
+  
  function adminOrganization_enter() {
-    getOrganization()
-       .done(res => loadSettings("adminOrganization", res))
+   enableFieldChecking(".adminOrganization-check", "#adminOrganization-btn-save");
+   getOrganization()
+     .done(function (res) {
+       loadSettings("adminOrganization", res);
+       enableFieldChecking(".adminOrganization-check", "#adminOrganization-btn-save")
+     });
  }
 
  function adminOrganization_exit() {

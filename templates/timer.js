@@ -5,7 +5,6 @@ function timer_secsToTime(secs) {
 function timer_tracker(ip, who, url, stateChangeCallback, up) {
     let timer_lastTimerSet = "";
     let timer_active = -1;
-    let timer_firstResponse = true;
     let timer_localStartTime = 0;
     let timer_remoteStartTime = 0;
     let timer_markSeconds = 0
@@ -17,34 +16,34 @@ function timer_tracker(ip, who, url, stateChangeCallback, up) {
     let timer_rounding = 0.99
     
     function timer_setTimer(who, curTime) {
-        if (curTime != timer_lastTimerSet) {
-            $(who).html(timer_secsToTime(curTime));
-            timer_lastTimerSet = curTime;
-        }
+       if (curTime != timer_lastTimerSet) {
+          $(who).html(timer_secsToTime(curTime));
+          timer_lastTimerSet = curTime;
+       }
     }
     
     function timer_handleResponse(r) {
-        timer_markSeconds = Date.now() / 1000;
-        timer_sumReponseTimes += timer_markSeconds - timer_callTime;
-        timer_nResponses += 1
+       timer_markSeconds = Date.now() / 1000;
+       timer_sumReponseTimes += timer_markSeconds - timer_callTime;
+       timer_nResponses += 1
 
-        if (timer_active != r.active) {
-            timer_active = r.active;
-            if (timer_active) {
-                timer_localStartTime = timer_markSeconds;
-                timer_remoteStartTime = r.seconds
-            }
-            
-            stateChangeCallback(timer_active, r.seconds, r);
-        }
+       if (timer_active != r.active) {
+          timer_active = r.active;
+          if (timer_active) {
+             timer_localStartTime = timer_markSeconds;
+             timer_remoteStartTime = r.seconds
+          }
 
-        if (timer_active) {
-            let remoteRunningTime = r.seconds - timer_remoteStartTime;
-            let localRunningTime =  timer_markSeconds - timer_localStartTime;
-            let tDiff = localRunningTime - remoteRunningTime
-        }
+          stateChangeCallback(timer_active, r.seconds, r);
+       }
+       
+       if (timer_active) {
+          let remoteRunningTime = r.seconds - timer_remoteStartTime;
+          let localRunningTime =  timer_markSeconds - timer_localStartTime;
+          let tDiff = localRunningTime - remoteRunningTime
+       }
         
-        timer_activeSeconds = r.seconds;
+       timer_activeSeconds = r.seconds;
     }
     
     function timer_intervalStatus() {

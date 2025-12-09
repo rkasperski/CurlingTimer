@@ -1,4 +1,3 @@
-<script>
 var accessToken = "{{accessToken}}";
 
 var peers = [
@@ -7,5 +6,3 @@ var peers = [
     {% endfor %} ];
 
 setMyAddress("{{ip}}", "{{scheme}}", "{{port}}");
-
-</script>

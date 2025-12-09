@@ -254,6 +254,8 @@ def gatherDisplayInfo(info):
     info["hwClock"] = "Yes" if HardwareClock.hasHardwareClock else "No"
     info["drawServer"] = Config.display.defaults.drawServer
     info["clockServer"] = Config.display.rink.clockServer
+    info["clubName"] = Config.display.rink.clubName
+    info["batteryAlert"] = Config.display.rink.batteryAlert
     info["display"] = "Yes"
     mySheet = Config.display.sheets.mySheet
     info["name"] = mySheet.name if mySheet else Utils.myHostName()
@@ -269,6 +271,7 @@ def main():
     global displayBreakTimeTracker
     global tokenAuthenticator
 
+    info("python: %s", sys.version)
     showOnTV = len(sys.argv) > 1 and sys.argv[1] == "TV"
 
     if showOnTV:
@@ -289,12 +292,12 @@ def main():
 
     myApp.copyFiles(("display.toml", "config.toml"), myApp.app("defaults"), myApp.config())
 
-    info("startup: load configs")
+    info("startup: load configs version=%s; builddate=%s", Identify.getVersion(), Identify.getBuildDate())
     configFn = myApp.config("config.toml")
     displayConfig = loadConfiguration(configFn)
 
     Utils.singleton(f'curling-timer-{displayConfig.server.serverPort}')
-    
+
     if displayConfig.sheets.mySheet is not None:
         Utils.checkAndSetHostName(displayConfig.sheets.mySheet.name.replace(" ", "").lower(),
                                   displayConfig.organization.domain,
@@ -314,7 +317,7 @@ def main():
 
     if args.port:
         displayConfig.server.serverPort = int(args.port)
-        
+
     CommonRoutes.registerHardwareConfig(displayDevice.hardwareConfig)
     CommonRoutes.registerHardwareClock(HardwareClock.hasHardwareClock)
 

@@ -176,7 +176,10 @@ class CurlingClockManager:
         return self.lastInteractionResetter
 
     def publish(self, port=80):
-        ZeroConfManager.publish("_clockdisplay._tcp.local.", port)
+        try:
+            ZeroConfManager.publish("_clockdisplay._tcp.local.", port)
+        except Exception as e:
+            error("curlingtimer: startup: failed to register clock displa %s", e)
 
     def getView(self):
         return self.displayF
@@ -236,39 +239,34 @@ class CurlingClockManager:
     async def startUp(self):
         hostIp = myIPAddress()
 
+        if hostIp == self.config.rink.clockServer:
+            self.config.rink.batteryAlert = not HardwareClock.hasHardwareClock
+
+        if self.config.defaults.ipOnStart:
+            self.setView(self.showIpAtStart)
+        else:
+            self.show_startup_msg()
+        
+    def show_startup_msg(self):
         mySheet = self.config.sheets.mySheet
         self.resetIdleTime()
+        hostIp = myIPAddress()
 
-        if mySheet and mySheet.ip == hostIp:
-            if hostIp == self.config.rink.clockServer:
-                self.config.rink.batteryAlert = not HardwareClock.hasHardwareClock
-
-            if self.config.server.setup == 0:
-                if self.config.server.isDefaultSecretKey():
-                    self.setScrollingText("setup: secretkey")
-                else:
-                    self.setScrollingText("setup: sheets")
-
-                self.resetIdleTime(activeInterval=300*60)
-
-            elif self.config.rink.batteryAlert:
-                if hostIp == self.config.rink.clockServer:
-                    info("CurlingClockManager - clock - my battery is low")
-                else:
-                    info("CurlingClockManager - clock - Check battery on %s", self.config.rink.clockServer)
-                    
-                self.setScrollingText(f"Check battery on {self.config.rink.clockServer}")
-                self.resetIdleTime(activeInterval=30)
+        self.setScrollingText(self.welcomeMessage)
+        self.setView(self.displayScrollingText)
+        
+        if self.config.server.setup == 0:
+            if self.config.server.isDefaultSecretKey():
+                self.setScrollingText("setup: secretkey")
             else:
-                self.setScrollingText(self.welcomeMessage)
+                self.setScrollingText("setup: sheets")
 
-            if self.config.defaults.ipOnStart:
-                self.setView(self.showIpAtStart)
-        else:
+            self.resetIdleTime(activeInterval=300)
+            return
+
+        if (not mySheet) or mySheet.ip != hostIp:
             self.setScrollingText(f"{hostIp}:{self.port}", colour="red")
 
-        self.setView(self.displayScrollingText)
-            
     async def competitionUpdate(self):
         competition = self.timers.competition
         if competition.active():
@@ -303,7 +301,7 @@ class CurlingClockManager:
         curTime = time.monotonic()
 
         if curTime - self.startTime > showTime:
-            self.setView(self.displayScrollingText)
+            self.show_startup_msg()
         else:
             hostIp = myIPAddress()
 
@@ -386,12 +384,12 @@ class CurlingClockManager:
             self.setView(self.competitionUpdate)
             return 0
 
-        self.display.timerUpdate(str(timer), timer.colour)
+        self.display.updateTimer(str(timer), timer.colour, "intermission:")
         return 0.05
 
     async def betweenEndTimerUpdate(self):
         timer = self.timers.intermission
-        self.display.timerUpdate(str(timer), timer.colour)
+        self.display.updateTimer(str(timer), timer.colour, "intra:")
 
         if timer.active():
             self.resetIdleTime()
@@ -403,7 +401,7 @@ class CurlingClockManager:
 
     async def timeoutUpdate(self):
         timer = self.timers.timeout
-        self.display.timerUpdate(str(timer), timer.colour)
+        self.display.updateTimer(str(timer), timer.colour, "timeout:")
 
         if timer.active():
             self.resetIdleTime()

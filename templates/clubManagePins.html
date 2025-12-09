@@ -2,47 +2,48 @@
    {{ navPanel("clubManagePins", "clubMore" , "Club - Manage Pins") }}
    <div class="container mt-3">
       <div class="row">
-	    <div class="col-auto">
-	       PIN Expire Time:
-	    </div>
-	 </div>
-	 <div class="row">
-	    <div class="col-4 col-md-auto">
-	       <input type="text" class="form-control clubManagePins-check-time" id="clubManagePins-defaultPINExpireTime" value="">
-	    </div>
-	    <div class="col-auto">
-	       <button type="button" id="btn_msg" class="btn btn-outline-dark my-form-control clubManagePins-submit-target" onclick='clubManagePins_GetNewAllPINs()'>Reset All PINs</button>
-	    </div>
-	 </div>
+	      <div class="col-auto">
+	         PIN Expire Time:
+	      </div>
+	   </div>
+	   <div class="row">
+	      <div class="col-4 col-md-auto">
+	         <input type="text" class="form-control clubManagePins-check-time" id="clubManagePins-defaultPINExpireTime" value=""
+               data-verify-type="time">
+	      </div>
+	      <div class="col-auto">
+	         <button type="button" id="btn_msg" class="btn btn-outline-dark my-form-control clubManagePins-submit-target" onclick='clubManagePins_GetNewAllPINs()'>Reset All PINs</button>
+	      </div>
+	   </div>
          
 	 
-	 {% for s in sheets %}
-            {% if loop.first %}
-	       <hr class="divider mt-2">
-            {% else %}
-	       <hr class="mt-2">
-            {% endif %}
+	   {% for s in sheets %}
+         {% if loop.first %}
+	         <hr class="divider mt-2">
+         {% else %}
+	         <hr class="mt-2">
+         {% endif %}
             
-	    <div class="row">
-	       <div class="col-auto">
-		  {{s.name}}{% if s.ip == 'Unassigned'%} - {{s.ip}} {% endif %}
-	       </div>
-	    </div>
+	      <div class="row">
+	         <div class="col-auto">
+		         {{s.name}}{% if s.ip == 'Unassigned'%} - {{s.ip}} {% endif %}
+	         </div>
+	      </div>
 	    
-	    <div class="row">
-	       <div class="col-5 col-md-auto">
-		  <input type="text" class="form-control disabled" id="clubManagePins-pin{{loop.index0}}" value="{{s.pin}}">
-	       </div>
-	       <div class="col-auto" >
-		  <button type="button" class='btn btn-outline-dark my-form-control
-				{% if s.ip == "Unassigned" %} disabled {% else %} clubManagePins-submit-target {% endif %}'
-			  onclick='clubManagePins_GetNewPIN("{{loop.index0}}", "{{s.name}}")'>New PIN</button>
-	       </div>
-               <div class="col-auto pt-1">
-                  <span class="align-middle" id="clubManagePins-pinExpireTime{{loop.index0}}"> {{s.pinExpireTime}} </span>
-               </div>
-	    </div>
-	 {% endfor %}
+	      <div class="row">
+	         <div class="col-5 col-md-auto">
+		         <input type="text" class="form-control disabled" id="clubManagePins-pin{{loop.index0}}" value="{{s.pin}}">
+	         </div>
+	         <div class="col-auto" >
+		         <button type="button" class='btn btn-outline-dark my-form-control
+				      {% if s.ip == "Unassigned" %} disabled {% else %} clubManagePins-submit-target {% endif %}'
+			         onclick='clubManagePins_GetNewPIN("{{loop.index0}}", "{{s.name}}")'>New PIN</button>
+	         </div>
+            <div class="col-auto pt-1">
+               <span class="align-middle" id="clubManagePins-pinExpireTime{{loop.index0}}"> {{s.pinExpireTime}} </span>
+            </div>
+	      </div>
+	   {% endfor %}
    </div>
 </div>
 <script>
@@ -78,11 +79,12 @@
     getDefaultsAjax(ip, false)
        .done(function(response) {
           loadSettings("clubManagePins", response);
+          enableFieldChecking(".clubManagePins-check-time", ".clubManagePins-submit-target");
        })
 
-    checkTime(".clubManagePins-check-time", ".clubManagePins-submit-target");
- }
+      enableFieldChecking(".clubManagePins-check-time", ".clubManagePins-submit-target");
+   }
 
- function clubManagePins_exit() {
+   function clubManagePins_exit() {
  }
 </script>

@@ -1,19 +1,26 @@
 import time
 
 
-def updateVersion(fn="version.txt", updateMinor=True):
+def updateVersion(fn="version.txt", updateMajor=False, updateMinor=True, updateBuild=True):
     version = getVersion(fn)
 
     print(f"Old: {version}")
 
     sp = version.split(".")
 
-    if updateMinor:
-        sp[1] = str(int(sp[1]) + 1)
-    else:
-        sp[0] = str(int(sp[0]) + 1)
+    if updateMajor:
+        newVersion = [str(int(sp[0]) + 1) , "1"]
+    elif updateMinor:
+        newVersion = [sp[0], str(int(sp[1]) + 1)]
+    elif updateBuild:
+        if len(sp) > 2:
+            buildNo = int(sp[2])
+        else:
+            buildNo = 0
+            
+        newVersion =  [sp[0], sp[1], str(buildNo + 1)]
 
-    version = '.'.join(sp)
+    version = '.'.join(newVersion)
 
     print(f"New: {version}")
     writeVersion(version, fn)

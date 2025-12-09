@@ -1,3 +1,42 @@
+5.21 - Fri Nov  7 11:54:29 2025
+- fix check for unauthorized/forbidden
+- when at front page check every 5 seconds for clock status.
+- fix vertical laytout of single line timers on a tv
+- fix layout of seconds for clock on a tv
+- fix broken timers intermission/timeout/between end timers on competition
+- remove rock display from above timers
+- fix layout of club competition page
+- elapsed timers show message now shows the correct message
+- add individual sheet msgs to club countdown and competition
+- fix layout of competition timer on iphone 11
+5.20.33 - Wed Oct  8 11:35:24 2025
+- make the club name an attribute of the rink
+- provide method to change club name
+5.20.32 - Tue Oct  7 15:44:32 2025
+- implement display of alerts at club page
+- move battery status to alert.
+- simplify the selection of startup messages
+5.20.31 - Mon Oct  6 14:02:08 2025
+- fix crash when display doesn't have a d3231 rtc
+5.20.30 - Sun Oct  5 11:59:07 2025
+5.20.29 - Sun Oct  5 11:58:56 2025
+- hwclock now only checks DS3231
+5.20.28 - Fri Oct  3 16:56:26 2025
+- move to a DS3231 as the standard hardware clock moduele.
+- fix some bugs is the handling of hardware clocks. 
+5.20.26 - Tue Sep 16 11:24:57 2025
+- fix handling of reboot file. it now expires after 60 seconds
+- init sequence of sub-classes in display handling were reversed causing hardware config to not be set.
+5.20.25 - Wed May  7 12:55:41 2025
+5.20.1 - Wed Mar 19 10:58:48 2025
+- reorganize Draws panel to add method to select all draws
+5.20 - Tue Mar 18 17:19:37 2025
+- disable auto-delete. Auto deletion is not really a good idea!
+- add a calendar to view draws. only sensible.
+5.19.2 - Wed Mar 12 13:22:38 2025
+- directly include utilscript.js
+5.19.1 - Wed Mar 12 12:45:23 2025
+- use an input field of text for time of day as ios does not support seconds. so sad!
 5.19 - Wed Jan 22 16:27:18 2025
 - fix clock status to report unreachable/offline clocks as offline
 - version comes from loaded module. Fixes the version when a new load has been unpacked.

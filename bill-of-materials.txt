@@ -23,7 +23,7 @@ Rock timer parts list
 
 Display parts list
 
-- Raspberry Pi Zero 2 W - $21
+- Raspberry Pi 3/4 - $55-80
 - Male Header - $2
 - Adafruit RGB Matrix Bonnet for Raspberry Pi - $22
 - 16x32 panels x 4 - $140
@@ -35,11 +35,13 @@ Display parts list
 - Simple case - only use bottom - $8
 - Riser spacers for between pi and hat - $2
 - Silicon Power 32GB 5-Pack High Speed MicroSD Card($23) - $5
-- USB Drive 16GB Exmapor Flash Drive Swivel USB Memory Storage Bulk Jump Drive Mix Color 5Pack($21) - $5 
+- USB Drive 16GB Exmapor Flash Drive Swivel USB Memory Storage Bulk Jump Drive Mix Color 5Pack($21) - $5
+
+- DS3231 clock module with rechargeable battery - $12 (one per installation)
  
 Plus the cost of the case. 
 - Major cost is glass/plastic for the front ~$50
--  1/8 x 3 x 60cm aluminum bar for center spine on led panels - $10
+- 1/8 x 3 x 60cm aluminum bar for center spine on led panels - $10
 - Assorted small screws - $5
 - 1x4 x 6 - $3
 - plywood back - $3

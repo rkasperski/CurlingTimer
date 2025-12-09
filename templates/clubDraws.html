@@ -1,6 +1,6 @@
 <div id="clubDraws"  class="display-view d-none">
    {{ navPanel("clubDraws", "club" , "Club - Draws") }}
-   <div class="row justify-content-center">
+   <div class="row justify-content-evenly">
       <div class="col-auto pe-0 mb-2">
 	 <button class="btn btn-outline-dark icon-button" role="button" onclick="clubDraws_download()";>
 	    <span class="me-1">Download Schedule</span>
@@ -19,8 +19,8 @@
                {{icon("plus-lg")}}
             </button>
          </div>
-         <div class="col-auto d-sm-none">
-            <button type="button" class="mx-auto btn btn-outline-dark px-3 icon-button" onclick="clubDraws_deleteDraws();">
+         <div class="col-auto">
+            <button type="button" class="mx-auto btn btn-outline-dark px-3 icon-button" id="clubDraws-delete-draws" onclick="clubDraws_deleteDraws();">
                {{icon("trash")}}
             </button>
          </div>
@@ -38,9 +38,7 @@
 		  <th>Before</th>
 		  <th>Start</th>
 		  <th class="text-center">
-                     <button type="button" id="clubDraws-delete-draws" class="mx-auto btn btn-outline-dark px-3 icon-button" onclick="clubDraws_deleteDraws();">
-                        {{icon("trash")}}
-                     </button>
+                     <input type="checkbox" class="form-check-input mx-auto" onclick="clubDraws_handleSelectAll(this)">
                   </th>
 	       </tr>
 	    </thead>
@@ -53,6 +51,13 @@
 <script>
  var clubDraws_dataValid = false;
  var clubDraws_dbHash = "";
+
+ function  clubDraws_handleSelectAll(el) {
+    let isChecked = $(el).prop("checked");
+    let checkBoxes = $('.clubDraws-checkbox');
+
+    checkBoxes.prop("checked", isChecked);
+ }
 
  function clubDraws_showCountdown(id) {
     jsonCall('GetDraw',
@@ -101,11 +106,11 @@
 </div>
   </td>
   <td id="clubDraws-draw-date${draw.id}" data-title="Date">${draw.date}</td>
-  <td class="text-right" id="clubDraws-draw-time${draw.id}"data-title="Time" >${draw.time}</td>
-  <td id="clubDraws-draw-name${draw.id}"data-title="Name" >${draw.name}</td>
-  <td data-title="Before">${normTime(draw.show, "Teams")}</td>
-  <td data-title="At Start" >${normTime(draw.atStart, "Teams")}</td>
-  <td data-title="Delete"><input type="checkbox" class="form-check-input mx-auto" data-drawid="${draw.id}"></td>
+  <td class="text-right" id="clubDraws-draw-time${draw.id}" data-title="Time" >${draw.time}</td>
+  <td id="clubDraws-draw-name${draw.id}" data-title="Name" >${draw.name}</td>
+  <td data-title="Before">${normTime(draw.show, 'Teams')}</td>
+  <td data-title="At Start" >${normTime(draw.atStart, 'Teams')}</td>
+  <td data-title="Delete"><input type="checkbox" class="clubDraws-checkbox form-check-input mx-auto" data-drawid="${draw.id}"></td>
 </tr>`);
  }
 

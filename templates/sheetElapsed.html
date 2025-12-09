@@ -60,26 +60,19 @@
  
  function sheetElapsed_setTime() {
     let newTime = $("#sheetElapsed-text-new-time").val();
-    seconds = toSeconds(newTime);
-    $("#sheetElapsed-timer").text(clockTime(seconds, false));
+    seconds = strToSeconds(newTime);
+    $("#sheetElapsed-timer").text(formatTime(seconds));
     ElapsedSet(sheetElapsedIP, newTime);
     $('#sheetElapsed-setTimeModal').modal('hide');
  }
 
  function setupSheetElapsed(ip, ordinal, name) {
-    updateNavPanel(sheetElapsedHandle, `sheetElapsed${ordinal}`, `${name} - Elapsed`, `sheet${ordinal}`)
-    
-    sheetElapsedIP = ip;
-    setupSheetElapsed_timer = timer_tracker(sheetElapsedIP, "#sheetElapsed-timer", "elapsed/status", sheetElapsed_timerRunning, true)
-    
-    $('#sheetElapsed-txt-new-time').on('input', function(e) {
-       verifyTimeField(e.target, "#sheetElapsed-btn-set-time", true);
-    });
-    $('#sheetElapsed-txt-new-time').on('keyup', function(e) {
-       verifyTimeField(e.target, "#sheetElapsed-btn-set-time", true);
-    });
+     updateNavPanel(sheetElapsedHandle, `sheetElapsed${ordinal}`, `${name} - Elapsed`, `sheet${ordinal}`)
 
-    ElapsedShow(ip);
+     sheetElapsedIP = ip;
+     setupSheetElapsed_timer = timer_tracker(sheetElapsedIP, "#sheetElapsed-timer", "elapsed/status", sheetElapsed_timerRunning, true)
+
+     ElapsedShow(ip);
  }
  
  {% for s in sheets %}

@@ -1,6 +1,6 @@
 <div id="sheetCompetitionTimer" class="display-view d-none">
    {{ navPanel("sheetCompetitionTimer", "sheetCompetitionSetup", "sheet - message") }}
-   <div class="row justify-content-center mx-2">
+   <div class="row justify-content-center">
       <div class="col-12 col-md-6">
          <div class="col-auto  timeDisplay ms-0 mt-n4">
 	    <span class="" id="sheetCompetitionTimer-team1-name"> </span>
@@ -9,7 +9,7 @@
             <div class="col-auto my-auto" >
                <img class="rock-img " id="sheetCompetitionTimer-team1-rock" src="/static/images/Curling-Rock-red-sm.png"/>
             </div>
-      	    <div class="col-4 col-md-2 ms-4">
+      	    <div class="col-4 col-md-2">
 	       <span class="timeDisplay" id="sheetCompetitionTimer-team1-time">&nbsp;</span>
 	    </div>
          </div>
@@ -35,39 +35,42 @@
             <div class="col-auto my-auto">
                <img class="rock-img" id="sheetCompetitionTimer-team2-rock" src="/static/images/Curling-Rock-yellow-sm.png">
             </div>
-      	    <div class="col-4 ms-4" >
+      	    <div class="col-4" >
 	       <span  class="timeDisplay" id="sheetCompetitionTimer-team2-time">&nbsp;</span>
 	    </div>
          </div>
          <div class="row ms-0 mt-n4 mb-n3">
             <div class="col-auto">
-	       <span class="timeDisplay" id="sheetCompetitionTimer-team2-name"></span>
+	            <span class="timeDisplay" id="sheetCompetitionTimer-team2-name"></span>
             </div>
          </div>
          <hr class="half-rule">
          <div class="row mt-2 mb-3">
-	    <div class="col-8 align-middle">
-	       <button type="button" onclick="sheetCompetitionTimer_startBetweenEndTimer()" class="btn btn-outline-dark btn-lg sheetCompetitionTimer-submit-target">Between End Timer</button>
+	         <div class="col-8 align-middle">
+	            <button type="button" onclick="sheetCompetitionTimer_startBetweenEndTimer()" class="btn btn-outline-dark btn-lg sheetCompetitionTimer-submit-target">Between End Timer</button>
             </div>
             <div class="col-3">
-	       <input type="text" class="form-control form-control-lg sheetCompetitionTimer-check-time" id="sheetCompetitionTimer-betweenEndTime" value="">
-	    </div>
+	            <input type="text" class="form-control form-control-lg sheetCompetitionTimer-check-time" id="sheetCompetitionTimer-betweenEndTime" value=""
+                  data-verify-type="time">
+	         </div>
          </div>	  
          <div class="row mt-2 mb-3">
-	    <div class="col-8 align-middle">
-	       <button type="button" class="btn btn-outline-dark btn-lg sheetCompetitionTimer-submit-target" onclick="sheetCompetitionTimer_startIntermissionTimer()" >Intermission</button>
+	         <div class="col-8 align-middle">
+	            <button type="button" class="btn btn-outline-dark btn-lg sheetCompetitionTimer-submit-target" onclick="sheetCompetitionTimer_startIntermissionTimer()" >Intermission</button>
             </div>
             <div class="col-3 ">
-	       <input type="text" class="form-control form-control-lg sheetCompetitionTimer-check-time"  id="sheetCompetitionTimer-intermissionLength" value="">
-	    </div>
+	            <input type="text" class="form-control form-control-lg sheetCompetitionTimer-check-time"  id="sheetCompetitionTimer-intermissionLength" value=""
+                  data-verify-type="time">
+	         </div>
          </div>
          <div class="row mt-2 mb-3">
-	    <div class="col-8 align-middle">
-	       <button type="button" onclick="sheetCompetitionTimer_setUpExtraEnd()" class="btn btn-outline-dark btn-lg sheetCompetitionTimer-submit-target">Set Extra End Time</button>
+	         <div class="col-8 align-middle">
+	            <button type="button" onclick="sheetCompetitionTimer_setUpExtraEnd()" class="btn btn-outline-dark btn-lg sheetCompetitionTimer-submit-target">Set Extra End Time</button>
             </div>
             <div class="col-3 ">
-	       <input type="text" class="form-control form-control-lg sheetCompetitionTimer-check-time" id="sheetCompetitionTimer-extraEndTime" value="">
-	    </div>
+	            <input type="text" class="form-control form-control-lg sheetCompetitionTimer-check-time" id="sheetCompetitionTimer-extraEndTime" value=""
+                  data-verify-type="time">
+	         </div>
          </div>
       </div>
    </div>
@@ -114,19 +117,26 @@
  }
 
  function sheetCompetitionTimer_timerTeam1Running(active, time, r) {
-    $("#sheetCompetitionTimer-btn-team1-timeout").text("TO-" + r.remainingTimeouts)
-    if (r.remainingTimeouts <= 0) {
-       $("#sheetCompetitionTimer-btn-team1-timeout").addClass("disabled");
-    }
-    enableField(!active, ".sheetCompetitionTimer-adjust-target");
+      sheetCompetitionTimer_team1Timeouts = r.remainingTimeouts;
+      $("#sheetCompetitionTimer-btn-team1-timeout").text("TO-" + r.remainingTimeouts)
+      if (r.remainingTimeouts <= 0) {
+         $("#sheetCompetitionTimer-btn-team1-timeout").addClass("disabled");
+      } else {
+         $("#sheetCompetitionTimer-btn-team1-timeout").removeClass("disabled");
+      }
+      enableField(!active, ".sheetCompetitionTimer-adjust-target");
  }
  
  function sheetCompetitionTimer_timerTeam2Running(active, time, r) {
-    $("#sheetCompetitionTimer-btn-team2-timeout").text("TO-" + r.remainingTimeouts)
-    if (r.remainingTimeouts <= 0) {
-       $("#sheetCompetitionTimer-btn-team2-timeout").addClass("disabled");
-    }
-    enableField(!active, ".sheetCompetitionTimer-adjust-target");
+      sheetCompetitionTimer_team2Timeouts = r.remainingTimeouts;
+      $("#sheetCompetitionTimer-btn-team2-timeout").text("TO-" + r.remainingTimeouts)
+      if (r.remainingTimeouts <= 0) {
+         $("#sheetCompetitionTimer-btn-team2-timeout").addClass("disabled");
+      } else {
+         $("#sheetCompetitionTimer-btn-team2-timeout").removeClass("disabled");
+      }
+      
+      enableField(!active, ".sheetCompetitionTimer-adjust-target");
  }
  
  function sheetCompetitionTimer_pauseTeam1() {
@@ -243,16 +253,17 @@
     getDefaultsAjax(sheetCompetitionTimerIP, false)
        .done(function(response) {
           loadSettings("sheetCompetitionTimer", response);
+          enableFieldChecking(".sheetCompetitionTimer-check-time", ".sheetCompetitionTimer-submit-target");
        })
 
-    getTeamNames(sheetCompetitionTimerIP, false)
+      getTeamNames(sheetCompetitionTimerIP, false)
        .done(function(response) {
-	  $("#sheetCompetitionTimer-team1-name").text(sheetCompetitionTimer_normName(response.team1, "top"));
-	  $("#sheetCompetitionTimer-team2-name").text(sheetCompetitionTimer_normName(response.team2, "bottom"));
+	       $("#sheetCompetitionTimer-team1-name").text(sheetCompetitionTimer_normName(response.team1, "top"));
+	       $("#sheetCompetitionTimer-team2-name").text(sheetCompetitionTimer_normName(response.team2, "bottom"));
 
-	  sheetCompetitionTimer_colourTeam1 = response.topColour;
-	  sheetCompetitionTimer_colourTeam2 = response.bottomColour;
-	  sheetCompetitionTimer_rockSrcTeam1 = `/static/images/Curling-Rock-${response.topColour}-sm.png`;
+	       sheetCompetitionTimer_colourTeam1 = response.topColour;
+	       sheetCompetitionTimer_colourTeam2 = response.bottomColour;
+	       sheetCompetitionTimer_rockSrcTeam1 = `/static/images/Curling-Rock-${response.topColour}-sm.png`;
           sheetCompetitionTimer_rockSrcTeam2 = `/static/images/Curling-Rock-${response.bottomColour}-sm.png`;
 
           $("#sheetCompetitionTimer-modalAdjustTime1-rock").attr("src", sheetCompetitionTimer_rockSrcTeam1);
@@ -277,7 +288,7 @@
                                                      sheetCompetitionTimer_timerTeam2Running)
     
     DisplayBlank(sheetCompetitionTimerIP, false); // false means reset idle
-    checkTime(".sheetCompetitionTimer-check-time", ".sheetCompetitionTimer-submit-target");
+    enableFieldChecking(".sheetCompetitionTimer-check-time", ".sheetCompetitionTimer-submit-target");
  }
 
  function sheetCompetitionTimer_teardown() {

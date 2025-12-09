@@ -4,16 +4,27 @@
       <div class="row">
 	 <div class="col-auto">
 	    <div class="form-group">
-	       <label for="adminSheets-numberOfSheets">Number of sheets</label>
-	       <input type="text" class="form-control adminSheets-check-number" id="adminSheets-numberOfSheets" value="">
+	       <label for="adminSheets-clubName">clubName</label>
+	       <input type="text" class="form-control" id="adminSheets-clubName" value="">
 	    </div>
 	 </div>
+      </div>
+      <div class="row">
+	 <div class="col-auto">
+	    <div class="form-group">
+	       <label for="adminSheets-numberOfSheets">Number of sheets</label>
+	       <input type="text" class="form-control adminSheets-check-number" id="adminSheets-numberOfSheets" value=""
+                      data-verify-type="int">
+	    </div>
+	 </div>
+      </div>  
+      <div class="row">
 	 <div class="col-auto">
 	    <label for="adminSheets-btn-set-n"></label>
 	    <button type="submit"
                     class="btn btn-outline-dark form-control adminSheets-submit-target"
                     id="adminSheets-btn-set-n"
-                    onclick="adminSheets_save(false)">Save</button>
+                    onclick="adminSheets_save()">Save</button>
 	 </div>
       </div>
       <hr class="divider"/>
@@ -21,36 +32,35 @@
       </div>
       <hr class="divider">
       <div class="row mt-2">
-	 <div class="col-auto">
-	    <label >Clock Server:</label>
-	    <select class="form-control  adminSheets-iplist" id="adminSheets-clockServer">
-	       <option selected="selected" value="Unassigned">Clock Server</option>
-	    </select>
-	 </div>
+	      <div class="col-auto">
+	         <label >Clock Server:</label>
+	         <select class="form-control  adminSheets-iplist" id="adminSheets-clockServer">
+	            <option selected="selected" value="Unassigned">Clock Server</option>
+	         </select>
+	      </div>
       </div>
       <hr class="divider">
       <div class="row mt-2">
-	 <div class="col-auto">
-	    <label >Draw Server:</label>
-	    <select class="form-control adminSheets-iplist" id="adminSheets-drawServer">
-	       <option selected="selected" value="Unassigned">Draw Server</option>
-	    </select>
-	 </div>
+	      <div class="col-auto">
+	         <label >Draw Server:</label>
+	         <select class="form-control adminSheets-iplist" id="adminSheets-drawServer">
+	            <option selected="selected" value="Unassigned">Draw Server</option>
+	         </select>
+	      </div>
       </div>
       <hr class="divider">
-      <div class="row mt-2">
-	 <div class="col-auto">
-	    <button type="submit"
-                    class="btn btn-outline-dark form-control adminSheets-submit-target"
-                    id="adminSheets-btn-save"
-                    onclick="adminSheets_save(true)">Save</button>
-	 </div>
+      <div class="row mt-2 mb-2">
+	      <div class="col-auto">
+	         <button type="submit"
+               class="btn btn-outline-dark form-control adminSheets-submit-target"
+               id="adminSheets-btn-save"
+               onclick="adminSheets_save()">Save</button>
+	      </div>
       </div>		
    </div>	    
-
 </div>
 <script>
- function adminSheets_addRockSelector(parent, id, colour) {
+function adminSheets_addRockSelector(parent, id, colour) {
     $(parent).append(`
     <select class="form-control" id="${id}">
     <option class="textred" ${(colour == 'red') ? 'selected' : ''} value="red">red</option>
@@ -60,28 +70,31 @@
     <option class="textblack" ${(colour == 'black') ? 'selected' : ''} value="black">black</option>
     <option class="textwhite" ${(colour == 'white') ? 'selected' : ''} value="white">white</option>
     <option class="textorange" ${(colour == 'orange') ? 'selected' : ''} value="orange">orange</option>
-    </select>`)
- }
+    </select>`);
+}
 
- function adminSheets_appendPeers(parent, peers, dflt) {
-    let peerSelector = $(parent)
-    for (let j = 0; j < peers.length; j++) {
-       let p = peers[j]
-       peerSelector.append(`<option value="${htmlToText(p.ip)}" ${(p.ip == dflt) ? 'selected' :'' }>${htmlToText(p.ip)}</option>`)
+function adminSheets_appendPeers(parent, peers, dflt) {
+   let peerSelector = $(parent);
+   for (let j = 0; j < peers.length; j++) {
+       let p = peers[j];
+       peerSelector.append(`<option value="${htmlToText(p.ip)}" ${(p.ip == dflt) ? 'selected' :'' }>${htmlToText(p.ip)}</option>`);
     }
  }
  
- function adminSheets_addSheet(s, i, peers) {
-    let hwclock = (s.hwClock == 'Yes') ? `<div class="col-auto">{{icon("clock", class="align-middle")}} </div>` : "";
+function adminSheets_addSheet(s, i, peers) {
+   let hwclock = (s.hwClock == 'Yes') ? `<div class="col-auto">{{icon("clock", class="align-middle")}} </div>` : "";
     
-    $("#adminSheets-sheets").append(`
+   $("#adminSheets-sheets").append(`
 ${i != 0 ? '<hr>' : ''}
 <div class="row">
    <div class="col-auto">
      <label for="adminSheets-name${i}">Name:</label>
-     <input type="text" class="form-control adminSheets-check-number"  id="adminSheets-name${i}" value="${htmlToText(s.name)}">
+     <input type="text" class="form-control adminSheets-check-unique" id="adminSheets-name${i}" value="${htmlToText(s.name)}"
+            data-verify-type="unique"
+            data-verify-unique="adminSheets-check-unique">
    </div>
-</div>
+</div>`);
+   $("#adminSheets-sheets").append(`
 <div class="row mt-2">
    <div class="col-auto" id="adminSheets-top-holder${i}">
       <label for="adminSheets-top${i}">Top Colour:</label>
@@ -100,68 +113,70 @@ ${i != 0 ? '<hr>' : ''}
       <button type="button" id="adminSheets-btn-flash${i}" onclick="Flash($('#adminSheets-peer${i}').val(), 'orange')" class="btn btn-outline-dark flash">flash</button>
    </div>
    ${hwclock}
-</div>`)
-    adminSheets_addRockSelector(`#adminSheets-top-holder${i}`, `adminSheets-top${i}`, s.topColour)
-    adminSheets_addRockSelector(`#adminSheets-bottom-holder${i}`, `adminSheets-bottom${i}`, s.bottomColour)
-    adminSheets_appendPeers(`#adminSheets-peer${i}`, peers, s.ip)
- }
+</div>`);
+   adminSheets_addRockSelector(`#adminSheets-top-holder${i}`, `adminSheets-top${i}`, s.topColour);
+   adminSheets_addRockSelector(`#adminSheets-bottom-holder${i}`, `adminSheets-bottom${i}`, s.bottomColour);
+   adminSheets_appendPeers(`#adminSheets-peer${i}`, peers, s.ip);
+}
 
- function adminSheets_populateData() {
-    $("#adminSheets-sheets").empty();
-    getDevicesAjax()
-       .done(function(devices) {
-          getSheets()
-             .done(function(res) {
-                $('#adminSheets-clockServer').children().not(':first').remove();          
-                adminSheets_appendPeers('#adminSheets-clockServer', devices.displays, res.clockServer)
+function adminSheets_populateData() {
+   $("#adminSheets-sheets").empty();
+   getDevicesAjax()
+      .done(function(devices) {
+         getSheets()
+            .done(function(res) {
+               $('#adminSheets-clubName').val(res.clubName);
+               
+               $('#adminSheets-clockServer').children().not(':first').remove();
+               adminSheets_appendPeers('#adminSheets-clockServer', devices.displays, res.clockServer)
                 
-                $('#adminSheets-drawServer').children().not(':first').remove();          
-                adminSheets_appendPeers('#adminSheets-drawServer', devices.displays, res.drawServer)
+               $('#adminSheets-drawServer').children().not(':first').remove();
+               adminSheets_appendPeers('#adminSheets-drawServer', devices.displays, res.drawServer)
 
-                $('#adminSheets-numberOfSheets').val(res.nSheets)
-                for (i = 0; i < res.nSheets; i++) {
-                   adminSheets_addSheet(res.sheets[i], i, devices.displays);
-                }
-             })
-       })
- }
+               $('#adminSheets-numberOfSheets').val(res.nSheets)
+               for (i = 0; i < res.nSheets; i++) {
+                  adminSheets_addSheet(res.sheets[i], i, devices.displays);
+               }
+            })
+         enableFieldChecking(".adminSheets-check-number", "#adminSheets-btn-set-n");
+         enableFieldChecking(".adminSheets-check-unique", "#adminSheets-btn-save");
+      })
+   }
  
- function adminSheets_save(reload) {
+ function adminSheets_save() {
     let clockServer = $('#adminSheets-clockServer').val();
     let drawServer = $('#adminSheets-drawServer').val();
     let nSheets = $('#adminSheets-numberOfSheets').val();
+    let clubName = $('#adminSheets-clubName').val();
 
     let sheets = []
     
     for(let i =0; i < 512; i++) {
        let name =  $(`#adminSheets-name${i}`).val();
-       if (!name) {
-          break;
-       }
-       let sip =  $(`#adminSheets-peer${i}`).val();
-       let topColour =  $(`#adminSheets-top${i}`).val();
-       let bottomColour =  $(`#adminSheets-bottom${i}`).val();
+      if (!name) {
+         break;
+      }
+      let sip =  $(`#adminSheets-peer${i}`).val();
+      let topColour =  $(`#adminSheets-top${i}`).val();
+      let bottomColour =  $(`#adminSheets-bottom${i}`).val();
 
-       sheets[i] = {name: name,
-                    top: topColour,
-                    bottom: bottomColour,
-                    ip: sip}
-    }
-    setSheets(nSheets, sheets, clockServer, drawServer)
+      sheets[i] = {name: name,
+                   top: topColour,
+                   bottom: bottomColour,
+                   ip: sip}
+   }
+    setSheets(clubName, nSheets, sheets, clockServer, drawServer)
        .done(function() {
-          if (reload) {
-             goto("/")
-          } else {          
-             adminSheets_populateData();
-          }
-       })
- }
+         goto("/")
+      })
+   }
  
- function adminSheets_enter() {
-    adminSheets_populateData();
-    checkNumber(".adminSheets-check-number", ".adminSheets-submit-target");
- }
- 
- function adminSheets_exit() {
- }
+function adminSheets_enter() {
+   enableFieldChecking(".adminSheets-check-number", "#adminSheets-btn-set-n");
+      enableFieldChecking(".adminSheets-check-unique", "#adminSheets-btn-save");
+      adminSheets_populateData();
+   }
+
+function adminSheets_exit() {
+}
 </script>

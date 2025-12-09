@@ -20,19 +20,22 @@
    </head>
    <body class="vh-100">
       <script>
-        var setupStage = {{setup}};
-        var debug = {{debug}};
+       var setupStage = {{setup}};
+       var debug = {{debug}};
 
-        {% include "console.js" %}
-        {% include "clockAPI.js" %}
-        {% include 'timer.js' %}
-        {% include 'helpers.js' %}
-        {% include 'login.js' %}
-        {% include 'navigation.js' %}
-        {% include 'websocket.js' %}
-        {% include 'breaktimer.js' %}
-        {% include 'breaktimerdisplay.js' %}
-        {% include 'rockthrow.js' %}
+       {% include 'data.js' %}
+       {% include 'utilscript.js' %}
+       {% include "console.js" %}
+       {% include "clockAPI.js" %}
+       {% include 'timer.js' %}
+       {% include 'helpers.js' %}
+       {% include 'login.js' %}
+       {% include 'navigation.js' %}
+       {% include 'websocket.js' %}
+       {% include 'breaktimer.js' %}
+       {% include 'breaktimerdisplay.js' %}
+       {% include 'rockthrow.js' %}
+       
       </script>
       {% include "clubAbout.html" %}
       {% include "clubLogout.html" %}

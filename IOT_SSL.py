@@ -5,22 +5,61 @@ import datetime
 from OpenSSL import crypto
 from Utils import updateNumberedBackupFiles
 
+import tempfile
 
-def generateSSLCertificate(domain="local", address="address", certificateFile="ssl.crt", keyFile="ssl.key", country="CA", region="BC", city="somewhere", organization="club", unit="unit", email="admin", hosts=None):
+
+def generateSSLCertificate(hostname="host", domain="local", address="address", certificateFile="ssl.crt", keyFile="ssl.key", country="CA",
+                           region="BC", city="somewhere", organization="club", unit="unit", email="admin", hosts=None, ips=None):
+    base_dir = os.path.dirname(certificateFile)
     hostStr = ""
     # generate alt names for hosts
     if hosts:
-        hostStr = ' -addext "subjectAltName=' + ",".join([f"DNS:{host}.{domain}" for host in hosts]) + '"'
-    
-    cmd = f'openssl req -newkey rsa:2048 -x509 -sha256 -days 366 -out {certificateFile}.tmp -keyout {keyFile}.tmp -nodes -subj "/C={country}/ST={region}/L={city}/O={organization}/OU={unit}/CN={address}/emailAddress={email}"' + hostStr
+        hostStr = ' -addext "subjectAltName=' + ",".join([f"DNS:{host}.{domain}" for ix, host in enumerate(hosts)]) + '"'
+
+    altHostNames = "\n".join([f"DNS.{ix} = {host}.{domain}" for ix, host in enumerate(hosts)])
+    altIPs = "\n".join([f"IP.{ix} = {ip}" for ix, ip in enumerate(ips if ips else [])])
+    organizationUnitName = f"\norganizationalUnitName = {unit}" if unit.strip() else ""
+    configFile = f"""[req]
+distinguished_name = subject
+x509_extensions = req_ext
+prompt_pass = no
+prompt = no
+
+[subject]
+countryName = {country}
+stateOrProvinceName = {region}
+localityName = {city}{organizationUnitName}
+commonName = {hostname}.{domain}
+emailAddress = {email}
+
+[req_ext]
+basicConstraints = critical, CA:FALSE
+subjectAltName = @alt_names
+nsComment = "OpenSSL Generated Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+
+# You only need digitalSignature below. *If* you don't allow
+#   RSA Key transport (i.e., you use ephemeral cipher suites), then
+#   omit keyEncipherment because that's key transport.
+keyUsage = digitalSignature, keyEncipherment
+
+[alt_names]
+{altHostNames}
+{altIPs}
+"""
+    configFileName = None
+    with tempfile.NamedTemporaryFile(dir=base_dir, prefix="cerficate-", suffix=".config", mode='w', encoding="utf-8", delete=False) as f:
+        configFileName = f.name
+        f.write(configFile)
+
+    #cmd = f'openssl req -newkey rsa:2048 -x509 -sha256 -days 366 -out {certificateFile}.tmp -keyout {keyFile}.tmp -nodes -subj "/C={country}/ST={region}/L={city}/O={organization}/OU={unit}/CN={address}/emailAddress={email}"' + hostStr
+    cmd = f"openssl req -newkey rsa:2048 -x509 -sha256 -days 366 -out '{certificateFile}.tmp' -keyout '{keyFile}.tmp' -nodes -config '{configFileName}'"
 
     print(cmd)
 
-    startTime = time.time()
     p = os.system(cmd)
-    elapsed = time.time() - startTime
 
-    print(f"running = {elapsed} rc={p}")
     if p != 0:
         print("failed to create ssl certificates")
         return None

@@ -10,7 +10,7 @@
     {% endif %}
     {% endfor %}
     
-    function startActivityCheckTimer(callback) {
+    function startActivityCheckTimer(callback, interval) {
        stopActivityCheckTimer();
        let clubStatus = clubClockStatus()
        for (let i = 0; i < peers.length; i++) {
@@ -18,7 +18,11 @@
           callback(clubStatus, i, s)
        }
 
-       sheetActivityTimerID = setInterval(sheetCheckActive, 1000, callback);
+       if (!interval) {
+          interval = 1;  
+       } 
+
+       sheetActivityTimerID = setInterval(sheetCheckActive, interval * 1000, callback);
     }
 
     function stopActivityCheckTimer() {

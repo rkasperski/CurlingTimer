@@ -183,8 +183,8 @@ class SampleBase:
 
 class ClockTimerDisplaySingleton(SampleBase, BaseDisplay):
     def __init__(self, args, displayString=None, hardwareConfigFN=None, fontPath=["fonts"]):
-        SampleBase.__init__(self, hardwareConfigFN=hardwareConfigFN)
         BaseDisplay.__init__(self)
+        SampleBase.__init__(self, hardwareConfigFN=hardwareConfigFN)
 
         self.fontPath = [fontPath] if isinstance(fontPath, str) else fontPath
 
@@ -212,8 +212,6 @@ class ClockTimerDisplaySingleton(SampleBase, BaseDisplay):
         self.mirrored = False
         self.leadingOneAdjust = (3, 2)
         self.colonAdjust = (2, 1)
-
-
 
     def parseArgs(self):
         if not self.args:

@@ -47,6 +47,18 @@ class BaseDisplay:
 
         self.white = (255, 255, 255)
         self.sofWhite = (180, 180, 180)
+        self.width = 1024
+        self.height = 720
+
+        self.timerFont = None
+        self.timer_font_offset = 0
+        self.smallFont = None
+        self.twoLineFont = None
+        self.twoTimeFont = None
+        self.clockFont = None
+        self.secondsFont = None
+        self.textFont = None
+        self.timer_font_vertical_offset = 0
 
     def getColours(self):
         return list(self.colours.items())
@@ -57,7 +69,7 @@ class BaseDisplay:
         self.colours = {}
         if colours is not None:
             for n, rgb in colours:
-                self.colours[re.sub("\W*", "", n.lower())] = rgb
+                self.colours[re.sub(r"\W*", "", n.lower())] = rgb
                 
         for n, rgb in self.requiredColours:
             if n not in self.colours:
@@ -70,37 +82,39 @@ class BaseDisplay:
     def setIsIdle(self, isIdle):
         self.isIdle = isIdle
 
+    def show(self, drawable):
+        pass
 
-    def competitionUpdate(self, displayTime1 , colour1, displayTime2, colour2):
+    def competitionUpdate(self, display_time1 , colour1, display_time2, colour2):
         self.sequenceNumber += 1
-        
-        curDisplay = f"{colour1}:{displayTime1}:{colour2}:{displayTime2}"
 
-        if self.lastDisplay == curDisplay:
+        cur_display = f"{colour1}:{display_time1}:{colour2}:{display_time2}"
+
+        if self.lastDisplay == cur_display:
             return
 
-        self.lastDisplay = curDisplay
+        self.lastDisplay = cur_display
 
         drawable = self.getClearedDrawable()
 
-        w1, h1 = self.twoTimeFont.getSize(displayTime1)
-        w2, h2 = self.twoTimeFont.getSize(displayTime2)
+        w1, h1 = self.twoTimeFont.getSize(display_time1)
+        w2, h2 = self.twoTimeFont.getSize(display_time2)
 
         wmax = max(w1, w2)
         xoffset = int((self.width - wmax) / 2)
         xend = xoffset + wmax
 
-        drawable.drawText(self.twoTimeFont, xend - w1, self.height * 0.45, displayTime1, colour1)
-        drawable.drawText(self.twoTimeFont, xend - w2, self.height * 0.95, displayTime2, colour2)
+        drawable.drawText(self.twoTimeFont, xend - w1, self.height * 0.45, display_time1, colour1)
+        drawable.drawText(self.twoTimeFont, xend - w2, self.height * 0.95, display_time2, colour2)
 
         self.show(drawable)
 
-    async def displayTeamNames(self, team1, colour1, team2, colour2, scrollTeamsSeparator=None):
-        if scrollTeamsSeparator:
-            separatorColour = self.mapColour("white") if colour1 != colour2 else self.mapColour("yellow")
+    async def displayTeamNames(self, team1, colour1, team2, colour2, scroll_teams_separator=None):
+        if scroll_teams_separator:
+            separator_colour = self.mapColour("white") if colour1 != colour2 else self.mapColour("yellow")
             ft = FancyText(self.width,
                            FancyTextSegment(team1, self.textFont, self.mapColour(colour1)),
-                           FancyTextSegment(f" {scrollTeamsSeparator} ", self.twoLineFont, separatorColour),
+                           FancyTextSegment(f" {scroll_teams_separator} ", self.twoLineFont, separator_colour),
                            FancyTextSegment(team2, self.textFont, self.mapColour(colour2)))
             return await self.displayScrollingText(ft)
         else:
@@ -138,7 +152,7 @@ class BaseDisplay:
             displayTime, tenths = displayTime.rsplit(".", 1)
             y = font.ascender
         else:
-            y = font.ascender + int((self.height - font.ascender) / 2)
+            y = font.ascender + int((self.height - font.ascender) / 2) + self.timer_font_vertical_offset
 
         adjustment = self.leadingOneAdjust if displayTime[0] == "1" else (0, 0)
 
@@ -327,7 +341,7 @@ class BaseDisplay:
         curDisplay = "twoline:" + line1 + "\n" + line2 + "\n" + colour1 + "\n" + colour2
 
         self.lastDisplay = curDisplay
-            
+           
         line1 = line1.rstrip()
         line2 = line2.rstrip()
 
@@ -440,35 +454,42 @@ class BaseDisplay:
     def clockUpdate(self, showTenths=False, colour="white"):
         self.sequenceNumber += 1
 
-        curTime = time.time()
-        localTime = time.localtime(curTime)
-        tenths = (int(curTime * 10) % 10) if showTenths else 0
-        displayTime = time.strftime("%H:%M", localTime)
+        cur_time = time.time()
+        local_time = time.localtime(cur_time)
+        tenths = (int(cur_time * 10) % 10) if showTenths else 0
+        display_time = time.strftime("%H:%M", local_time)
 
-        curDisplay = f"localTime:{localTime}.{tenths}"
+        cur_display = f"localTime:{local_time}.{tenths}"
 
-        if self.lastDisplay == curDisplay:
+        if self.lastDisplay == cur_display:
             return 0.05
 
-        self.lastDisplay = curDisplay
+        self.lastDisplay = cur_display
 
         colour = self.mapColour(colour)
 
         drawable = self.getClearedDrawable()
 
-        width = self.clockFont.getSize(displayTime)[0] - len(displayTime) + 1
+        width = self.clockFont.getSize(display_time)[0] - len(display_time) + 1
 
-        startPos = (self.width - width) / 2 - 1
+        start_pos = (self.width - width) / 2 - 1
 
-        drawable.drawText(self.clockFont, startPos, self.clockFont.height - self.clockFont.descender, displayTime, colour)
+        drawable.drawText(self.clockFont,
+                          start_pos,
+                          self.clockFont.height - self.clockFont.descender,
+                          display_time, colour)
 
-        seconds = ("0" + str(localTime.tm_sec))[-2:] 
+        seconds = ("0" + str(local_time.tm_sec))[-2:]
         if showTenths:
             seconds += '.' + str(tenths)
 
-        szSeconds = self.secondsFont.getSize(seconds)
+        sz_seconds = self.secondsFont.getSize(seconds)
+        secs_place = max(0, start_pos) + self.clockFont.getSize(display_time[:-1])[0]
 
-        drawable.drawText(self.secondsFont, startPos + width - szSeconds[0] + 1, self.clockFont.ascender + self.secondsFont.ascender, seconds, colour)
+        drawable.drawText(self.secondsFont,
+                          secs_place,
+                          self.clockFont.ascender + self.secondsFont.ascender,
+                          seconds, colour)
 
         self.show(drawable)
         return 0.05

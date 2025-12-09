@@ -70,7 +70,7 @@ class DrawManager:
         try:
             return self._db.search(*args, **kwargs)
         except Exception:
-            error("draw: db search: bad db")
+            error("draw: db search: bad db args=%s kwargs=%s", args, kwargs)
             self.dbFix()
             return []
 
@@ -81,7 +81,7 @@ class DrawManager:
         try:
             return self._db.insert(*args, **kwargs)
         except Exception:
-            error("draw: db insert: bad db")
+            error("draw: db insert: bad db args=%s kwargs=%s", args, kwargs)
             self.dbFix()
             return None
         
@@ -92,7 +92,7 @@ class DrawManager:
         try:
             return self._db.update(*args, **kwargs)
         except Exception:
-            error("draw: db update: bad db")
+            error("draw: db update: bad db args=%s kwargs=%s", args, kwargs)
             self.dbFix()
             return None
         
@@ -103,7 +103,7 @@ class DrawManager:
         try:
             return self._db.remove(*args, **kwargs)
         except Exception:
-            error("draw: db remove: bad db")
+            error("draw: db remove: bad db args=%s kwargs=%s", args, kwargs)
             self.dbFix()
             return None
         
@@ -114,7 +114,7 @@ class DrawManager:
         try:
             return self._db.contains(*args, **kwargs)
         except Exception:
-            error("draw: db contains: bad db")
+            error("draw: db contains: bad db args=%s kwargs=%s", args, kwargs)
         
     def dbGet(self, *args, **kwargs):
         if self._db is None:
@@ -123,7 +123,7 @@ class DrawManager:
         try:
             return self._db.get(*args, **kwargs)
         except Exception:
-            error("draw: db get: bad db")
+            error("draw: db get: bad db args=%s kwargs=%s", args, kwargs)
             self.dbFix()
             return None
         
@@ -134,7 +134,7 @@ class DrawManager:
         try:
             return self._db.all()
         except Exception:
-            error("draw: db all: bad db")
+            error("draw: db all: bad db args=%s kwargs=%s", args, kwargs)
             self.dbFix()
             return []
         
@@ -356,11 +356,12 @@ class DrawManager:
                     continue
 
                 tkn = AccessVerification.tokenAuthenticator.create(expires=int(time.time()) + tokenValidTime, audience="peer")
-                activeBlankTasks.append(postUrlJSONResponse("blankSheets",
-                                                            f'{httpUtils.scheme}://{ sheetDisplay.ip}:{httpUtils.port}/blank',
-                                                            jsonData={},
-                                                            headers={CLOCK_HDR: tkn},
-                                                            retries=3))
+                postTask = asyncio.create_task(postUrlJSONResponse("blankSheets",
+                                                                   f'{httpUtils.scheme}://{ sheetDisplay.ip}:{httpUtils.port}/blank',
+                                                                   jsonData={},
+                                                                   headers={CLOCK_HDR: tkn},
+                                                                   retries=3))
+                activeBlankTasks.append(postTask)
                 info("Draw: blank %s", sheetDisplay.ip)
                 
 
@@ -381,19 +382,21 @@ class DrawManager:
                 if sheet["team1"] or sheet["team2"]:
                     tkn = AccessVerification.tokenAuthenticator.create(expires=int(time.time()) + tokenValidTime, audience="peer")
 
-                    activeSetupTasks.append(postUrlJSONResponse("draw/countdown/set",
-                                                                f'{httpUtils.scheme}://{sheetDisplay.ip}:{ httpUtils.port}/countdown/set',
-                                                                jsonData={"gameTime": gameTime,
-                                                                          "finishedMessageColour": Config.display.defaults.finishedMessageColour,
-                                                                          "finishedMessage": Config.display.defaults.finishedMessage,
-                                                                          "lastEndMessage": Config.display.defaults.lastEndMessage,
-                                                                          "lastEndMessageColour": Config.display.defaults.lastEndMessageColour
-                                                                          },
-                                                                headers={CLOCK_HDR: tkn},
-                                                                retries=3))
-                info("Draw: counttdaown set %s gameTime=%s",
-                     sheetDisplay.ip,
-                     gameTime)
+                    postTask = asyncio.create_task(postUrlJSONResponse("draw/countdown/set",
+                                                                       f'{httpUtils.scheme}://{sheetDisplay.ip}:{ httpUtils.port}/countdown/set',
+                                                                       jsonData={"gameTime": gameTime,
+                                                                                 "finishedMessageColour": Config.display.defaults.finishedMessageColour,
+                                                                                 "finishedMessage": Config.display.defaults.finishedMessage,
+                                                                                 "lastEndMessage": Config.display.defaults.lastEndMessage,
+                                                                                 "lastEndMessageColour": Config.display.defaults.lastEndMessageColour
+                                                                                 },
+                                                                       headers={CLOCK_HDR: tkn},
+                                                                       retries=3))
+                    activeSetupTasks.append(postTask)
+
+                    info("Draw: counttdown set %s gameTime=%s",
+                         sheetDisplay.ip,
+                         gameTime)
                     
 
         await asyncio.wait(activeSetupTasks)
@@ -409,12 +412,13 @@ class DrawManager:
 
                 if sheet["team1"] or sheet["team2"]:
                     tkn = AccessVerification.tokenAuthenticator.create(expires=int(time.time()) + tokenValidTime, audience="peer")
-                    activeStartTasks.append(postUrlJSONResponse("draw/countdown/start",
-                                                                f'{httpUtils.scheme}://{sheetDisplay.ip}:{httpUtils.port}/countdown/start',
-                                                                jsonData={},
-                                                                headers={CLOCK_HDR: tkn},
-                                                                retries=3))
-                info("Draw: counttdown start %s", sheetDisplay.ip)
+                    postTask = asyncio.create_task(postUrlJSONResponse("draw/countdown/start",
+                                                                       f'{httpUtils.scheme}://{sheetDisplay.ip}:{httpUtils.port}/countdown/start',
+                                                                       jsonData={},
+                                                                       headers={CLOCK_HDR: tkn},
+                                                                       retries=3))
+                    activeStartTasks.append(postTask)
+                    info("Draw: counttdown start %s", sheetDisplay.ip)
                 
         await asyncio.wait(activeStartTasks)
 
@@ -431,14 +435,15 @@ class DrawManager:
                 if sheet["team1"] or sheet["team2"]:
                     tkn = AccessVerification.tokenAuthenticator.create(expires=int(time.time()) + tokenValidTime, audience="peer")
 
-                    activeSetupTasks.append(postUrlJSONResponse("draw/showTeams/set",
-                                                                f'{httpUtils.scheme}://{sheetDisplay.ip}:{httpUtils.port}/teamnames/set',
-                                                                jsonData={"team1": sheet["team1"],
-                                                                          "team2": sheet["team2"],
-                                                                          "colour": colour,
-                                                                          },
-                                                                headers={CLOCK_HDR: tkn},
-                                                                retries=3))
+                    postTask = asyncio.create_task(postUrlJSONResponse("draw/showTeams/set",
+                                                                       f'{httpUtils.scheme}://{sheetDisplay.ip}:{httpUtils.port}/teamnames/set',
+                                                                       jsonData={"team1": sheet["team1"],
+                                                                                 "team2": sheet["team2"],
+                                                                                 "colour": colour,
+                                                                                 },
+                                                                       headers={CLOCK_HDR: tkn},
+                                                                       retries=3))
+                    activeSetupTasks.append(postTask)
                     info("Draw: show teams set %s '%s' '%s'", sheetDisplay.ip,  sheet["team1"],  sheet["team2"])
 
         await asyncio.wait(activeSetupTasks)
@@ -454,12 +459,13 @@ class DrawManager:
 
                 if sheet["team1"] or sheet["team2"]:
                     tkn = AccessVerification.tokenAuthenticator.create(expires=int(time.time()) + tokenValidTime, audience="peer")
-                    activeStartTasks.append(postUrlJSONResponse("draw/showTeams/show",
-                                                                f'{httpUtils.scheme}://{sheetDisplay.ip}:{httpUtils.port}/teamnames/show',
-                                                                jsonData={"howLong": howLong,
-                                                                          "until": until},
-                                                                headers={CLOCK_HDR: tkn},
-                                                                retries=3))
+                    postTask = asyncio.create_task(postUrlJSONResponse("draw/showTeams/show",
+                                                                       f'{httpUtils.scheme}://{sheetDisplay.ip}:{httpUtils.port}/teamnames/show',
+                                                                       jsonData={"howLong": howLong,
+                                                                                 "until": until},
+                                                                       headers={CLOCK_HDR: tkn},
+                                                                       retries=3))
+                    activeStartTasks.append(postTask)
                     info("Draw: show teams show %s howLong=%s until=%s", sheetDisplay.ip,  howLong,  until)
 
         await asyncio.wait(activeStartTasks)
@@ -490,7 +496,7 @@ class DrawManager:
             self.hashIsDirty = True
         
     async def drawShowTask(self, app):
-        lastDeleteCheckHour = None
+        #lastDeleteCheckHour = None
         while True:
             try:
                 await asyncio.sleep(1)
@@ -503,9 +509,9 @@ class DrawManager:
                 yesterday = time.strftime("%Y-%m-%d", time.localtime(lclTime - 24*60*60))
                 tomorrow = time.strftime("%Y-%m-%d", time.localtime(lclTime + 24*60*60))
                 
-                if lastDeleteCheckHour != localTime.tm_hour:
-                    lastDeleteCheckHour = localTime.tm_hour
-                    self.cleanAutoDeletes()
+                #if lastDeleteCheckHour != localTime.tm_hour:
+                #    lastDeleteCheckHour = localTime.tm_hour
+                #    self.cleanAutoDeletes()
 
                 testDraws = self.dbSearch((entry.date == today) | (entry.date == yesterday) | (entry.date == tomorrow))
                 for draw in testDraws:
@@ -555,7 +561,8 @@ class DrawManager:
             except asyncio.CancelledError:
                 return
             except Exception as e:
-                error("draw: show task %s", e, stack_info=True)
+                error("draw: show task %s", e, exc_info=True)
+                raise
 
     async def startTasks(self, app):
         info("DrawManager: tasks - start")

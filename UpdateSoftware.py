@@ -9,6 +9,7 @@ from aiohttp import MultipartReader as aiohttp_MultipartReader
 from AccessVerification import ajaxVerifyToken
 import SetupApp
 from Identify import versionNo, buildDate, getVersion, getBuildDate
+from Utils import resetSetHostNameLoopDetector
 
 routes = aiohttp_web.RouteTableDef()
 
@@ -254,6 +255,9 @@ async def updateUnpackAjax(request):
     builddate = getBuildDate(installDir)
 
     info("Update file: %s version:%s built on:%s is installed", installFile, version, builddate)
+    info("Update file: resetting set host name reboot loop detector")
+    resetSetHostNameLoopDetector()
+
     return aiohttp_web.json_response({"rc": True,
                                       "version": version,
                                       "builddate": builddate,

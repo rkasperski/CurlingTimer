@@ -69,12 +69,7 @@
  var sheetTraining_lastInteractionTime = 0;
  var sheetTraining_activeSensorCount = 0
  
- function sheetTraining_clockTime(s) {
-    let strTime = s.toLocaleTimeString('en-US', { hour12: false });
-    return strTime;
- }
-
- function sheetTraining_rebaseStartTimes() {
+  function sheetTraining_rebaseStartTimes() {
     let table = document.getElementById('sheetTraining-breakTimeTable');
     let rows = table.rows;
     let nRows = rows.length;

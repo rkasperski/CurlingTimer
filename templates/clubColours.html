@@ -2,33 +2,33 @@
    {{ navPanel("clubColours", "club" , "Club - Colours") }}
    <div class="container mb-3">
       <div class="row mb-3 mt-3 justify-content-center">
-	 <div class="col-auto">
+	      <div class="col-auto">
             Add Colour
-	    <button type="button" class="btn btn-outline-dark btn icon-button" onclick="clubColours_addNewColour()">
-               <i class="plus-lg"></i>
+	         <button type="button" class="btn btn-outline-dark btn icon-button" onclick="clubColours_addNewColour()">
+               {{icon("plus-lg")}}
             </button>
-	 </div>
+	      </div>
 	 
       </div>
       <div class="row justify-content-center">
-	 <div class="col-auto">
-	    <table class="table table-striped table-sm">
+	      <div class="col-auto">
+	         <table class="table table-striped table-sm">
                <thead>
-	          <tr>
-		     <th>Delete</th>
-		     <th>Colour</th>
-		     <th>Red - Green - Blue</th>
-	          </tr>
+	               <tr>
+		               <th>Delete</th>
+		               <th>Colour</th>
+		               <th>Red - Green - Blue</th>
+	               </tr>
                </thead>
                <tbody id="clubColours-colourTable">
                </tbody>
-	    </table>
-	 </div>
+	         </table>
+	      </div>
       </div>
       <div class="row justify-content-center">
-	 <div class="col-auto">
-	    <button type="submit" id="clubColours-btn-submit" class="btn btn-outline-dark disabled" onclick="clubColours_saveColours()">Save</button>
-	 </div>
+	      <div class="col-auto">
+	         <button type="submit" id="clubColours-btn-submit" class="btn btn-outline-dark disabled" onclick="clubColours_saveColours()">Save</button>
+	      </div>
       </div>
    </div>
 </div>

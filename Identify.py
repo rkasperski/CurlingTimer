@@ -2,6 +2,8 @@ import time
 import uuid
 import os
 
+from Logger import error
+
 from Utils import myIPAddress, myHostName
 import HTTP_Utils as httpUtils
 from HTTP_Utils import getUrlJSONResponse
@@ -42,15 +44,18 @@ async def getEpoch(testIp, port, timeout=None):
 def getBuildDate(path=None):
     if not path:
         path = myApp.app("info")
+        if not os.path.exists(path):
+            path = myApp.app("_internal/info")
     elif not path.endswith("info"):
-        path = os.path.join(path, "info")
+        path = os.path.join(path, "_internal", "info")
 
-    path = os.path.join(path, "builddate")
+    path = os.path.join(path, "buildDate.txt")
     
     try:
         with open(path) as fp:
             date = fp.readline().strip()
     except OSError:
+        error("Identify: failed to find build date file: %s", path)
         date = "unknown"
 
     return date
@@ -59,8 +64,10 @@ def getBuildDate(path=None):
 def getVersion(path=None):
     if not path:
         path = myApp.app("info")
+        if not os.path.exists(path):
+            path = myApp.app("_internal/info")
     elif not path.endswith("info"):
-        path = os.path.join(path, "info")
+        path = os.path.join(path, "_internal", "info")
 
     path = os.path.join(path, "version.txt")
     
@@ -68,6 +75,7 @@ def getVersion(path=None):
         with open(path) as f:
             version = f.readline().strip()
     except OSError:
+        error("Identify: failed to find version file: %s", path)
         version = "0.0"
 
     return version

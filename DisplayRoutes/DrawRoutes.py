@@ -11,7 +11,7 @@ routes = aiohttp_web.RouteTableDef()
 drawJSONSchema = {
     "type": "object",
     "properties": {
-        "time": {"regex": "\d\d:\d\d"},
+        "time": {"regex": r"\d\d:\d\d"},
         "date": {"regex": r"\d\d\d\d-\d\d-\d\d"},
         "name": {"type": "string"},
         "colour": {"type": "string"},
@@ -109,6 +109,14 @@ async def drawHashAjax(request):
     return aiohttp_web.json_response({"hash": Draws.drawDB.getHash()})
 
 
+@routes.post('/draw/list')
+@ajaxVerifyToken("pin")
+async def drawGetListAjax(request):
+    return aiohttp_web.json_response({"found": True,
+                                      "hash": Draws.drawDB.getHash(),
+                                      "draws": [ {**d, "id": d.doc_id} for d in Draws.drawDB.getAllDraws()]})
+
+
 @routes.post('/draw/getlist')
 @ajaxVerifyToken("pin")
 async def drawGetListAjax(request):
@@ -146,13 +154,20 @@ async def drawSetAjax(request):
     try:
         id = json["id"]
         updateDraw = json["draw"]
+
+        utime = updateDraw.get("time", None)
+        if utime and len(utime) > 2 and utime[1] == ':':
+            updateDraw["time"] = '0' + utime;
+
         jsonschema.validate(updateDraw, drawJSONSchema)
+
         draw = Draws.drawDB.updateDraw(id, updateDraw)
 
         return aiohttp_web.json_response(drawToResponse(draw, {"set": True,
                                                                "hash": Draws.drawDB.getHash(),
                                                                "draw": draw,
-                                                               "id": draw["id"]}))
+                                                               "msg": "updated",
+                                                               "id": id}))
     except jsonschema.exceptions.ValidationError:
         error("draws: invalid data received:")
         return aiohttp_web.json_response({"set": False})

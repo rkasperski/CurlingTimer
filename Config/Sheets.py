@@ -65,7 +65,7 @@ class SheetsConfigSection(list, ConfigSectionHandler):
             config.toml[sheetName]["pin"] = sheet.pin
             config.toml[sheetName]["pinExpireTime"] = sheet.pinExpireTime
             config.toml[sheetName]["hasHardwareClock"] = sheet.hasHardwareClock
-            config.toml[sheetName]["hostName"] = sheet.hostName
+            config.toml[sheetName]["hostName"] = sheet.name.replace(" ", "").lower()
 
     def fromConfig(self, config):
         self.clear()
