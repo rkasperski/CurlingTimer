@@ -1,3 +1,20 @@
+5.25.1 - Tue Jan 27 16:26:47 2026
+- automatically scan for new devices during training setup
+5.25 - Wed Jan 21 16:35:03 2026
+- separate builds.
+- change colours on timers
+- fix bad directory unpack on update
+- fix calculation of slide times
+- return sheet list on getDevices. Merge in shutdown/restart/halt
+- remove host renaming. Move to script in install
+- redo colours for display
+- add display of colour on training throws tab
+- remove override of log.console
+- test tar file to ensure it is the correct type for the device
+5.22.1 - Thu Nov 20 16:17:47 2025
+- fix verification of file names for uploads and updates
+5.22 - Thu Nov 20 15:36:07 2025
+- redo training setup
 5.21 - Fri Nov  7 11:54:29 2025
 - fix check for unauthorized/forbidden
 - when at front page check every 5 seconds for clock status.

@@ -204,56 +204,6 @@ def traceback(msg=None):
     print("".join(tb.format_list(tb.extract_stack(limit=50)[1:])), file=sys.stderr)
 
 
-# Must have root permissions to call this
-def setHostName(newhostname, newdomain=None):
-    with open('/etc/hosts', 'r') as hdf:
-        # read a list of lines into data
-        hostData = hdf.readlines()
-
-    # Assumption fqdn is on the line 127.0.1.1
-    # so this replaces that line with the new hostname
-    lix = None
-    for ix, l in enumerate(hostData):
-        if l.strip().startswith("127.0.1.1"):
-            lix = ix
-            break
-
-    if lix is None:
-        raise OSError("poorly formatted '/etc/hosts'; missing 127.0.1.1 entry")
-
-    fqdn = (f"{newhostname}.{newdomain}     " if newdomain else "")
-    hostData[lix] = f"127.0.1.1   {fqdn}{newhostname}"
-
-    # save the file temporarily because /etc/hosts is protected
-    with open('temp.hosts.txt', 'w') as hdf:
-        hdf.writelines(hostData)
-
-    # rewrite hostname file
-    with open('temp.hostname.txt', 'w') as hnf:
-        print(newhostname, file=hnf)
-
-    # use command to overwrite the protected file
-    rc = os.system('cp -p /etc/hosts /etc/hosts.old')
-    if rc is None:
-        raise OSError("failed to rename '/etc/hosts' to '/etc/hosts.old'")
-
-    rc = os.system('mv temp.hosts.txt /etc/hosts')
-    if rc is None:
-        raise OSError("failed to rename '/etc/hosts'")
-
-    warning("hostname: replaced /etc/hosts; old was renamed to /etc/hosts.old")
-
-    rc = os.system('mv /etc/hostname /etc/hostname.old')
-    if rc is None:
-        raise OSError("failed to rename '/etc/hostname' to '/etc/hostname.old'")
-
-    rc = os.system('mv temp.hostname.txt /etc/hostname')
-    if rc is None:
-        raise OSError("failed to rename '/etc/hostname'")
-
-    warning("hostname: replaced /etc/hostname; old was renamed to /etc/hostname.old")
-
-
 def get_file_age_in_seconds(filepath):
     """
     Calculates the age of a file in seconds based on its last modification time.
@@ -288,35 +238,6 @@ def isRebootFileValid(rebootLoopDetectorFn):
 
     return False
 
-
-def checkAndSetHostName(hostName, domain, configDir):
-    oldHostName = myHostName().lower()
-    rebootLoopDetectorFn = os.path.join(configDir, "reboot")
-
-    rebootFileValid = isRebootFileValid(rebootLoopDetectorFn)
-    if hostName != oldHostName:
-        if rebootFileValid:
-            warning("Hostname: reboot to change hostname failed. Manually rename to %s", hostName)
-        else:
-            os.system(f"touch {rebootLoopDetectorFn}")
-            warning("Hostname: changing host name; from <%s> to <%s>", oldHostName, hostName)
-            setHostName(hostName, domain)
-            
-            warning("Hostname: rebooting so hostname change is in effect")
-            os.system("reboot")
-    else:
-        if not rebootFileValid:
-            try:
-                os.remove(rebootLoopDetectorFn)
-            except FileNotFoundError:
-                pass
-            
-def resetSetHostNameLoopDetector():
-    app = SetupApp.getApp()
-    rebootLoopDetectorFn = os.path.join(app.configDir, "reboot")
-
-    if os.path.isfile(rebootLoopDetectorFn):
-        os.remove(rebootLoopDetectorFn)
 
 def headTail(fn, headLines=1, tailLines=5, averageLineLength=132):
     if (headLines + tailLines <= 0) or not os.path.isfile(fn):

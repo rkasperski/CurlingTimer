@@ -36,8 +36,17 @@ def createParser():
     parser.add_argument('--tv', action='store_true',
                         help="build for display on tv")
     
+    parser.add_argument('--hwclock', action='store_true',
+                        help="build for hwclock(DS3231). Can only specify one of hwclock, led, tv or breaktimer")
+    
+    parser.add_argument('--led', action='store_true',
+                        help="build for display on rgb led matrix. Can only specify one of hwclock, led, tv or breaktimer")
+    
+    parser.add_argument('--breaktimer', action='store_true',
+                        help="build for break timers. Can only specify one of hwclock, led, tv or breaktimer")
+    
     parser.add_argument('--verbose', action='store_true',
-                        help="display vrbose messages")
+                        help="display verbose messages. Can only specify one of hwclock, led, tv or breaktimer")
     
     return parser
 
@@ -68,6 +77,10 @@ def main():
     parser = createParser()
     args = parser.parse_args()
 
+    if sum([args.tv, args.led, args.breaktimer, args.hwclock]) != 1:
+        print("must specify one of --tv --led --breaktimer --hwclock")
+        sys.exit(4)
+
     if not args.test:
         if args.no_version_update:
             if not args.skip_build_increment:
@@ -90,11 +103,6 @@ def main():
     if not args.confirm:
         pyInstallerOptions.append("--noconfirm")
 
-    if args.tv:
-        os.system("touch build-for-tv")
-    else:
-        os.system("rm build-for-tv")
-
     versionNo = UpdateVersion.getVersion(fn="info/version.txt")
     buildDate = UpdateVersion.getBuildDate(fn="info/buildDate.txt")
 
@@ -107,46 +115,65 @@ def main():
     else:
         addVersionAndBuildDateToReleaseNotes(versionNo, buildDate, test=args.test)
 
+    tar_tgt = None
+    tar_src = None
+    spec_file = None
+    if args.led:
+        spec_file = "CurlingTimer.led.spec"
+        tar_tgt = "CurlingTimer.led{test}.{versionNo}.tgz"
+        sum_tgt = "CurlingTimer.led{test}.{versionNo}.sum.txt"
+        tar_src = "CurlingTimer.led"
+        transform_arg = "--transform 's,^CurlingTimer.led,CurlingTimer,'"
+    elif args.tv:
+        spec_file = "CurlingTimer.tv.spec"
+        tar_tgt = "CurlingTimer.tv{test}.{versionNo}.tgz"
+        sum_tgt = "CurlingTimer.tv{test}.{versionNo}.sum.txt"
+        tar_src = "CurlingTimer.tv"
+        transform_arg = "--transform 's,^CurlingTimer.tv,CurlingTimer,'"
+    elif args.breaktimer:
+        spec_file = "BreakTimer.spec"
+        tar_tgt = "BreakTimer{test}.{versionNo}.tgz"
+        sum_tgt = "BreakTimer{test}.{versionNo}.sum.txt"
+        tar_src = "BreakTimer"
+        transform_arg = ""
+    else:
+        spec_file = None
+        tar_tgt = "hwclock{test}.{versionNo}.tgz"
+        sum_tgt = "hwclock{test}.{versionNo}.sum.txt"
+        tar_src = "cc_hwclock"        
+        transform_arg = ""
+        
     if args.skip_build:
         print("skipping build")
     else:
-        cmd = f"pyinstaller {' '.join(pyInstallerOptions)} CurlingTimer.spec"
-        if args.verbose:
-            print(f"{cmd=}")
-        
+        if spec_file:
+            cmd = f"pyinstaller {' '.join(pyInstallerOptions)} {spec_file}"
+        else:
+            cmd = "pyinstaller --onefile hwclock.py --name cc_hwclock"
+            
+        print(cmd)
         if os.system(cmd):
             print("failed to build python blob")
             sys.exit(12)
-
-        cmd = "pyinstaller --onefile hwclock.py --name cc_hwclock"
-        if args.verbose:
-            print(f"{cmd=}")
-        
-        if os.system(cmd):
-            print("failed to build cc_hwclock python")
-            sys.exit(12)
-
-        os.replace("dist/cc_hwclock", "dist/CurlingTimer/cc_hwclock")
-
 
     if args.skip_tar:
         print("skipping tar generation")
     else:
         test = ".test" if args.test else ""
-        tgt = f"dist/CurlingTimer{test}.{versionNo}.tgz"
+        tgt_path = os.path.join("dist", tar_tgt.format(test=test, versionNo=versionNo))
+        sum_path = os.path.join("dist", sum_tgt.format(test=test, versionNo=versionNo))
 
-        cmd = f"tar -C dist -czf {tgt} CurlingTimer"
+        cmd = f"tar -C dist -czf {tgt_path} {transform_arg} {tar_src}"
         print(cmd)
         if os.system(cmd):
             print("failed to build distributable tar file")
-            os.remove(tgt)
+            os.remove(tgt_path)
             sys.exit(12)
 
-        sumFile = f"dist/CurlingTimer{test}.{versionNo}.sum.txt"
-        if os.system(f"sha512sum '{tgt}' | cut -d ' ' -f1 > {sumFile}"):
+        if os.system(f"sha512sum '{tgt_path}' | cut -d ' ' -f1 > {sum_path}"):
             print("failed to build distributable tar file")
-            os.remove(tgt)
-            os.remove(sumFile)
+            os.remove(tgt_path)
+            os.remove(sum_path)
             sys.exit(12)
 
 

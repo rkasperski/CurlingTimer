@@ -56,6 +56,9 @@ class CurlingClockManager:
         self.setDefaultsFromConfig()
         self.callOnViewChange = None
 
+    def getSheets(self):
+        return self.config.sheets
+            
     def setCallOnViewChange(self, callOnViewChange):
         self.callOnViewChange = callOnViewChange
 
@@ -139,12 +142,12 @@ class CurlingClockManager:
             # activeUntil is local time so convert to monotonic time
             curLclTime = time.time()
             self.nextBlankTime = mTime + max(activeUntil - curLclTime, 0)
-            info("resetIdleTime curTime=%s mTime=%s until=%s:%s", curLclTime, mTime, self.nextBlankTime, self.nextBlankTime - mTime , )
+            info("resetIdleTime curTime=%s mTime=%s until=%s:%s", curLclTime, mTime, self.nextBlankTime, self.nextBlankTime - mTime, stacklevel=2)
         else:
             self.nextBlankTime = 0
 
         if activeInterval:
-            info("resetIdleTime for=%s", activeInterval)
+            info("resetIdleTime for=%s", activeInterval, stacklevel=2)
 
             self.nextBlankTime = max(self.nextBlankTime, mTime + activeInterval)
 
@@ -204,7 +207,7 @@ class CurlingClockManager:
         if reset_idle:
             self.resetIdleTime()
 
-        info("set view=%s", self.displayF.__name__)
+        info("set view=%s", self.displayF.__name__, stacklevel=2)
 
         return old_view
 
@@ -316,6 +319,9 @@ class CurlingClockManager:
 
         self.display.displayText(self.scrollingText, colour=self.scrollingTextColour)
 
+    async def update_null(self):
+        pass
+    
     async def teamNames(self):
         teams = self.timers.competition.teams
         await self.display.displayTeamNames(teams[0].name, teams[0].colour, teams[1].name, teams[1].colour, self.config.defaults.scrollTeamsSeparator)
@@ -364,6 +370,8 @@ class CurlingClockManager:
                     self.resetIdleTime(activeInterval=countDown.lastEndMessageDisplayTime)
             else:
                 self.forceIdle(current_view=self.countDownFinished)
+        else:
+            print("countDownFinished aborted")
                 
     async def countDownLastEnd(self):
         self.abort()
@@ -488,7 +496,7 @@ class CurlingClockManager:
             dropRootPrivileges(self.user, groups=[self.group, "adm"])
             self.pleaseDropPriviledgesNow = False
 
-        last_display = None
+        last_display = self.update_null
         is_idle = self.isIdle()
 
         while True:
@@ -509,7 +517,7 @@ class CurlingClockManager:
                         is_idle = False
 
                     if self.displayF != last_display:
-                        info("display: %s", self.displayF.__name__)
+                        info("display: %s from %s", self.displayF.__name__, last_display.__name__)
                         last_display = self.displayF
 
                     wait_time = await self.displayF()

@@ -99,7 +99,7 @@ class BreakTimeDisplayWebSocket(WebSocketBase):
     def addTime(self, sensor, tm):
         if self.rockThrow:
             tm.append(sensor)
-            evnt = self.rockThrow.checkForEvent(tm)
+            evnt = self.rockThrow.check_for_event(tm)
 
             if evnt:
                 self.currentEvents = [evnt]
@@ -125,7 +125,7 @@ class BreakTimeDisplayWebSocket(WebSocketBase):
 
         events = []
         for tm in timesList:
-            evnt = self.rockThrow.checkForEvent(tm)
+            evnt = self.rockThrow.check_for_event(tm)
             if evnt:
                 events.append(evnt)
 
@@ -164,9 +164,7 @@ class BreakTimeDisplayWebSocket(WebSocketBase):
 
         self.rockThrow = RockThrow.RockTimingEvents(sensorToPlacementMap,
                                                     placementToColourMap,
-                                                    mode=style,
-                                                    circumference=circumference,
-                                                    slidePathLength=slidePathLength)
+                                                    circumferenceInM=circumference)
         
         self.activeSensorCount = len(sensors)
         self.timesBySensor = {}
@@ -200,11 +198,11 @@ class BreakTimeDisplayWebSocket(WebSocketBase):
         for bt in self.activeSensors.values():
             await bt.close()
 
-        self.activeSensors = None
+        self.activeSensors = {}
          
     async def onclose(self):
         info("BreakTimeDisplayWebSocket: onclose; start %s; %s", self.remote, self.id)
-        self.closeSensors()
+        await self.closeSensors()
 
         CurlingClockManager.manager.registerRockThrowListener(None)    
         info("BreakTimeDisplayWebSocket: onclose; done %s; %s", self.remote, self.id)
@@ -243,11 +241,14 @@ async def websocket_handler(request):
 
     CurlingClockManager.manager.registerRockThrowListener(ws)
 
+    rc = None
     if await ws.prepare(request):
         CurlingClockManager.manager.setCallOnViewChange(ws.callOnViewChange)
 
-        await ws.process()
+        rc = await ws.process()
         await ws.closeSensors()
         CurlingClockManager.manager.unsetCallOnViewChange(ws.callOnViewChange)
 
     CurlingClockManager.manager.registerRockThrowListener(None)
+
+    return rc

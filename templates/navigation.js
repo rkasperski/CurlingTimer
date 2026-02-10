@@ -29,20 +29,20 @@ function panelNavigate(to, navData, isBackNav) {
     let enterFuncName = `${to}_enter`;
 
     if (exitFuncName in window) {
-        console.log("exit", exitFuncName);
+        dbg_print("exit", exitFuncName);
         window[exitFuncName]();
     }
     
     if (enterFuncName in window) {
-        console.log("enter", enterFuncName);
+        dbg_print("enter", enterFuncName);
         window[enterFuncName](navData);
     }
     
-    console.log("hide", from);
+    dbg_print("hide", from);
 
     $(`#${from}`).addClass("d-none");
 
-    console.log("show", to);
+    dbg_print("show", to);
     
     let toDiv = $(`#${to}`);
 
@@ -74,19 +74,19 @@ function overlayShow(overlay, data, key) {
     }
     
     if (hideFuncName in window) {
-        console.log("hide", hideFuncName);
+        dbg_print("hide", hideFuncName);
         window[hideFuncName]();
     }
     
     if (overlayShowFuncName in window) {
-        console.log("overlay show", overlayShowFuncName);
+        dbg_print("overlay show", overlayShowFuncName);
         window[overlayShowFuncName](data);
     }
 
-    console.log("hide", showFromTo_currentPanel);
+    dbg_print("hide", showFromTo_currentPanel);
     $(`#${showFromTo_currentPanel}`).addClass("d-none");
 
-    console.log("show", overlay);
+    dbg_print("show", overlay);
     let overlayDiv = $(`#${overlay}`);
     if (key) {
         overlayDiv.data("key", key)
@@ -105,12 +105,12 @@ function overlayHide(overlay, data) {
     let origEmbeddedShow = overlay_embeddedShow;
     
     if (hideFuncName in window) {
-        console.log("overlay hide", hideFuncName);
+        dbg_print("overlay hide", hideFuncName);
         window[hideFuncName]();
     }
 
     if (showFuncNameSpecific in window) {
-        console.log("show", showFuncNameSpecific);
+        dbg_print("show", showFuncNameSpecific);
         window[showFuncNameSpecific](data);
     }
 
@@ -119,7 +119,7 @@ function overlayHide(overlay, data) {
         if (data === null) {
             let overlayDataFuncName = `${overlay}_data`;
             if (overlayDataFuncName in window) {
-                console.log("overalay data", overlayDataFuncName);
+                dbg_print("overalay data", overlayDataFuncName);
                 data = window[overlayDataFuncName]();
             }
         }
@@ -133,15 +133,15 @@ function overlayHide(overlay, data) {
             }
         }
         
-        console.log("show", showFuncName);
+        dbg_print("show", showFuncName);
         window[showFuncName](data);
     }
     
-    console.log("hide", overlay);
+    dbg_print("hide", overlay);
     overlayDiv.addClass("d-none");
 
     if (overlay_embeddedShow <= 0) {
-        console.log("show", overlay);
+        dbg_print("show", overlay);
 
         $(`#${showFromTo_currentPanel}`).removeClass("d-none");
     } else if (overlay_embeddedShow != origEmbeddedShow) {

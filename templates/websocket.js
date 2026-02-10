@@ -13,7 +13,7 @@ class WSSocket {
     }
 
     connect(url, cbData) {
-        console.log("WS: connect", this.url, cbData)
+        dbg_print("WS: connect", this.url, cbData)
         this.socket = new WebSocket(url);
 
         this.socket.owner = this;
@@ -23,8 +23,8 @@ class WSSocket {
         this.lastPongTime = Date.now();
 
         this.socket.onerror = function(event) {
-            console.log("WS: socket onerror", this.owner.url, event);
-            console.log(new Error())
+            dbg_print("WS: socket onerror", this.owner.url, event);
+            dbg_print(new Error())
             this.owner.socketError(event, this.owner.cbData);
         }
     
@@ -38,15 +38,15 @@ class WSSocket {
         this.socket.onclose = function(event) {
             this.owner.killPingPongTimers();
             this.owner.socket = null;
-	    console.log("WS: socket onclose", this.owner.url, event);
-            console.log(new Error())
+	    dbg_print("WS: socket onclose", this.owner.url, event);
+            dbg_print(new Error())
             this.owner.socketClose(event, this.owner.cbData);
             this.owner = null;
         }
 
         this.socket.onmessage = function(event) {
             if (event.data == "error") {
-                console.log("WS: msg-error", this.url, event)
+                dbg_print("WS: msg-error", this.url, event)
             } else if (event.data == "ping") {
                 this.owner.lastPingTime = Date.now();
                 this.send("pong");                
@@ -81,8 +81,8 @@ class WSSocket {
     waitOnPong(owningSocket) {
         let curTime = Date.now();
         if (curTime > (owningSocket.lastPongTime + (owningSocket.pingResponseTime))) {
-            console.log("WS: closing; missed pong")
-            console.log(new Error())
+            dbg_print("WS: closing; missed pong")
+            dbg_print(new Error())
             owningSocket.close();
         }
     }
@@ -112,8 +112,8 @@ class WSSocket {
     }
 
     close() {
-        console.log(`ws socket: closing ${this.url}`)
-        console.log(new Error())
+        dbg_print(`ws socket: closing ${this.url}`)
+        dbg_print(new Error())
         this.killPingPongTimers();
 
         if (this.socket) {

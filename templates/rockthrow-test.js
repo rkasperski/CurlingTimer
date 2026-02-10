@@ -349,6 +349,15 @@ function testRockThrowLoadData() {
     let sensorToPlacementMap = new Map();
     let placementToColourMap = new Map();
     let rows = [];
+
+    rock_positions = {
+        "T-Line 1": "t1",
+        "T-Line 2": "t2",
+        "Hog-Line 1": "h1",
+        "Hog-Line 2": "h2",
+        "Back-Line 1": "b1",
+        "Back-Line 2": "b2",
+    };
     
     let firstLine = true;
     for (row of rockThrowTestData) {
@@ -358,13 +367,9 @@ function testRockThrowLoadData() {
         }
 
         let sensor = row[0];
-        if (sensor[0] == 'T') {
-            placement = "s" + sensor[sensor.length - 1];
-        } else {
-            placement = "h" + sensor[sensor.length - 1];
-        }
         
         if (!sensorToPlacementMap.has(sensor)) {
+            placement = rock_positions[sensor];
             placementToColourMap.set(placement, colours.shift());
             sensorToPlacementMap.set(sensor, placement);
             
@@ -425,10 +430,7 @@ function testSheetTraining() {
     let rows = data[2];
 
     sheetTraining_rockThrows = new RockTimingEvents(sensorToPlacementMap, 
-                                                    placementToColourMap, 
-                                                    "full",
-                                                    0.910, 
-                                                    6.401);    
+                                                    placementToColourMap);    
 
     for (let tm of rows) {
         let sensor = tm.pop()

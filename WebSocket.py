@@ -13,6 +13,7 @@ class WebSocketBase:
         self.ws = None
         self.name = name
         self.verbose = verbose
+        self.verbose = False
         self.pingWaitTask = None
         self.pingSendTask = None
         self.lastPingSent = time.monotonic()
@@ -28,7 +29,7 @@ class WebSocketBase:
         self.ws_id = ws_id
 
     async def prepare(self, request):
-        self.ws = aiohttp_web.WebSocketResponse(heartbeat=0, autoping=False, autoclose=True,
+        self.ws = aiohttp_web.WebSocketResponse(heartbeat=5, autoping=True, autoclose=True,
                                                 timeout=1, receive_timeout=self.pingResponseInterval)
         try:
             await self.ws.prepare(request)
@@ -131,6 +132,7 @@ class WebSocketBase:
 
     async def process(self):
         self.connected = True
+        ws = self.ws
 
         await self.onconnect()
         while True:
@@ -147,6 +149,8 @@ class WebSocketBase:
 
         await self.close(msg)
 
+        return ws
+
     async def _process(self):
         try:
             if self.verbose:
@@ -154,6 +158,9 @@ class WebSocketBase:
 
             async for msg in self.ws:
                 if self.ws is None or self.ws.closed:
+                    if self.verbose:
+                        info("%s: WebSocket(%s:%s) %s: process %s", time.monotonic(), self.ws_id, self.remote, self.name, self.ws, stack_info=2)
+                        
                     break
 
                 if msg.type == aiohttp_web.WSMsgType.TEXT:
@@ -196,7 +203,7 @@ class WebSocketBase:
 
                     self.onerror("WSMsgType=ERROR: " + self.ws.exception())
                 else:
-                    warning("%s: WebSocket(%s:%s) %s: bad type data=%s", time.monotonic(), self.ws_id, self.remote, self.name, msg.type, msg.data)
+                    warning("%s: WebSocket(%s:%s) %s: bad typ=%s e data=%s", time.monotonic(), self.ws_id, self.remote, self.name, msg.type, msg.data)
         except ConnectionResetError:
             return "connection reset"
         except asyncio.TimeoutError:

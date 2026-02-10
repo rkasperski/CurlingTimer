@@ -42,7 +42,7 @@ function getActiveBreakTimers(ip) {
                     {method: "GET"});
 }
 
-function getDefaultsAjax(async) {
+function getDefaultsAjax(ip, async) {
     return jsonCall("getDefaultsAjax",
                     `{{scheme}}://{{ip}}:{{port}}/ajax/defaults`,
                     {},
@@ -129,14 +129,14 @@ function saveColours(colours) {
 }
 
 function setDefaultsAjax(values) {
-    return jsonCall("getDefaultsAjax",
+    return jsonCall("setDefaultsAjax",
                     "{{scheme}}://{{ip}}:{{port}}/ajax/defaults",
                     {values},
                     {method: "POST"});
 }
 
 function getHardwareSettingsAjax(ip) {
-    return jsonCall("getDefaultsAjax",
+    return jsonCall("getHardwareSettingsAjax",
                     `{{scheme}}://${ip}:{{port}}/ajax/hardware`,
                     {},
                     {method: "GET"});

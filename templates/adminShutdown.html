@@ -61,12 +61,27 @@
                       i > 0 && (i % 2 == 0));
  }
  
+ function merge_sheets_with_displays(sheets, displays) {
+    displays.forEach(function (disp, i) {
+       for (const sheet of sheets) {
+          if (sheet.ip == disp.ip) {
+             return
+          }
+       }
 
+       sheets.push(disp)
+    })
+
+    return sheets;
+ }
+ 
  function adminShutdown_enter() {
     $('#adminShutdown-selectableIcons').empty();
     getDevicesAjax()
        .done(function(response) {
-          response.displays.concat(response.sensors).forEach(adminShutdown_addDevice)
+          merge_sheets_with_displays(response.sheets, response.displays)
+             .concat(response.sensors)
+             .forEach(adminShutdown_addDevice)
        })
  }
  

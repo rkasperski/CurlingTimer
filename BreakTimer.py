@@ -318,7 +318,9 @@ def main():
 
     app.add_routes(CommonRoutes.routes)
 
-    from UpdateSoftware import routes as httpUpdateSoftware
+    from UpdateSoftware import routes as httpUpdateSoftware, register_purpose
+
+    register_purpose("BreakTimer")
     app.add_routes(httpUpdateSoftware)
 
     info("startup: start break timer sensors")

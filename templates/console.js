@@ -66,30 +66,7 @@ class Dequeue {
 var log_dequeue = new Dequeue(200);
 var log_start = Date.now();
 
-// define a new console
-var console = (function(oldCons){
-    return {
-        log: function(...text){
-            oldCons.log(...text);
-            log_dequeue.pushLeft([Date.now(), "log", ...text]); 
-        },
-        info: function (...text) {
-            oldCons.info(...text);
-            // Your code
-            log_dequeue.pushLeft([Date.now(), "info", ...text]); 
-        },
-        warn: function (...text) {
-            oldCons.warn(...text);
-            // Your code
-            log_dequeue.pushLeft([Date.now(), "warn", ...text]); 
-        },
-        error: function (...text) {
-            oldCons.error(...text);
-            // Your code
-            log_dequeue.pushLeft([Date.now(), "error", ...text]); 
-        }
-    };
-}(window.console));
-
-//Then redefine the old console
-window.console = console;
+function dbg_print(...text){
+    console.log(...text);
+    log_dequeue.pushLeft([Date.now(), "log", ...text]); 
+}

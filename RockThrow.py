@@ -5,199 +5,298 @@ from collections import deque, OrderedDict
 
 
 class RockTimingEvents:
-    def __init__(self, sensorToPlacementMap, placementToColourMap, mode="full", circumference=0.910, slidePathLength=6.401):
+    # time patterns are in reverse order.
+
+    timing_patterns = [
+        ((("back-slide-interval", 1, 3),
+          ("t-slide-interval", 1, 2),          
+          ("hog-hog-interval", 0, 1),
+          ("near-hog-speed", 1, None),
+          ("far-hog-speed", 0, None),
+          ("X", None)),
+          (("h2", 0), ("h1", 22), ("t1", 5), ("b1", 3))),  # b1 t1 h1 h2
+         
+        ((("back-slide-interval", 1, 3),
+          ("t-slide-interval", 1, 2),          
+          ("hog-hog-interval", 0, 1),
+          ("near-hog-speed", 1, None),
+          ("far-hog-speed", 0, None),
+          ("X", None, None)),
+         (("h1", 0), ("h2", 22), ("t2", 5), ("b2", 3))),  # b2 t2 h2 h1
+         
+        ((("back-slide-interval", 0, 2),
+          ("t-slide-interval", 0, 1),          
+          ("near-hog-speed", 0, None),
+          ("X", None, None)),
+         (("h1", 22), ("t1", 5), ("b1", 3))),             # b1 t1 h1
+         
+        ((("back-slide-interval", 0, 2),
+          ("t-slide-interval", 0, 1),
+          ("near-hog-speed", 0, None),
+          ("X", None, None)),
+         (("h2", 22), ("t2", 5), ("b2", 3))),             # b2 t2 h2
+        
+        ((("t-slide-interval", 1, 2),
+          ("hog-hog-interval", 0, 1),
+          ("near-hog-speed", 1, None),
+          ("far-hog-speed", 0, None),
+          ("X", None, None)),
+         (("h2", 0), ("h1", 22), ("t1", 5))),             # t1 h1 h2
+        
+        ((("t-slide-interval", 1, 2),
+          ("hog-hog-interval", 0, 1),
+          ("near-hog-speed", 1, None),
+          ("far-hog-speed", 0, None),
+          ("X", None, None)),
+         (("h1", 0), ("h2", 22), ("t2", 5))),             # t2 h2 h1
+        
+        ((("back-slide-interval", 1, 2),
+          ("hog-hog-interval", 0, 1),
+          ("near-hog-speed", 1, None),
+          ("far-hog-speed", 0, None),
+          ("X", None, None)),
+         (("h2", 0), ("h1", 22), ("b1", 5))),             # b1 h1 h2
+        
+        ((("back-slide-interval", 1, 2),
+          ("hog-hog-interval", 0, 1),
+          ("near-hog-speed", 1, None),
+          ("far-hog-speed", 0, None),
+          ("X", None, None)),
+         (("h1", 0), ("h2", 22), ("b2", 5))),             # b2 h2 h1
+        
+        ((("t-slide-interval", 0, 1),
+          ("near-hog-speed", 0, None)),
+         (("h1", 0), ("t1",  5))),                        # t1 h1
+        
+        ((("t-slide-interval", 0, 1),
+          ("near-hog-speed", 0, None)),
+         (("h2", 0), ("t2",  5))),                        # t2 h2
+        
+        ((("back-slide-interval", 0, 1),
+          ("near-hog-speed", 0, None)),
+         (("h1", 0), ("b1",  5))),                        # b1 h1
+        
+        ((("back-slide-interval", 0, 1),
+          ("near-hog-speed", 0, None)),
+         (("h2", 0), ("b2",  5))),                        # b2 h2
+        ]
+        
+    timing_patterns_1 = [
+        ((("sensor-speed", 0, None), 
+          ("X", None, None)),
+         (("h2", 0), )),                                  # h2
+        
+        ((("sensor-speed", 0, None), 
+          ("X", None, None)),
+         (("h1", 0), )),                                  # h1
+        
+        ((("sensor-speed", 0, None), 
+          ("X", None, None)),
+         (("t2", 0), )),                                  # t2
+        
+        ((("sensor-speed", 0, None), 
+          ("X", None, None)),
+         (("t1", 0), )),                                  # t1
+        
+        ((("sensor-speed", 0, None),
+          ("X", None, None)),
+         (("b2", 0), )),                                  # b2
+        
+        ((("sensor-speed", 0, None),
+          ("X", None, None)),
+         (("b1", 0), )),                                  # b1
+    ]
+    
+    def __init__(self, sensor_to_placement_map, placement_to_colour_map, circumferenceInM=0.910):
         self.times = deque(maxlen=10)
-        self.sensorToPlacementMap = sensorToPlacementMap
-        self.placementToColourMap = placementToColourMap
-        self.mode = mode
-        # time patterns are in reverse order.
-        # pattern tuple is (placement, maximum time difference from previous placment)
-        # "f" is nreak time of first match
-        # "b" is break time of second match.
-        # "B" is break time of third match
-        # "d" is time difference between 1 & 2
-        # "D" is time difference between 2 & 3
-        # "X" is reset queue of incoming times
-        if mode == "half":
-            self.timePatterns = [("dbX", (("s1", 0), ("s1", 4)))]
-        elif mode == "h2h":
-            self.timePatterns = [("DbBX", (("h1", 0), ("h2", 30))),
-                                 ("DbBX", (("h2", 0), ("h1", 30))),
-                                 ("f", (("h1", 0),)),
-                                 ("f", (("h2", 0),))]
-        elif mode == "full":
-            self.timePatterns = [("dDbBX", (("h2", 0), ("h1", 30), ("s1", 4))),
-                                 ("dDbBX", (("h1", 0), ("h2", 30), ("s2", 4))),
-                                 ("db", (("h1", 0), ("s1", 4))),
-                                 ("db", (("h2", 0), ("s2", 4)))]
-        else:
-            self.timePatterns = None
+        self.sensor_to_placement_map = sensor_to_placement_map
+        self.placement_to_colour_map = placement_to_colour_map
 
         self.throws = OrderedDict()
         #diameter from circumference
-        self.diameter = circumference / math.pi
-        #self.slidePathLength = 6.401
-        #self.slidePathLength = 8.2296
-        self.slidePathLength = slidePathLength
-
+        self.diameter = circumferenceInM / math.pi
+        self.first_time = 0
+        if len(sensor_to_placement_map) == 1:
+            self.patterns_to_match = self.timing_patterns_1
+        else:
+            self.patterns_to_match = self.timing_patterns
+            
     def clear(self):
+        self.first_time = 0
         self.times.clear()
         self.throws.clear()
 
-    def checkTimePattern(self, timePattern, times):
-        patternEntry = timePattern[0]
-        timesEntry = times[0]
+    def check_time_pattern(self, time_pattern, times):
+        pattern_entry = time_pattern[0]
+        times_entry = times[0]
 
-        if patternEntry[0] != timesEntry[0]:
+        if pattern_entry[0] != times_entry[0]:
             return None
         
-        matches = [(patternEntry[0], 0, timesEntry[1], timesEntry[3])]
+        matches = [(pattern_entry[0], 0, times_entry[1], times_entry[3])]
         
-        maxPatternIndex = len(timePattern)
-        if maxPatternIndex == 1:
+        max_pattern_index = len(time_pattern)
+        if max_pattern_index == 1:
             return matches
 
-        checkIndex = 1
-        maxCheckIndex = len(times)
-        patternIndex = 1
-        while patternIndex < maxPatternIndex and checkIndex < maxCheckIndex:
-            checkPattern = timePattern[patternIndex]
-            while checkIndex < maxCheckIndex:
-                checkTime = times[checkIndex]
+        check_index = 1
+        max_check_index = len(times)
+        pattern_index = 1
+        while pattern_index < max_pattern_index and check_index < max_check_index:
+            checkPattern = time_pattern[pattern_index]
+            while check_index < max_check_index:
+                check_time = times[check_index]
         
-                if checkPattern[0] != checkTime[0]:
-                    checkIndex += 1
+                if checkPattern[0] != check_time[0]:
+                    check_index += 1
                     continue
 
-                t = checkTime[1]
+                t = check_time[1]
 
                 diff = matches[-1][2] - t
                 if diff > 0 and diff < checkPattern[1]:
-                    matches.append((checkPattern[0], checkIndex, t, checkTime[3]))
-                    if len(matches) == maxPatternIndex:
+                    matches.append((checkPattern[0], check_index, t, check_time[3]))
+                    if len(matches) == max_pattern_index:
                         return matches
 
                     break;
 
-                checkIndex += 1
+                check_index += 1
                 
-            patternIndex += 1
+            pattern_index += 1
         
         return None
 
-    def checkForEvent(self, tm):
-        self.times.appendleft((self.sensorToPlacementMap.get(tm[3], tm[3]), tm[0], tm[1], tm[2]))
+    def check_for_event(self, tm, verbose=False):
+        tdiff = tm[0] - self.first_time
+        if tdiff > 20:
+            if verbose:
+                print("--- clear ---")
+                
+            self.times.clear()
+            self.first_time = tm[0]
 
-        if self.timePatterns is None:
-            return [tm[0], [[tm[2], "white", "raw", self.diameter / tm[2]]]]
-        
-        timePatternMatch = None
+        if verbose:
+            print(f"{tm=}")
+            
+        self.times.appendleft((self.sensor_to_placement_map.get(tm[3], tm[3]), tm[0], tm[1], tm[2]))
 
-        timeSelector = None
         placement = self.times[0][0]
-        for ts in self.timePatterns:
-            timeSelector, timePattern = ts
-            if timePattern[0][0] != placement:
+        for ts in self.patterns_to_match:
+            actions, time_pattern = ts
+            if time_pattern[0][0] != placement:
                 continue
                 
-            timePatternMatch = self.checkTimePattern(timePattern, self.times)
-            if not timePatternMatch:
+            time_pattern_match = self.check_time_pattern(time_pattern, self.times)
+            if not time_pattern_match:
                 continue
 
-            throwTimes = []
+            throw_times = []
 
-            for selector in timeSelector:
-                if selector == "b":
+            for event_type, end_idx, start_idx in actions:
+                if event_type == "near-hog-speed":
                     # report breaktime at first hog-line
-                    throwTimes.append((timePatternMatch[-1][3],
-                                       self.placementToColourMap[timePatternMatch[-1][0]],
-                                       "Near Hog-Line Speed",
-                                       self.diameter / timePatternMatch[-1][3]))
-                elif selector == "B":
+                    throw_times.append((time_pattern_match[end_idx][3],
+                                        "orange",
+                                        "Near Hog-Line",
+                                        self.diameter / time_pattern_match[end_idx][3]))
+                elif event_type == "sensor-speed":
+                    throw_times.append((time_pattern_match[end_idx][3],
+                                        "blue",
+                                        time_pattern_match[end_idx][0],
+                                        self.diameter / time_pattern_match[end_idx][3]))
+                elif event_type == "far-hog-speed":
                     # report breaktime at second hog-line
-                    throwTimes.append((timePatternMatch[0][3],
-                                       self.placementToColourMap[timePatternMatch[0][0]],
-                                       "Far Hog-Line Speed",
-                                       self.diameter / timePatternMatch[0][3]))
-                elif selector == "d":
-                    # report difference between first two timers - they are in reverse order
-                    td = timePatternMatch[-2][2] - timePatternMatch[-1][2]
-                    throwTimes.append((td,
-                                       self.placementToColourMap[timePatternMatch[0][0]],
-                                       "Slide Interval",
-                                       self.slidePathLength / td))
-                elif selector == "D":
+                    throw_times.append((time_pattern_match[0][3],
+                                        "green",
+                                        "Far Hog-Line",
+                                        self.diameter / time_pattern_match[end_idx][3]))
+                elif event_type == "t-slide-interval":
+                    # report difference between two timers as a slide interval
+                    td = time_pattern_match[end_idx][2] - time_pattern_match[start_idx][2]
+                    throw_times.append((td,
+                                        "yellow",
+                                        "Slide - T",
+                                        6.4008 / td))
+                elif event_type == "back-slide-interval":
+                    # report difference between two timers as a slide interval
+                    td = time_pattern_match[end_idx][2] - time_pattern_match[start_idx][2]
+                    throw_times.append((td,
+                                        "white",
+                                        "Slide - Back",
+                                        8.2296 / td))
+                elif event_type == "hog-hog-interval":
                     # report difference between last two timers - they are in reverse order
-                    td = timePatternMatch[0][2] - timePatternMatch[1][2]
-                    throwTimes.append((td,
-                                       self.placementToColourMap[timePatternMatch[1][0]],
-                                       "Hog-To-Hog Interval",
-                                       21.945 / td))
-                elif selector == "f":
-                    # report breaktime at first timer
-                    throwTimes.append((timePatternMatch[0][3],
-                                       self.placementToColourMap[timePatternMatch[0][0]],
-                                       "Near Hog-Line Speed",
-                                       self.diameter / timePatternMatch[0][3]))
-                elif selector == "X":
+                    td = time_pattern_match[end_idx][2] - time_pattern_match[start_idx][2]
+                    throw_times.append((td,
+                                        "red", 
+                                        "Hog-To-Hog",
+                                        21.945 / td))
+                elif event_type == "X":
                     self.times.clear()
                     
-            throwKey = timePatternMatch[-1][2]
-            self.throws[throwKey] = throwTimes
-            return (throwKey, throwTimes)
+            throw_key = time_pattern_match[-1][2]
+            self.throws[throw_key] = throw_times
+            return (throw_key, throw_times)
 
         return None
 
 def test():
     colours = ["white", "yellow", "red", "green", "blue", "orange"]
+    rock_positions = {
+        "T-Line 1": "t1",
+        "T-Line 2": "t2",
+        "Hog-Line 1": "h1",
+        "Hog-Line 2": "h2",
+        "Back-Line 1": "b1",
+        "Back-Line 2": "b2",
+        }
 
     times = []
 
-    sensorToPlacementMap = {}
-    placementToColourMap = {}
+    sensor_to_placement_map = {}
+    placement_to_colour_map = {}
     rows = []
 
     with open(sys.argv[1], newline='') as csvfile:
-        timesRdr = csv.reader(csvfile)
-        firstLine = True
-        for row in timesRdr:
-            if firstLine:
-                firstLine = False
-                continue
+        times_rdr = csv.reader(csvfile)
+        first_line = True
+        for row in times_rdr:
+            if first_line:
+                first_line = False
+                if row[0] == "Sensor":
+                    continue
 
             sensor = row[0]
-            if sensor[0] == 'T':
-                placement = "s" + sensor[-1]
-            else:
-                placement = "h" + sensor[-1]
 
-            if sensor not in sensorToPlacementMap:
-                placementToColourMap[placement] = colours.pop(0)
-                sensorToPlacementMap[sensor] = placement
+            if sensor not in sensor_to_placement_map:
+                placement = rock_positions[sensor]
+                placement_to_colour_map[placement] = colours.pop(0)
+                sensor_to_placement_map[sensor] = placement
 
             t = [float(row[4]), float(row[5]), float(row[5]) - float(row[4]), sensor]
             rows.append(t)
 
-    print(f"{sensorToPlacementMap=}")
-    print(f"{placementToColourMap=}")
+    print(f"{sensor_to_placement_map=}")
+    print(f"{placement_to_colour_map=}")
 
-    rte = RockTimingEvents(sensorToPlacementMap, placementToColourMap, mode="full")
+    rte = RockTimingEvents(sensor_to_placement_map, placement_to_colour_map)
     for tm in reversed(rows):
-        print()
-        print("-")
-        print(f"{tm=}")
-
-        ev = rte.checkForEvent(tm)
+        ev = rte.check_for_event(tm, verbose=True)
         if ev:
+            print()
+            print(f"key={ev[0]}")
             for t, c, event, speed in ev[1]:
-                print(t, c, event, speed)
-
+                print(f"\t{t} - {c} - {event} - {speed}")
+            print()
+        
     print()
     print("==================================")
-    for throwKey, throw in rte.throws.items():
-        print(throwKey)
+    for throw_key, throw in rte.throws.items():
+        print()
+        print(f"key={throw_key}")
         for t, c, event, speed in throw:
-            print(f"\t{t} {c} {event} {speed}")
+            print(f"\t{t} - {c} - {event} - {speed}")
 
 if __name__ == "__main__":
     test()

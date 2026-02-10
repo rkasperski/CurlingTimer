@@ -1,30 +1,73 @@
+<style>
+ .sensor-placement {
+    border: 1px solid black;
+    height: 100%;;
+    position: absolute;
+    display: block;
+    left: 50%;
+    top: 0;
+    width: 0.5em;
+    transform: translate(-50%);
+    opacity: 0.75;
+ }
+
+ .sensor-btn {
+    height: 100%;
+    width: 100%;
+    border-width:0px !important;
+    padding-left: 0px;
+    padding-right: 0px;
+ }
+
+ .sensor-click {
+    height: 100%;
+    width: 100px;
+    position: absolute;
+    display: block;
+    left: 50%;
+    top: 0;
+    width: 1em;
+    transform: translate(-50%);
+    opacity: 0.5;
+    border: 1px solid black;
+    border-radius: var(--bs-border-radius) !important;
+ }
+
+ .sensor-container {
+    position: relative;
+ }
+
+ .sensor-dot {
+    border: 1px solid black;
+    height: 20pt;
+    width: 20pt;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+ }
+</style>
 <div class="display-view d-none" id="sheetTrainingSetup">
    {{ navPanel("sheetTrainingSetup", "sheetn" , "Sheet - Training Setup") }}
    
-   <div class="row justify-content-center mx-2">
-      <div class="col-12 col-md-8">      
-         <div class="row justify-content-center">
-	    <div class="col-auto">
-	       <h3>Style</h3>
-            </div>
-	    <div class="col-auto">
-	       <select class="form-control placement" id="sheetTrainingSetup-style" onchange="sheetTrainingSetup_styleChange();">
-	          <option value="raw">Raw</option>
-	          <option value="half">Half Sheet</option>
-	          <option value="h2h">Hog to Hog</option>
-	          <option value="full" selected>Full Sheet</option>
-	       </select>
-	    </div> 
-         </div>
-         <hr class="divider">
-         <div class="" id="sheetTrainingSetup-sensors">
-         </div>
-         
-         <div class="col-auto">
-	    <button type="submit" id="sheetTrainingSetup-btn-next" onclick="sheetTrainingSetup_gotoTiming()" class="btn btn-outline-dark sheetTrainingSetup-submit-target">Go To Timing</button>
+   <div class="row justify-content-center">
+      <div class="col-12 px-3">
+         <div class="w-100 sensor-container" id="sheetTrainingSetup-rink">
+            <img class="py-2" src="static/images/Standard_Canadian_Curling_Rink.svg" alt="Curling Rink" width="100%" height="100%" />
          </div>
       </div>
-      
+   </div>
+   <div class="row justify-content-center my-2">
+      <div class="col-auto">
+	 <button type="submit"
+                 id="sheetTrainingSetup-btn-next"
+                 onclick="sheetTrainingSetup_gotoTiming()"
+                 class="btn btn-outline-dark sheetTrainingSetup-submit-target">
+            Go To Timing
+         </button>
+      </div>
+   </div>
+   <hr class="divider">
+   <div class="row justify-content-center col-auto"  id="sheetTrainingSetup-sensors">
    </div>
 </div>
 <script>
@@ -32,184 +75,212 @@
  var sheetTrainingSetupHandle = $('#sheetTrainingSetup');
  var sheetTrainingIsDisplay = false;
  var sheetTrainingSetupName = null;
+ var sheetTrainingSetup_default_place = ["t1", "h1", "h2", "t2", "b1", "b2"];
+ var sheetTrainingSetup_checkDevicesTimerID = -1;
  
- function sheetTrainingSetup_selectSensor(sensor, name) {
-    sheetTrainingSetup_autoAssignPlacement();
+ var sheetTrainingSetup_placements = {
+    "b1": {colour: "white", rel_place: "6.86%"},
+    "t1": {colour: "yellow", rel_place: "10.96%"},
+    "h1": {colour: "red", rel_place: "25.46%"},
+    "h2": {colour: "red", rel_place: "74.46%"},
+    "t2": {colour: "yellow", rel_place: "89.06%"},
+    "b2": {colour: "white", rel_place: "93.15%"},
+ };
+ 
+ function sheetTrainingSetup_selectSensor(sensor_checkbox, idx, place) {
+    if (!place ) {
+       place = $(`#sheetTrainingSetup-placement-${idx}`).val();
+    } else {
+       // $(`#sheetTrainingSetup-sensorName-${idx}`).val(name);
+       $(`#sheetTrainingSetup-placement-${idx}`).val(place);
+    }       
+    
+    let colour = sheetTrainingSetup_placements[place].colour;
+    let rink = $("#sheetTrainingSetup-rink");
+
+    $(`#sheetTrainingSetup-indicator-${place}`).remove()
+    $(`.sheetTrainingSetup-indicator-${idx}`).remove()
+
+    $('.sheetTrainingSetup-placement').each(function (i, el) {
+       if (el.dataset["id"] != idx && el.value == place) {
+          el.value = "--unassigned--";
+          $(`#sheetTrainingSetup-color-container-${el.dataset["id"]}`).addClass("invisible");
+       }
+    });
+    
+    if (sensor_checkbox.checked) {
+       rink.append(`<div class="sensor-placement sheetTrainingSetup-indicator sheetTrainingSetup-indicator-${idx}" id="sheetTrainingSetup-indicator-${place}"></div>`)
+       let indicator = $(`#sheetTrainingSetup-indicator-${place}`);
+       
+       indicator.css("background-color", colour);
+       indicator.css("left", sheetTrainingSetup_placements[place].rel_place);
+       $(`#sheetTrainingSetup-color-container-${idx}`).css("background-color", colour);
+       $(`#sheetTrainingSetup-color-container-${idx}`).removeClass("invisible");
+    } else {
+       $(`#sheetTrainingSetup-color-container-${idx}`).addClass("invisible");
+    }
  }
 
  function sheetTrainingSetup_getSelectedSensors() {
     let data = [];
-    let sensors = $(".sheetTrainingSetup-sensor");
-    for (let x = 0; x < sensors.length; x++) {
-       let s = sensors[x];
-       let i = s.dataset["sequence"];
-       
-       if ($(`#sheetTrainingSetup-selected${i}`).prop('checked')) {
-	  data[i] = {name: s.dataset["name"],
-		     ip: s.dataset["ip"],
-		     colour: $(`#sheetTrainingSetup-colour${i}`).val(),
-		     placement: $(`#sheetTrainingSetup-placement${i}`).val(),
-	  };
-       }
-    }
+    $('.sheetTrainingSetup-selection:checked').each(function(i, el) {
+       let idx = el.dataset["id"]
+       let place = $(`#sheetTrainingSetup-placement-${idx}`).val();
+       let s = $(`#sheetTrainingSetup-sensor-${idx}`)[0]
+       data.push({name: s.dataset["name"],
+		  ip: s.dataset["ip"],
+		  colour: sheetTrainingSetup_placements[place].colour,
+		  placement: place
+       });
+    });
 
     return data;
  }
- 
+
+          
  function sheetTrainingSetup_gotoTiming() {
     let selectedSensors = sheetTrainingSetup_getSelectedSensors();
-    panelNavigate(`sheetTraining`, {style: $('#sheetTrainingSetup-style').val(),
-                                    sensors: selectedSensors,
+    panelNavigate(`sheetTraining`, {sensors: selectedSensors,
                                     ip: sheetTrainingSetupIP,
                                     name: sheetTrainingSetupName,
                                     hasDisplay: sheetTrainingIsDisplay});
  }
  
- var sheetTrainingSetup_placements = ["s1", "h1", "h2", "s2"];
- var sheetTrainingSetup_colours = [["white", "white"],
-                                    ["yellow", "ywllow"],
-                                    ["red", "red"],
-                                    ["green", "green"],
-                                    ["blue", "blue"],
-                                    ["orange", "orange"]];
-
- function sheetTrainingSetup_autoAssignPlacement() {
-    let nSelected = 0;
-    let nAssigned = 0;
-    let style = $('#sheetTrainingSetup-style').val();
-    let offset = (style == "h2h") ? 1 : 0;
-    let nSensors = $("#sheetTrainingSetup-sensors").children().length;
-    
-    for (i = 0; i < nSensors; i++) {
-       if($(`#sheetTrainingSetup-selected${i}`).prop('checked')) {
-          nSelected++;
-          if ((nAssigned < 2 && style != "raw") || (nAssigned < 4 && style == "full") || style =="raw") {
-             $(`#sheetTrainingSetup-placement${i}`).val(sheetTrainingSetup_placements[nAssigned + offset])
-             $(`#sheetTrainingSetup-colour${i}`).val(sheetTrainingSetup_colours[nAssigned + offset][0])
-             nAssigned++;
-          } else {
-             $(`#sheetTrainingSetup-placement${i}`).val("raw")
-          }
-       }
-    }
- }
- 
- function sheetTrainingSetup_styleChange() {
-    let style = $('#sheetTrainingSetup-style').val();
-    
-    let half = style == "half";
-    let h2h = style == "h2h";
-    let full = style == "full" || style == "raw";
-    
-    $('.sheetTrainingSetup-placement option[value="h1"]').attr("disabled", !(half || full || h2h));
-    $('.sheetTrainingSetup-placement option[value="s1"]').attr("disabled", !(half || full));
-    
-    $('.sheetTrainingSetup-placement option[value="s2"]').attr("disabled", !(full));
-    $('.sheetTrainingSetup-placement option[value="h2"]').attr("disabled", !(full || h2h));
-    sheetTrainingSetup_autoAssignPlacement();
-    sheetTrainingSetup_verifyStyleConstraints();    
+ function sheetTrainingSetup_changePlacement(idx, place) {
+    $(`#sheetTrainingSetup-selected-${idx}`).prop('checked', true);
+    sheetTrainingSetup_selectSensor( $(`#sheetTrainingSetup-selected-${idx}`)[0], idx, place);
+    sheetTrainingSetup_verifyConstraints();
  }
 
- function sheetTrainingSetup_changePlacement(sensor, ordinal, name) {
-    $("#sheetTrainingSetup-sensorName_" + ordinal).val(name);
+ function sheetTrainingSetup_verifyConstraints() {
+    let nSelected = $('.sheetTrainingSetup-selection:checked').length;
+    enableField(nSelected >= 1, ".sheetTrainingSetup-submit-target");
  }
 
- function sheetTrainingSetup_verifyStyleConstraints() {
-    let style = $("#sheetTrainingSetup-style").val();
-    
-    let isValid = true;
+ function sheetTrainingSetup_addSensor(sensor, idx) {
+    let existingSensor = $(`.sheetTrainingSetup-sensor[data-ip="${sensor.ip}"]`);
 
-    if (style != "raw") {
-       let nSelected = 0;
-       let placementTracker = new Map();
-       let nSensors = $("#sheetTrainingSetup-sensors").children().length;
-       
-       for (i = 0; i < nSensors; i++) {
-          if($(`#sheetTrainingSetup-selected${i}`).prop('checked')) {
-             nSelected++;
-             let place = $(`#sheetTrainingSetup-placement${i}`).val()
-
-             if (placementTracker.get(place)) {
-                isValid = false;
-                break;
-             }
-
-             placementTracker.set(place, nSelected);
-          }
-       }
-
-       if (style == "half" || style == "h2h") {
-          isValid = isValid && nSelected == 2;
-       } else {
-          isValid = isValid && nSelected == 4;
-       }
-    } else {
-       isValid =  $(".sheetTrainingSetup-selection:checked").length > 0
+    if (existingSensor.length != 0) {
+       return 0;
     }
     
-    enableField(isValid, ".sheetTrainingSetup-submit-target");
- }
-
- function sheetTrainingSetup_addSensor(sensor, idx, colours) {
+    let default_place = sheetTrainingSetup_default_place[idx];
     let s =
-       `<div class="row gy-2 mb-3 sheetTrainingSetup-sensor" id="sheetTrainingSetup-sensor${idx}" 
+       `<div class="row sheetTrainingSetup-sensor" id="sheetTrainingSetup-sensor-${idx}" 
       data-sequence="${idx}" 
       data-name="${sensor.name}" 
       data-ip="${sensor.ip}">
-  <div class="col-10 col-md-auto">
+  <div class="col-auto">
      <h3>
-        <input class="form-check-input sheetTrainingSetup-selection big-check" type="checkbox" id="sheetTrainingSetup-selected${idx}" onchange="sheetTrainingSetup_selectSensor(this, '${sensor.name}');" onfocus="sheetTrainingSetup_selectSensor(this, '${sensor.name}');">
-        <label class="form-check-label ml-2" for="sheetTrainingSetup-selected${idx}"> ${sensor.name} </label>
+        <input class="form-check-input sheetTrainingSetup-selection big-check" 
+               type="checkbox" 
+               id="sheetTrainingSetup-selected-${idx}" 
+               data-id="${idx}"
+               onchange="sheetTrainingSetup_selectSensor(this, ${idx});" 
+        <label class="form-check-label ml-2" for="sheetTrainingSetup-selected-${idx}"> ${sensor.name} </label>
      </h3>
   </div>
-  <div class="offset-1 col-4 offset-md-0 col-md-auto">
-     <select class="form-control sheetTrainingSetup-placement" id="sheetTrainingSetup-placement${idx}" onchange="sheetTrainingSetup_changePlacement(this, '${idx}', '${sensor.name}');">
-        <option value="s1">T/Back-Line 1</option>
-        <option value="h1">Hog-Line 1</option>
-        <option value="s2">T/Back-Line 2</option>
-        <option value="h2">Hog-Line 2</option>
+  <div class="col-auto offset-md-0 col-md-auto">
+     <select class="form-control sheetTrainingSetup-placement" 
+              id="sheetTrainingSetup-placement-${idx}" 
+              data-id="${idx}"
+              onchange="sheetTrainingSetup_changePlacement('${idx}', null);"
+              onclick="sheetTrainingSetup_changePlacement('${idx}', null);"
+     >
+        <option value="--unassigned--" disabled>Unassigned</option>
+        <option value="b1" ${"b1" == default_place ? "selected" : ""}>Back-Line 1</option>
+        <option value="t1" ${"t1" == default_place ? "selected" : ""}>T-Line 1</option>
+        <option value="h1" ${"h1" == default_place ? "selected" : ""}>Hog-Line 1</option>
+        <option value="h2" ${"h2" == default_place ? "selected" : ""}>Hog-Line 2</option>
+        <option value="t2" ${"t2" == default_place ? "selected" : ""}>T-Line 2</option>
+        <option value="b2" ${"b2" == default_place ? "selected" : ""}>Back-Line 2</option>
      </select>
   </div> 
-  <div class="col-3 col-md-auto" id="sheetTrainingSetup-color-container${idx}">
-  </div>
   <div class="col-2 col-md-auto">
-     <button type="button" class="btn btn-outline-dark icon-button mb-2" onclick="BreakTimerSensorFlash('${sensor.ip}', '${sensor.name}', 30)">{{icon("sun")}}</button>
+     <button type="button"
+             class="btn btn-outline-dark icon-button mb-2 invisible" 
+             id="sheetTrainingSetup-color-container-${idx}"
+             onclick="BreakTimerSensorFlash('${sensor.ip}', '${sensor.name}', 30)">
+        {{icon("sun")}}
+     </button>
   </div>
-</div>`
+</div>`;
 
-       $("#sheetTrainingSetup-sensors").append(s);
-    addColourSelector(`#sheetTrainingSetup-color-container${idx}`, `sheetTrainingSetup-colour${idx}`, "red", colours);
+    $("#sheetTrainingSetup-sensors").append(s);
+    return 1;
  }
 
  function sheetTrainingSetup_bindVerifiers() {
     $('.sheetTrainingSetup-placement').on('keyup', function(e) {
-       sheetTrainingSetup_verifyStyleConstraints();
+       sheetTrainingSetup_verifyConstraints();
     });
     
     $('.sheetTrainingSetup-placement').on('change', function(e) {
-       sheetTrainingSetup_verifyStyleConstraints();
+       sheetTrainingSetup_verifyConstraints();
     });
     
     $('.sheetTrainingSetup-selection').on('change', function(e) {
-       sheetTrainingSetup_verifyStyleConstraints();
+       sheetTrainingSetup_verifyConstraints();
     });
  }
+
+ // this is a little hacky. dropdowns were behind some other
+ // elements. Need to bring current one to the front
  
- function sheetTrainingSetup() {
-    $("#sheetTrainingSetup-sensors").empty();
-    
-    getDevicesAjax()
-       .done(function(devices) {
-          for (let idx = 0; idx < devices.sensors.length; idx++) {
-             sheetTrainingSetup_addSensor(devices.sensors[idx], idx, sheetTrainingSetup_colours);
-          }
-          sheetTrainingSetup_bindVerifiers();                
-       });
-    
-    sheetTrainingSetup_verifyStyleConstraints();
-    sheetTrainingSetup_styleChange();
+ function sheetTrainingSetup_on_top(idx) {
+    $(".sensor-click").css("z-index", "auto");
+    $(`#sheetTrainingSetup-dropdown-${idx}`).css("z-index", 90);
  }
 
+ function sheetTrainingSetup_checkDevices() {
+    getDevicesAjax()
+       .done(function(devices) {
+          let added = 0;
+          
+          for (let idx = 0; idx < devices.sensors.length; idx++) {
+             added += sheetTrainingSetup_addSensor(devices.sensors[idx], idx);
+          }
+
+          if (added) {
+             $('.sensor-click').remove();
+             sheetTrainingSetup_default_place.forEach(function (place, i) {
+                let d = sheetTrainingSetup_placements[place];
+                let drop_str = "";
+             
+                devices.sensors.forEach(function(snsr, idx) {
+                   drop_str += `<li><a class="dropdown-item" href="#"
+                                    onclick="sheetTrainingSetup_changePlacement(${idx}, '${place}');">${snsr.name}</a></li>`;
+                })
+                $("#sheetTrainingSetup-rink").append(
+                   `<div class="sensor-click dropdown dropend" 
+                        id="sheetTrainingSetup-dropdown-${i}"
+                        onclick="sheetTrainingSetup_on_top(${i})"
+                        style="left:${d.rel_place}; opacity:1;">
+                <button class="btn sensor-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                </button>
+                <ul class="dropdown-menu" style="opacity=1.0;">
+                    ${drop_str}
+                </ul>
+                </div>
+                   `);
+             });
+             sheetTrainingSetup_bindVerifiers();                
+             sheetTrainingSetup_verifyConstraints();
+          }
+       });
+ }
+
+ function sheetTrainingSetup() {
+    $("#sheetTrainingSetup-sensors").empty();
+    $(".sheetTrainingSetup-indicator").remove();
+    sheetTrainingSetup_checkDevicesTimerID = setInterval(sheetTrainingSetup_checkDevices, 1000);
+    sheetTrainingSetup_checkDevices();    
+ }    
+
+ function sheetTrainingSetup_refresh_devices() {
+    sheetTrainingSetup();
+ }
+ 
  function sheetTrainingSetup_enter(data) {
     if (data !== null) {
        sheetTrainingSetupIP = data.ip;
@@ -217,10 +288,13 @@
        sheetTrainingSetupName = data.name;
        sheetTrainingIsDisplay = data.isDisplay;       
     }
+    
     sheetTrainingSetup();
  }
  
  function sheetTrainingSetup_exit() {
+    clearInterval(sheetTrainingSetup_checkDevicesTimerID);
+    sheetTrainingSetup_checkDevicesTimerID = -1;    
  }
  
  {% for s in sheets %}
@@ -233,6 +307,7 @@
  }
  
  function sheetTrainingSetup{{loop.index0}}_exit() {
+    sheetTrainingSetup_exit();
  }
  {% endfor %}
 </script>

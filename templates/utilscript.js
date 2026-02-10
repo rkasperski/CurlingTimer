@@ -229,16 +229,16 @@ function validField(isValid, input) {
     return isValid;
 }
 
-function testField(rePat, input, allowEmpty) {
+function verify_field_pattern(rePat, input, allowEmpty) {
    input = $(input)
     
    let value = input.val();
    let isValid = rePat.test(value);
 
    if (allowEmpty) {
-	   if (!value) {
-	      isValid = true
-	   }
+       if (!value) {
+	   isValid = true
+       }
    }
 
    return isValid;
@@ -247,15 +247,15 @@ function testField(rePat, input, allowEmpty) {
 var digitRegex = /^\d+$/;
 
 function verify_time_field(input, allowEmpty) {
-   return testField(/^[0-9]{1,2}(:[0-9][0-9]){0,2}$/, input, allowEmpty);
+   return verify_field_pattern(/^[0-9]{1,2}(:[0-9][0-9]){0,2}$/, input, allowEmpty);
 }
 
 function verify_int_field(input, allowEmpty) {
-   return testField(/^[0-9]+$/, input, allowEmpty);
+   return verify_field_pattern(/^[0-9]+$/, input, allowEmpty);
 }
 
 function verify_float_field(input, allowEmpty) {
-   return testField(/^[0-9](\.[0-9]+)?$/, input, allowEmpty);
+   return verify_field_pattern(/^[0-9](\.[0-9]+)?$/, input, allowEmpty);
 }
 
 function verify_timeOfDay_field(input, allowEmpty) {
@@ -283,7 +283,7 @@ function verify_timeOfDay_field(input, allowEmpty) {
 }
 
 function verify_notEmpty_field(input, allowEmpty) {
-   return testField(/./, input, allowEmpty);
+   return verify_field_pattern(/./, input, allowEmpty);
 }
 
 function verify_unique_field(input, allowEmpty) {
@@ -333,7 +333,7 @@ function verify_password_field(input, allowEmpty) {
    return (oldPasswordId == input.attr("id")) ? oldValid : newValid;
 }
 
-function testFieldClass(inputSelector, testF, allowEmpty) {
+function verify_field_class(inputSelector, testF, allowEmpty) {
 
    // not efficient but not much used either
    $(input).each(function(index) {

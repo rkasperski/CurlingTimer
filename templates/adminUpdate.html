@@ -224,8 +224,8 @@
     let devices = getSelectedIconList("adminUpdate-iconChecked");
     
     let installIsValid = devices.length > 0 &&
-                         verifyField(/^.*\.(tgz)$/, '#adminUpdate-updateFileUpload', '#adminUpdate-btn-install') &&
-                         verifyField(/[a-f0-9A-F]+/, "#adminUpdate-digest", '#adminUpdate-btn-install');
+                         verify_field_pattern(/^.*\.(tgz)$/, '#adminUpdate-updateFileUpload', '#adminUpdate-btn-install') &&
+                         verify_field_pattern(/[a-f0-9A-F]+/, "#adminUpdate-digest", '#adminUpdate-btn-install');
     
     enableField(installIsValid, '#adminUpdate-btn-install')
  }

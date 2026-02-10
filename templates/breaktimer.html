@@ -5,7 +5,7 @@
 
 {% if debug %}
    {% macro debugMsg(who, what) %}
-   console.log(who, what);
+   dbg_print(who, what);
    {% endmacro %}
 {% else %}
    {% macro debugMsg(who, what) %}

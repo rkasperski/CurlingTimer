@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="29.2in" height="3.067in" viewBox="0 0 1752 184"><!-- 1/60 scale, units in real-rink inches -->
+<style type="text/css">
+<![CDATA[
+circle {
+  stroke: none;
+}
+line {
+  stroke: #000;
+  stroke-opacity: 0.7;
+  stroke-width: 0.5;
+}
+rect {
+  stroke: none;
+}
+]]>
+</style>
+<desc>Standard Canadian Curling Rink, as defined in the Canadian Curling Association's Rules of Curling:
+http://www.curling.ca/content/GoCurling/rulesOfCurling.asp</desc>
+<defs>
+  <g id="house">
+    <circle id="c12" cx="0" cy="0" r="72" fill="#00f"/>
+    <circle id="c8" cx="0" cy="0" r="48" fill="#fff"/>
+    <circle id="c4" cx="0" cy="0" r="24" fill="#f00"/>
+    <circle id="button" cx="0" cy="0" r="6" fill="#fff"/>
+    <circle id="pin" cx="0" cy="0" r="0.25" fill="#000"/>
+    <line id="tee" x1="0" y1="-92" x2="0" y2="92"/>
+    <line id="back" x1="-71.75" y1="-92" x2="-71.75" y2="92"/><!-- *back* of back line is at edge of 12' -->
+    <line id="hog" x1="254" y1="-92" x2="254" y2="92" stroke-width="4" style="stroke-width: 4;"/><!-- *back* of hog line at 21' from tee -->
+    <line id="hackline" x1="-144.25" y1="-9" x2="-144.25" y2="9"/>
+    <rect id="hack-bottom" x="-144" y="3" width="8" height="6" fill="#000"/>
+    <rect id="hack-top" x="-144" y="-9" width="8" height="6" fill="#000"/>
+  </g>
+  <g id="redstone"><circle cx="0" cy="0" r="5.73" fill="#777"/><circle cx="0" cy="0" r="3.5" fill="#d00"/></g>
+  <g id="yellowstone"><circle cx="0" cy="0" r="5.73" fill="#777"/><circle cx="0" cy="0" r="3.5" fill="#ee0"/></g>
+</defs>
+
+<g transform="translate(192,92)"><!-- centre coordinates on left button -->
+  <rect id="background" x="-192" y="-92" width="1752" height="184" fill="#fff"/>
+  <rect id="outline" x="-192" y="-92" width="1753" height="184" stroke="#000" stroke-width="0.5" fill="none" style="stroke:#000; stroke-width:0.5; fill:none"/>
+  <line id="top-4ft" x1="60" y1="24" x2="1308" y2="24"/>
+  <line id="bottom-4ft" x1="60" y1="-24" x2="1308" y2="-24"/>
+
+  <use id="left-house" xlink:href="#house"/>
+  <use id="right-house" xlink:href="#house" transform="rotate(180) translate(-1368,0)"/>
+
+  <line id="centre-line" x1="-144" y1="0" x2="1512" y2="0"/>
+
+  <g id="redstones">
+    <use xlink:href="#redstone" transform="translate(-186,79)"/>
+    <use xlink:href="#redstone" transform="translate(-174,79)"/>
+    <use xlink:href="#redstone" transform="translate(-162,79)"/>
+    <use xlink:href="#redstone" transform="translate(-150,79)"/>
+    <use xlink:href="#redstone" transform="translate(-138,79)"/>
+    <use xlink:href="#redstone" transform="translate(-126,79)"/>
+    <use xlink:href="#redstone" transform="translate(-114,79)"/>
+    <use xlink:href="#redstone" transform="translate(-104,79)"/>
+  </g>
+  <g class="yellowstones">
+    <use xlink:href="#yellowstone" transform="translate(-186,-79)"/>
+    <use xlink:href="#yellowstone" transform="translate(-174,-79)"/>
+    <use xlink:href="#yellowstone" transform="translate(-162,-79)"/>
+    <use xlink:href="#yellowstone" transform="translate(-150,-79)"/>
+    <use xlink:href="#yellowstone" transform="translate(-138,-79)"/>
+    <use xlink:href="#yellowstone" transform="translate(-126,-79)"/>
+    <use xlink:href="#yellowstone" transform="translate(-114,-79)"/>
+    <use xlink:href="#yellowstone" transform="translate(-102,-79)"/>
+  </g>
+</g>
+</svg>

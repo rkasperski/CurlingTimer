@@ -87,3 +87,13 @@ else
     cd log2ram-master
     chmod +x install.sh && ./install.sh
 fi
+
+echo "If you haven't set the hostname then please do so and then reboot"
+echo "-"
+echo "sudo raspi-config"
+echo ' select "System Options"'
+echo ' select "Hostname"'
+echo ' enter your host name'
+echo ' confirm your choice'
+echo ' select finish'
+echo ' select reboot'

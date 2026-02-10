@@ -157,7 +157,7 @@
  }
 
  function clubDrawsUpload_verifyFileField(input, target, allowEmpty) {
-    verifyField(/^.*\.(xlsx|csv|xls|pdf)$/, input, target, allowEmpty);
+    verify_field_pattern(/^.*\.(xlsx|csv|xls|pdf)$/, input, target, allowEmpty);
  }
 
  function clubDrawsUpload_show() {

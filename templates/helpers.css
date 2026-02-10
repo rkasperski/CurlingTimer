@@ -67,5 +67,52 @@
     width: 100%;
     left: 0;
     top: 0;
- } 
+ }
+ .dot-yellow {
+    height: 20px;
+    width: 20px;
+    background-color: yellow;
+    border-radius: 50%;
+    display: inline-block;
+ }
+ .dot-red {
+    height: 20px;
+    width: 20px;
+    background-color: red;
+    border-radius: 50%;
+    display: inline-block;
+ }
+ .dot-white {
+    height: 20px;
+    width: 20px;
+    background-color: white;
+    border-radius: 50%;
+    border: 1px solid black;
+    display: inline-block;
+ }
+
+ .dot-green {
+    height: 20px;
+    width: 20px;
+    background-color: green;
+    border-radius: 50%;
+    display: inline-block;
+ }
+
+ .dot-blue {
+    height: 20px;
+    width: 20px;
+    background-color: blue;
+    display: inline-block;
+    border-radius: 50%;
+ }
+ 
+ .dot-orange {
+    height: 20px;
+    width: 20px;
+    background-color: orange;
+    border-radius: 50%;
+    display: inline-block;
+ }
+ 
 </style>

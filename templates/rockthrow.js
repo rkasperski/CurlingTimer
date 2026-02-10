@@ -1,42 +1,129 @@
 class RockTimingEvents {
-    constructor(sensorToPlacementMap, placementToColourMap, mode, circumference, slidePathLength) {
+    timing_patterns = [
+        [[["back-slide-interval", 1, 3],
+          ["t-slide-interval", 1, 2],          
+          ["hog-hog-interval", 0, 1],
+          ["near-hog-speed", 1, null],
+          ["far-hog-speed", 0, null],
+          ["X", null]],
+          [["h2", 0], ["h1", 22], ["t1", 5], ["b1", 3]]],  // b1 t1 h1 h2
+         
+        [[["back-slide-interval", 1, 3],
+          ["t-slide-interval", 1, 2],          
+          ["hog-hog-interval", 0, 1],
+          ["near-hog-speed", 1, null],
+          ["far-hog-speed", 0, null],
+          ["X", null, null]],
+         [["h1", 0], ["h2", 22], ["t2", 5], ["b2", 3]]],  // b2 t2 h2 h1
+         
+        [[["back-slide-interval", 0, 2],
+          ["t-slide-interval", 0, 1],          
+          ["near-hog-speed", 0, null],
+          ["X", null, null]],
+         [["h1", 22], ["t1", 5], ["b1", 3]]],             // b1 t1 h1
+         
+        [[["back-slide-interval", 0, 2],
+          ["t-slide-interval", 0, 1],
+          ["near-hog-speed", 0, null],
+          ["X", null, null]],
+         [["h2", 22], ["t2", 5], ["b2", 3]]],             // b2 t2 h2
+        
+        [[["t-slide-interval", 1, 2],
+          ["hog-hog-interval", 0, 1],
+          ["near-hog-speed", 1, null],
+          ["far-hog-speed", 0, null],
+          ["X", null, null]],
+         [["h2", 0], ["h1", 22], ["t1", 5]]],             // t1 h1 h2
+        
+        [[["t-slide-interval", 1, 2],
+          ["hog-hog-interval", 0, 1],
+          ["near-hog-speed", 1, null],
+          ["far-hog-speed", 0, null],
+          ["X", null, null]],
+         [["h1", 0], ["h2", 22], ["t2", 5]]],             // t2 h2 h1
+        
+        [[["back-slide-interval", 1, 2],
+          ["hog-hog-interval", 0, 1],
+          ["near-hog-speed", 1, null],
+          ["far-hog-speed", 0, null],
+          ["X", null, null]],
+         [["h2", 0], ["h1", 22], ["b1", 5]]],             // b1 h1 h2
+        
+        [[["back-slide-interval", 1, 2],
+          ["hog-hog-interval", 0, 1],
+          ["near-hog-speed", 1, null],
+          ["far-hog-speed", 0, null],
+          ["X", null, null]],
+         [["h1", 0], ["h2", 22], ["b2", 5]]],             // b2 h2 h1
+        
+        [[["t-slide-interval", 0, 1],
+          ["near-hog-speed", 0, null]],
+         [["h1", 0], ["t1",  5]]],                        // t1 h1
+        
+        [[["t-slide-interval", 0, 1],
+          ["near-hog-speed", 0, null]],
+         [["h2", 0], ["t2",  5]]],                        // t2 h2
+        
+        [[["back-slide-interval", 0, 1],
+          ["near-hog-speed", 0, null]],
+         [["h1", 0], ["b1",  5]]],                        // b1 h1
+        
+        [[["back-slide-interval", 0, 1],
+          ["near-hog-speed", 0, null]],
+         [["h2", 0], ["b2",  5]]],                        // b2 h2
+        ]
+        
+    timing_patterns_1 = [
+        [[["sensor-speed", 0, null],
+          ["X", null, null]],
+         [["h2", 0], ]],                                  // h2
+        
+        [[["sensor-speed", 0, null],
+          ["X", null, null]],
+         [["h1", 0], ]],                                  // h1
+        
+        [[["sensor-speed", 0, null],
+          ["X", null, null]],
+         [["t2", 0], ]],                                  // t2
+        
+        [[["sensor-speed", 0, null],
+          ["X", null, null]],
+         [["t1", 0], ]],                                  // t1
+        
+        [[["sensor-speed", 0, null],
+          ["X", null, null]],          
+         [["b2", 0], ]],                                  // b2
+        
+        [[["sensor-speed", 0, null],
+          ["X", null, null]],
+         [["b1", 0], ]],                                  // b1
+    ];
+
+    sensor_names = {
+        "b1": "Near Back-Line", 
+        "t1": "Near T-Line",
+        "h1": "Near Hog-Line", 
+        "h2": "Far Hog-Line",
+        "t2": "Far T-Line",
+        "b2": "Far Back-Line" };
+    
+    constructor(sensorToPlacementMap, placementToColourMap, circumferenceInM) {
         this.times = [];
         this.sensorToPlacementMap = sensorToPlacementMap;
         this.placementToColourMap = placementToColourMap;
-        this.mode = mode;
-        // time patterns are in reverse order.
-        // pattern tuple is (placement, maximum time difference from previous placment)
-        // "b" is break time of second match.
-        // "B" is break time of third match
-        // "d" is time difference between 1 & 2
-        // "D" is time difference between 2 & 3
-        // "X" is reset queue of incoming times
-        if (mode == "half") {
-            this.timePatterns = [["dbX", [["h1", 0], ["s1", 4]]]];
-        } else if (mode == "h2h") {
-            this.timePatterns = [["DbBX", [["h1", 0], ["h2", 20]]],
-                                 ["DbBX", [["h2", 0], ["h1", 20]]],
-                                 ["f", [["h1", 0]]],
-                                 ["f", [["h2", 0]]]];
-        } else if (mode == "full") {
-            this.timePatterns = [["dDbBX", [["h2", 0], ["h1", 20], ["s1", 4]]],
-                                 ["dDbBX", [["h1", 0], ["h2", 20], ["s2", 4]]],
-                                 ["db", [["h1", 0], ["s1", 4]]],
-                                 ["db", [["h2", 0], ["s2", 4]]]];
+        if (sensorToPlacementMap.size == 1) {
+            this.timePatterns = this.timing_patterns_1;
         } else {
-            this.timePatterns = null;
+            this.timePatterns = this.timing_patterns;
         }
 
+        this.first_time = 0;
         this.throws = new Map();
-        // diameter from circumference
-        this.diameter = circumference / Math.PI;
-        // this.slidePathLength = 6.401;
-        // this.slidePathLength = 8.2296;
-        this.slidePathLength = slidePathLength;
-        // console.log(this.timePatterns);
+        this.diameter = circumferenceInM / Math.PI;
     }
 
     clear() {
+        this.first_time = 0;
         this.times = []
         this.throws = new Map()
     }
@@ -99,11 +186,11 @@ class RockTimingEvents {
     }
 
     checkForEvent(tm) {
-        if (this.timePatterns == null) {
-            let throwKey = tm[0]
-            let throwTimes = [[tm[2], "white", "raw", this.diameter / tm[2]]]
-            this.throws.set(throwKey, throwTimes);
-            return [throwKey, throwTimes];
+        let tdiff = tm[0] - this.first_time;
+        
+        if (tdiff > 20) {
+            this.times = [];
+            this.first_time = tm[0];
         }
         
         this.times.unshift([this.sensorToPlacementMap.get(tm[3], tm[3]), tm[0], tm[1], tm[2]]);
@@ -126,41 +213,48 @@ class RockTimingEvents {
 
                 let throwTimes = [];
 
-                let tpml = timePatternMatch.length;
-                for (let selector of timeSelector) {
-                    if (selector == "b") {
-                        throwTimes.push([timePatternMatch[tpml - 1][3],
-                                         this.placementToColourMap.get(timePatternMatch[tpml - 1][0]),
+                for (const selector of timeSelector) {
+                    const [event_type, end_idx, start_idx] = selector;
+                    
+                    if (event_type == "near-hog-speed") {
+                        throwTimes.push([timePatternMatch[end_idx][3],
+                                         "orange",
                                          "Near Hog-Line",
-                                         this.diameter / timePatternMatch[tpml - 1][3]]);
-                    } else if (selector == "B") {
-                        throwTimes.push([timePatternMatch[0][3],
-                                         this.placementToColourMap.get(timePatternMatch[0][0]),
+                                         this.diameter / timePatternMatch[end_idx][3]]);
+                    } else if (event_type == "far-hog-speed") {
+                        throwTimes.push([timePatternMatch[end_idx][3],
+                                         "green",
                                          "Far Hog-Line",
-                                         this.diameter / timePatternMatch[0][3]]);
-                    } else if (selector == "d") {
-                        let td = timePatternMatch[timePatternMatch.length - 2][2] - timePatternMatch[timePatternMatch.length - 1][2];
+                                         this.diameter / timePatternMatch[end_idx][3]]);
+                    } else if (event_type == "sensor-speed") {
+                        throwTimes.push([timePatternMatch[end_idx][3],
+                                         "blue",
+                                         this.sensor_names[timePatternMatch[end_idx][0]],
+                                         this.diameter / timePatternMatch[end_idx][3]]);
+                    } else if(event_type == "t-slide-interval") {
+                        let td = timePatternMatch[end_idx][2] - timePatternMatch[start_idx][2];
                         throwTimes.push([td,
-                                         this.placementToColourMap.get(timePatternMatch[0][0]),
-                                         "Slide",
-                                         this.slidePathLength / td]);
-                    } else if (selector == "D") {
-                        let td = timePatternMatch[0][2] - timePatternMatch[1][2];
+                                         "yellow",
+                                         "Slide - T",
+                                         6.4008 / td]);
+                    } else if(event_type == "back-slide-interval") {
+                        let td = timePatternMatch[end_idx][2] - timePatternMatch[start_idx][2];
                         throwTimes.push([td,
-                                         this.placementToColourMap.get(timePatternMatch[1][0]),
+                                         "white",
+                                         "Slide - Back",
+                                         8.2996 / td]);
+                    } if (event_type == "hog-hog-interval") {
+                        let td = timePatternMatch[end_idx][2] - timePatternMatch[start_idx][2];
+                        throwTimes.push([td,
+                                         "red",
                                          "Hog-To-Hog",
                                          21.945 / td]);
                     } else if (selector == "X") {
-                        this.times = [];
-                    } else if (selector == "f") {
-                        throwTimes.push([timePatternMatch[0][3],
-                                         this.placementToColourMap.get(timePatternMatch[0][0]),
-                                         "Near Hog-Line",
-                                         this.diameter / timePatternMatch[0][3]]);
+                        this.clear();
                     }
                 }
 
-                let throwKey = timePatternMatch[tpml - 1][2];
+                let throwKey = timePatternMatch[timePatternMatch.length - 1][2];
                 this.throws.set(throwKey, throwTimes);
                 return [throwKey, throwTimes];
             }

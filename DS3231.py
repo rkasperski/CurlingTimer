@@ -105,6 +105,7 @@ class DS3231():
 
         os.system(f"sudo date -s '{curTime}'")
         os.system("date +'%a %-d %b %Y %-I:%M:%S.%N %p %Z'")
+        print(f"hwclock: set system time: {curTime}")
 
         
 def main():

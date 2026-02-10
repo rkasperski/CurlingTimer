@@ -1,7 +1,12 @@
 set -x
 if [ ! -d ".venvb" ]
 then
+  sudo apt install git
   python -m venv .venvb
+  source .venvb/bin/activate
+  pip install -r breaktimer.requirements.txt
+else
+  source .venvb/bin/activate
 fi
-source .venvb/bin/activate
-pip install -r breaktimer.requirements.txt
+
+python build_install.py -v --breaktimer

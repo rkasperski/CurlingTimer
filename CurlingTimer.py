@@ -298,11 +298,6 @@ def main():
 
     Utils.singleton(f'curling-timer-{displayConfig.server.serverPort}')
 
-    if displayConfig.sheets.mySheet is not None:
-        Utils.checkAndSetHostName(displayConfig.sheets.mySheet.name.replace(" ", "").lower(),
-                                  displayConfig.organization.domain,
-                                  myApp.configDir)
-
     tokenAuthenticator = createAuthenticator(displayConfig.users)
     
     info("startup: init display")
@@ -368,7 +363,9 @@ def main():
 
     info("startup: setup display routes")
     app.add_routes(CommonRoutes.routes)
-    from UpdateSoftware import routes as httpUpdateSoftware
+    from UpdateSoftware import routes as httpUpdateSoftware, register_purpose
+    register_purpose("CurlingTimer")
+
     app.add_routes(httpUpdateSoftware)
     
     AIO_Utils.registerGetColours(displayDevice.getColours)

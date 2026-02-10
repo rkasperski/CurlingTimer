@@ -2,39 +2,39 @@ var global_id = Math.random() * 100000000000000000;
 
 class WSBreakTimer extends WSSocket {
     cmd_registered(msgData, cbData) {
-        console.log("WSBreakTimer: cmd_registered:", this.url, msgData);
+        dbg_print("WSBreakTimer: cmd_registered:", this.url, msgData);
         this.registered = true;
     }
 
     connectionFailed() {
-        console.log("WSBreakTimer: connectionFailed:", this.url);
+        dbg_print("WSBreakTimer: connectionFailed:", this.url);
         this.registered = false;
     }        
 
     cmd_time(time, cbData) {
-        console.log("WSBreakTimer: cmd_time:", this.url, time);
+        dbg_print("WSBreakTimer: cmd_time:", this.url, time);
         this.newTime(cbData, time);
         this.updateDisplay();    
     }
 
     cmd_times(times, cbData) {
-        console.log("WSBreakTimer: cmd_times:", this.url, times);
+        dbg_print("WSBreakTimer: cmd_times:", this.url, times);
         times.forEach(time => this.appendTime(cbData, time));
         this.updateDisplay();
         this.updateEvents();
     }
 
     cmd_reset(msgData, cbData) {
-        console.log(`WSBreakTimer: cmd_reset: ${msgData}`);
+        dbg_print(`WSBreakTimer: cmd_reset: ${msgData}`);
     }
 
     socketClose(event, cbData) {
-        console.log("WSBreakTimer: socketClose:", this.url);
+        dbg_print("WSBreakTimer: socketClose:", this.url);
         this.registered = false;
     }
 
     socketOpen(event, cbData) {
-        console.log("WSBreakTimer: socketOpen:", this.url);
+        dbg_print("WSBreakTimer: socketOpen:", this.url);
     
         this.sendMsg("register", {tkn: accessToken,
                                   id: global_id,
@@ -42,7 +42,7 @@ class WSBreakTimer extends WSSocket {
     }
 
     socketError(event, cbData) {
-        console.log("WSBreakTimer: socketError",  this.url, event);
+        dbg_print("WSBreakTimer: socketError",  this.url, event);
     }
 
     reset(filterTime) {

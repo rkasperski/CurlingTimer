@@ -9,9 +9,15 @@ from aiohttp import MultipartReader as aiohttp_MultipartReader
 from AccessVerification import ajaxVerifyToken
 import SetupApp
 from Identify import versionNo, buildDate, getVersion, getBuildDate
-from Utils import resetSetHostNameLoopDetector
 
 routes = aiohttp_web.RouteTableDef()
+
+what_am_i = "unknown"
+
+def register_purpose(purpose):
+    global what_am_i
+    
+    what_am_i = purpose
 
 
 def listUpdates():
@@ -24,7 +30,7 @@ def listUpdates():
 @routes.post('/update/list')
 @ajaxVerifyToken("admin")
 async def updateListAjax(request):
-    return aiohttp_web.json_response({"updloaed": True,
+    return aiohttp_web.json_response({"updloaded": True,
                                       "updates": listUpdates()})
 
 
@@ -174,9 +180,9 @@ async def updateUnpackAjax(request):
         currentInstallDirectory = myApp.appDir
         parentDir = os.path.dirname(currentInstallDirectory)
         
-    oldDir = os.path.join(parentDir, "CurlingTimer.old")
-    installDir = os.path.join(parentDir, "CurlingTimer")
-    inactiveDir = os.path.join(parentDir, "CurlingTimer.new")
+    oldDir = os.path.join(parentDir, f"{what_am_i}.old")
+    installDir = os.path.join(parentDir, f"{what_am_i}")
+    inactiveDir = os.path.join(parentDir, f"{what_am_i}.new")
     unpackDir = tempfile.mkdtemp()
 
     installFile = json.get("file")
@@ -184,6 +190,11 @@ async def updateUnpackAjax(request):
 
     updateTarFileName = myApp.update(installFile)
 
+    if not installFile.startswith(what_am_i):
+        error("Update: wrong build file %s: %s", what_am_i, installFile)
+        return aiohttp_web.json_response({"rc": False,
+                                          "msg": "wrong build file type. Try again"})
+        
     cmd = f"sha512sum '{updateTarFileName}'"
     runTest = subprocess.run(cmd, shell=True, capture_output=True, universal_newlines=True)
     rc = runTest.returncode
@@ -255,8 +266,6 @@ async def updateUnpackAjax(request):
     builddate = getBuildDate(installDir)
 
     info("Update file: %s version:%s built on:%s is installed", installFile, version, builddate)
-    info("Update file: resetting set host name reboot loop detector")
-    resetSetHostNameLoopDetector()
 
     return aiohttp_web.json_response({"rc": True,
                                       "version": version,

@@ -707,14 +707,23 @@ async def secretClockStateHtmlGet(request, filename=None):
     return aiohttp_web.json_response({"data": secretTestData,
                                       "headers": ["IP", "Name", "Secret", "Config", "Build", "Offset", "correction"]})
 
+from pprint import pprint
 @routes.get('/ajax/devices')
 @ajaxVerifyToken("pin")
 async def devicesAjaxGet(request):
     sensors = Devices.deviceMonitor.getSensors()
     displays = Devices.deviceMonitor.getDisplays()
-    
+    sheets = curlingClockManager.getSheets() if curlingClockManager else []
+
+    sheets = [{"ip": sheet.ip,
+               "name": sheet.name,
+               "type": "display",
+               "port": httpUtils.port} for sheet in sheets if sheet.ip != "Unassigned"]
+
     if request.accessTknAudience == "pin":
         displays = []
 
     return aiohttp_web.json_response({"displays": displays,
-                                      "sensors":  sensors})
+                                      "sensors":  sensors,
+                                      "sheets" : sheets})
+

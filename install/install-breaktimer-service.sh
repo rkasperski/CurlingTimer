@@ -1,9 +1,12 @@
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-echo $SCRIPTDIR
+echo "SCRIPTDIR=$SCRIPTDIR"
 EXEDIR="$( dirname "$SCRIPTDIR" )"
-echo $EXEDIR
+echo "EXEDIR=$EXEDIR"
 WORKDIR="$( dirname "$EXEDIR" )"
-echo $WORKDIR
+echo "WORKDIR=$WORKDIR"
+
+return
+exit
 
 systemctl disable curlingTimer
 systemctl disable breakTimer
