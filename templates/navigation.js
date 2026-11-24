@@ -12,49 +12,56 @@ function panelNavigateEv(obj, isBackNav) {
     panelNavigate(navTo, null, isBackNav);
 }
 
-var showFromTo_currentPanel = null;
+var showFromTo_current_panel = null;
+var showFromTo_next_panel = null;
 
 function panelNavigate(to, navData, isBackNav) {
-    let from = showFromTo_currentPanel;
+   let from = showFromTo_current_panel;
     
-    if (to instanceof Function) {
-        to = to(navData);
+   if (to instanceof Function) {
+      to = to(navData);
+      
+      if (to === null) {
+         to = $(`#${from} .nav-back`).data("navto");
+      }
+   }
 
-        if (to === null) {
-            to = $(`#${from} .nav-back`).data("navto");
-        }
-    } 
+   showFromTo_next_panel = to;   
     
-    let exitFuncName = `${from}_exit`;
-    let enterFuncName = `${to}_enter`;
+   let exitFuncName = `${from}_exit`;
+   let enterFuncName = `${to}_enter`;
 
-    if (exitFuncName in window) {
-        dbg_print("exit", exitFuncName);
-        window[exitFuncName]();
-    }
+   if (exitFuncName in window) {
+      dbg_print("exit", exitFuncName);
+      window[exitFuncName]();
+   }
     
-    if (enterFuncName in window) {
-        dbg_print("enter", enterFuncName);
-        window[enterFuncName](navData);
-    }
+   if (enterFuncName in window) {
+      dbg_print("enter", enterFuncName);
+      window[enterFuncName](navData);
+   }
     
-    dbg_print("hide", from);
+   dbg_print("hide", from);
 
-    $(`#${from}`).addClass("d-none");
+   $(`#${from}`).addClass("d-none");
 
-    dbg_print("show", to);
+   dbg_print("show", to);
     
-    let toDiv = $(`#${to}`);
+   let toDiv = $(`#${to}`);
 
-    showFromTo_currentPanel = to;
+   if (showFromTo_next_panel != to) {
+      return;
+   }
+
+   showFromTo_current_panel = to;
     
-    toDiv.removeClass("d-none");
+   toDiv.removeClass("d-none");
 
-    if (!isBackNav) {
-        let newBack =  toDiv.find(".nav-back");
-        if (newBack.length) {
-            newBack[0].dataset.navto = from;
-        }
+   if (!isBackNav) {
+      let newBack =  toDiv.find(".nav-back");
+      if (newBack.length) {
+         newBack[0].dataset.navto = from;
+      }
     }
 }
 
@@ -67,7 +74,7 @@ var overlay_hideActive = 0;
 
 function overlayShow(overlay, data, key) {
     let overlayShowFuncName = `${overlay}_show`;
-    let hideFuncName = `${showFromTo_currentPanel}_hideDueToOverlay`;
+    let hideFuncName = `${showFromTo_current_panel}_hideDueToOverlay`;
 
     if (overlay_hideActive > 0) {
         overlay_embeddedShow++;
@@ -83,8 +90,8 @@ function overlayShow(overlay, data, key) {
         window[overlayShowFuncName](data);
     }
 
-    dbg_print("hide", showFromTo_currentPanel);
-    $(`#${showFromTo_currentPanel}`).addClass("d-none");
+    dbg_print("hide", showFromTo_current_panel);
+    $(`#${showFromTo_current_panel}`).addClass("d-none");
 
     dbg_print("show", overlay);
     let overlayDiv = $(`#${overlay}`);
@@ -97,8 +104,8 @@ function overlayShow(overlay, data, key) {
 
 function overlayHide(overlay, data) {
     let hideFuncName = `${overlay}_hide`;
-    let showFuncName = `${showFromTo_currentPanel}_showFromOverlay`;
-    let showFuncNameSpecific = `${showFromTo_currentPanel}_showFromOverlay_${overlay}`;
+    let showFuncName = `${showFromTo_current_panel}_showFromOverlay`;
+    let showFuncNameSpecific = `${showFromTo_current_panel}_showFromOverlay_${overlay}`;
 
     overlay_hideActive++;
 
@@ -143,7 +150,7 @@ function overlayHide(overlay, data) {
     if (overlay_embeddedShow <= 0) {
         dbg_print("show", overlay);
 
-        $(`#${showFromTo_currentPanel}`).removeClass("d-none");
+        $(`#${showFromTo_current_panel}`).removeClass("d-none");
     } else if (overlay_embeddedShow != origEmbeddedShow) {
         overlay_embeddedShow--;
     }

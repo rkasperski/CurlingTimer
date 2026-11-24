@@ -25,14 +25,12 @@
  function adminHardwareSettings_save() {
     settings = gatherSettings("adminHardwareSettings");
     
-    jsonCall("getHardware",
-             `{{scheme}}://${adminHardwareSettingsIP}:{{port}}/ajax/hardware`,
-             {settings: settings},
-             {method: "POST"})
+    json_call(`{{scheme}}://${adminHardwareSettingsIP}:{{port}}/ajax/hardware`, "POST",
+               {settings: settings})
        .done(function() {
           panelNavigate("adminHardware", null, true);
        });
- }
+   }
  
  function adminHardwareSettings_enter(iconBtn) {
     {% if type == "display" %}

@@ -16,12 +16,10 @@
 <script>
  function adminPTPDOffset_refresh() {
     emptyTable("adminPTPDOffset-table")
-    jsonCall('adminPTPDOffset',
-             '{{scheme}}://{{ip}}:{{port}}/adminptpdoffset',
-             {},
-             {method:"GET",
-              animation:"spinner",
-              animationTarget:"#adminPTPDOffset"})
+    json_call('{{scheme}}://{{ip}}:{{port}}/adminptpdoffset', "GET",
+               {},
+               {animation:"spinner",
+                animation_target:"#adminPTPDOffset"})
        .done(function(response) {	     
           renderTableData("adminPTPDOffset-table", response.headers, response.data);
        })

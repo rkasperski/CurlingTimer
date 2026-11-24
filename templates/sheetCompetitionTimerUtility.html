@@ -21,57 +21,59 @@
 </div>
 
 <script>
- var sheetCompetitionTimerUtility_timer = 0;
- var sheetCompetitionYimerUtility_from = null;
+   var sheetCompetitionTimerUtility_timer = 0;
+   var sheetCompetitionTimerUtility_data = null;
+   
+   function sheetCompetitionTimerUtility_timerRunning(active, time, r) {
+      if (time == 0) {
+         overlayHide("sheetCompetitionTimerUtility",
+                     {type: $("#sheetCompetitionTimerUtility").data("type"),
+                      complete:"expired"});
+      }
+   }
  
- function sheetCompetitionTimerUtility_timerRunning(active, time, r) {
-    if (time == 0) {
-       overlayHide("sheetCompetitionTimerUtility",
-                   {type: $("#sheetCompetitionTimerUtility").data("type"),
-                    complete:"expired"});
-    }
- }
+   function sheetCompetitionTimerUtility_cancel() {
+      overlayHide("sheetCompetitionTimerUtility", null);
+   }
+
+   function sheetCompetitionTimerUtility_done() {
+      overlayHide("sheetCompetitionTimerUtility",
+                  {type: $("#sheetCompetitionTimerUtility").data("type"),
+                   complete:"yes",
+                   who: sheetCompetitionTimerUtility_data.who});
+   }
  
- function sheetCompetitionTimerUtility_cancel() {
-    overlayHide("sheetCompetitionTimerUtility", null);
- }
+   function sheetCompetitionTimerUtility_data() {
+      return {type: $("#sheetCompetitionTimerUtility").data("type"),
+              complete: "cancelled"};
+   }
 
- function sheetCompetitionTimerUtility_done() {
-    overlayHide("sheetCompetitionTimerUtility",
-                {type: $("#sheetCompetitionTimerUtility").data("type"),
-                 complete:"yes"});
- }
- 
- function sheetCompetitionTimerUtility_data() {
-    return {type: $("#sheetCompetitionTimerUtility").data("type"),
-            complete: "cancelled"};
- }
+   function sheetCompetitionTimerUtility_show(data) {
+      sheetCompetitionTimerUtility_data = data;
+      $("#sheetCompetitionTimerUtility").data("type", data.type);
 
- function sheetCompetitionTimerUtility_show(data) {
-    $("#sheetCompetitionTimerUtility").data("type", data.type);
+      if (data.time) {
+         $('#sheetCompetitionTimerUtility-time').text(timer_secsToTime(data.time));
+      }
 
-    if (data.time) {
-       $('#sheetCompetitionTimerUtility-time').text(timer_secsToTime(data.time));
-    }
-
-    $("#sheetCompetitionTimerUtility .nav-title").text(data.title);
+      $("#sheetCompetitionTimerUtility .nav-title").text(data.title);
     
-    if (data.type == "team") {
-       $("#sheetCompetitionTimerUtility-btn-cancel").removeClass("d-none");
-       $("#sheetCompetitionTimerUtility-rock").removeClass("d-none");
-       $("#sheetCompetitionTimerUtility-rock img").attr("src", data.rockSvg);
-    } else {
-       $("#sheetCompetitionTimerUtility-btn-cancel").addClass("d-none");
-       $("#sheetCompetitionTimerUtility-rock").addClass("d-none");
-    }
+      if (data.type == "team") {
+         $("#sheetCompetitionTimerUtility-btn-cancel").removeClass("d-none");
+         $("#sheetCompetitionTimerUtility-rock").removeClass("d-none");
+         $("#sheetCompetitionTimerUtility-rock img").attr("src", data.rockSvg);
+      } else {
+         $("#sheetCompetitionTimerUtility-btn-cancel").addClass("d-none");
+         $("#sheetCompetitionTimerUtility-rock").addClass("d-none");
+      }
     
-    sheetCompetitionTimerUtility_timer = timer_tracker(data.ip,
-                                                       "#sheetCompetitionTimerUtility-time",
-                                                       data.timerStatusUrl,
-                                                       sheetCompetitionTimerUtility_timerRunning);
- }
+      sheetCompetitionTimerUtility_timer = timer_tracker(data.ip,
+                                                         "#sheetCompetitionTimerUtility-time",
+                                                         data.timerStatusUrl,
+                                                         sheetCompetitionTimerUtility_timerRunning);
+   }
 
- function sheetCompetitionTimerUtility_hide() {
-    timer_cancel(sheetCompetitionTimerUtility_timer);
- }
+   function sheetCompetitionTimerUtility_hide() {
+      timer_cancel(sheetCompetitionTimerUtility_timer);
+   }
 </script>

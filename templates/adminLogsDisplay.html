@@ -57,12 +57,12 @@
  var adminLogsDisplayIP = "";
 
  function adminLogsDisplay_clearLogs() {
-    jsonCall('LogLevel', `{{scheme}}://${adminLogsDisplayIP}:{{port}}/ajax/log/clear`, {}, {METHGOD:"POST"})
+    json_call(`{{scheme}}://${adminLogsDisplayIP}:{{port}}/ajax/log/clear`, "POST")
        .always(adminLogsDisplay_refresh)
- }
-
- function adminLogsDisplay_filterText() {
-    let includeText = $("#adminLogsDisplay-filterText").val();
+   }
+   
+   function adminLogsDisplay_filterText() {
+      let includeText = $("#adminLogsDisplay-filterText").val();
     let showMatching = $("#adminLogsDisplay-showMatching").is(":checked")
     $("#adminLogsDisplay-table td").css('color', "");
     
@@ -82,12 +82,10 @@
 
  function adminLogsDisplay_refresh() {
     emptyTable("adminLogsDisplay-table");
-    jsonCall('AdminLogs',
-             `{{scheme}}://${adminLogsDisplayIP}:{{port}}/adminlogs`,
-             {},
-             {method:"GET",
-              animation:"spinner",
-              animationTarget:"#adminLogs"})
+    json_call(`{{scheme}}://${adminLogsDisplayIP}:{{port}}/adminlogs`, "GET",
+               {},
+               {animation:"spinner",
+                animation_target:"#adminLogs"})
        .done(function(response) {	     
           renderTableData("adminLogsDisplay-table", response.headers, response.data);
           $("#adminLogsDisplay-level").val(response.level);
@@ -97,12 +95,12 @@
  
  function adminLogsDisplay_changeLevel() {
     let level = $("#adminLogsDisplay-level").val();
-    jsonCall('LogLevel', `{{scheme}}://${adminLogsDisplayIP}:{{port}}/ajax/log/level`, {level:  level}, {})
+    json_call(`{{scheme}}://${adminLogsDisplayIP}:{{port}}/ajax/log/level`, "POST", {level:  level})
        .done(function(response) {	     
           $("#adminLogsDisplay-level").val(level);
        })
        .always(adminLogsDisplay_refresh)
- }
+   }
  
  function adminLogsDisplay_enter(iconBtn) {
     {% if type == "display" %}

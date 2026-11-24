@@ -121,13 +121,13 @@
     $("#clubLogin-pin-msg").text("");
     $("#clubLogin-user-msg").text("");
     
-    loginWithPIN($("#clubLogin-pin").val())
+    loginWithPIN(sheetInfo[0], $("#clubLogin-pin").val())
        .done(function (res) {
           if (res.rc) {
              loginRecordPIN(res.accessToken, sheetInfo[1], sheetInfo[0]);
              $(".nav-up").hide()             
              security_enableAdminPages();
-             panelNavigate("sheet" + res.id)
+             panelNavigate("sheet" + sheetInfo[1])
           } else {
              security_enableAdminPages(false);
              $("#clubLogin-attempt-msg").text(res.msg);

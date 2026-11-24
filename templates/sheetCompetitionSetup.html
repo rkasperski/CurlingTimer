@@ -97,8 +97,8 @@
        .done(function(response) {
 	  $("#sheetCompetitionSetup-team1").val(response.team1);
 	  $("#sheetCompetitionSetup-team2").val(response.team2);
-          $("#sheetCompetitionSetup-top-rock").attr("src", `/static/images/Curling-Rock-${response.topColour}-sm.png`)
-          $("#sheetCompetitionSetup-bottom-rock").attr("src", `/static/images/Curling-Rock-${response.bottomColour}-sm.png`)
+          $("#sheetCompetitionSetup-top-rock").attr("src", `/static/images/Curling-Rock-${response.top_colour}-sm.png`)
+          $("#sheetCompetitionSetup-bottom-rock").attr("src", `/static/images/Curling-Rock-${response.bottom_colour}-sm.png`)
        })
     enableFieldChecking(".sheetCompetitionSetup-check-time", ".sheetCompetitionSetup-submit-target");
  }
@@ -112,7 +112,7 @@
                      $('#sheetCompetitionSetup-team1').val(),
                      $('#sheetCompetitionSetup-team2').val());
     
-    TeamNamesShow(sheetCompetitionSetupIP);
+    TeamNamesShow(sheetCompetitionSetupIP, "competition");
     sheetCompetitionSetup_showTimer();
  }
  
@@ -122,7 +122,7 @@
  
  function sheetCompetitionSetup_setTeamNames() {
     TeamNamesSet(sheetCompetitionSetupIP, $('#sheetCompetitionSetup-team1').val(), $('#sheetCompetitionSetup-team2').val());
-    TeamNamesShow(sheetCompetitionSetupIP);
+    TeamNamesShow(sheetCompetitionSetupIP, "competition");
  }
  
  {% for s in sheets %}

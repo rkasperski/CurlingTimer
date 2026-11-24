@@ -116,13 +116,12 @@
  }
 
  function updateUnpack(ip, fileName, digest) {
-    return jsonCall('updateUnpack', 
-                    `${scheme}://${ip}:${port}/update/unpack`,
-		    {file: fileName,
-                     digest: digest},
-                    {retries: 1,
-                     timeout:120000});
- }
+    return json_call(`${scheme}://${ip}:${port}/update/unpack`, "POST", 
+		                {file: fileName,
+                       digest: digest},
+                      {retries: 1,
+                       timeout:120000});
+   }
 
  function showCheckMark(who) {
     $(who).show()

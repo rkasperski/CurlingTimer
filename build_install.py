@@ -1,180 +1,205 @@
+"""
+builds the installable packages.
+There are three separate executables
+- CurlingTimer for led displays
+- CurlingTimer for tvs
+- BreakTimer
+"""
 import sys
-import UpdateVersion
 import os
+import re
 import argparse
+from update_version import write_build_date, update_version
 
 
-def createParser():
-    parser = argparse.ArgumentParser(description='Build distributable clock targets')
+def create_parser():
+    """
+    Creates the parser for the command line
+    """
+    parser = argparse.ArgumentParser(description= """Build distributable clock timer targets.
+
+The version number is automatically managed. The build number is incremented
+on every build attempt regardless of the success of failure of the attempt.
+The major number is only incremented when the -M flag is passed. It sets the
+minor number to 1 and overrides any other handling of the minor number.
+If the current version has no label or the label is 'release' the minor
+version number will be incremented. -m forces the minor number to be incremented.
+Only one of --label, --release or --release-candidate can be provided.
+""")
+
+    parser.add_argument('-l', '--label',
+                        type=str, default=None,
+                        help="defines the label part of the version string.")
+
+    parser.add_argument('-r', '--release',
+                        action='store_true',
+                        help="defines the label portion as 'release'")
+
+    parser.add_argument('-c', '--release-candidate', '--rc',
+                        action='store_true',
+                        help="defines the label portion as 'rcN' where N is auto increasing from 1" \
+                        "this is the default")
+
     parser.add_argument('--confirm', action='store_true',
-                        help="when present pyinstaller will prompt to overwrite data")
-    
+                        help="when present pyinstaller will prompt to overwrite data.")
+
     parser.add_argument('--clean', action='store_true', default="",
                         help="when present pyinstaller will re-analyze before building python blobs")
-    
-    parser.add_argument('-v', '--no-version-update', action='store_true',
-                        help="when present the build number will be incremented and major and minor version number will say the same. Updates the build number major.minor.build")
-    
-    parser.add_argument('-s', '--skip-build-increment', action='store_true',
-                        help="when present the none of the build , major and minor version number will be incremented")
-    
-    parser.add_argument('-d', '--no-build-date-update', action='store_true',
-                        help="when present the build date will not be updated")
-    
-    parser.add_argument('-b', '--skip-build', action='store_true',
-                        help="skips rebuilding of the python blobs")
-    
-    parser.add_argument('--test', action='store_true',
-                        help="do a test build. Doesn't increment version number")
-    
-    parser.add_argument('-t', '--skip-tar', action='store_true',
-                        help="skips building of the tar file")
-    
-    parser.add_argument('-n', '--skip-release-notes', action='store_true',
-                        help="skips replacement of latest with version and build date")
+
+    parser.add_argument('-M', '--major', action='store_true',
+                        help="when present the major version number will be updated. " \
+                        "Updates the major number major.minor.build[.label]")
+
+    parser.add_argument('-m', '--minor', action='store_true',
+                        help="when present the minor version number will be updated. " \
+                        "Updates the minor number major.minor.build[.label].")
 
     parser.add_argument('--tv', action='store_true',
                         help="build for display on tv")
-    
+
     parser.add_argument('--hwclock', action='store_true',
                         help="build for hwclock(DS3231). Can only specify one of hwclock, led, tv or breaktimer")
-    
+
     parser.add_argument('--led', action='store_true',
-                        help="build for display on rgb led matrix. Can only specify one of hwclock, led, tv or breaktimer")
-    
+                        help="build for display on rgb led matrix. Can only specify " \
+                        "one of hwclock, led, tv or breaktimer")
+
     parser.add_argument('--breaktimer', action='store_true',
                         help="build for break timers. Can only specify one of hwclock, led, tv or breaktimer")
-    
+
     parser.add_argument('--verbose', action='store_true',
                         help="display verbose messages. Can only specify one of hwclock, led, tv or breaktimer")
-    
+
     return parser
 
+re_version_date_matcher = re.compile(r'(?P<major>\d+)\.(?P<minor>\d+)\.(?P<build>\d+)(\.(?P<label>\w+))? - '
+                                     r'(?P<day_name>\w+) (?P<month_name>\w+) (?P<month_day>\d+) '
+                                     r'(?P<hour>\d+):(?P<minute>\d+):(?P<second>\d+) (?P<year>\d+)')
 
-def addVersionAndBuildDateToReleaseNotes(version, buildDate, test=False):
-    if test:
-        version = f"TEST - {version}.x"
-        
+def add_version_and_build_date_to_release_notes(version, build_date, fn="ReleaseNotes.txt"):
+    """
+    adds build and version to release notes
+    """
     os.system("cp info/ReleaseNotes.txt info/ReleaseNotes.txt.old")
-    with open("info/ReleaseNotes", "w") as newRelaseNotesF:
-        with open("info/ReleaseNotes.txt", "r") as oldReleaseNotesF:
-            oldReleaseNotes = oldReleaseNotesF.readlines()
+    with open("info/ReleaseNotes", "w", encoding="utf-8") as new_release_notes_f:
+        with open("info/ReleaseNotes.txt", "r", encoding="utf-8") as old_release_notes_f:
+            old_release_notes = old_release_notes_f.readlines()
 
-        firstLine = oldReleaseNotes[0].strip()
-        if firstLine.startswith("TEST - "):
-            oldReleaseNotes = oldReleaseNotes[1:]
-        elif firstLine.startswith(version):
-            oldReleaseNotes = oldReleaseNotes[1:]
+        first_line = old_release_notes[0].strip()
 
-        print(f"{version} - {buildDate}", file=newRelaseNotesF)
-        newRelaseNotesF.writelines(oldReleaseNotes)
+        m = re_version_date_matcher.match(first_line)
+        print(m.groupdict())
 
-    if not test:
-        os.system("cp info/ReleaseNotes info/ReleaseNotes.txt")
+        if (label := m.group("label")) is not None and label != "release":
+            old_release_notes.pop(0)
 
-        
+        print(f"{version} - {build_date}", file=new_release_notes_f)
+        new_release_notes_f.writelines(old_release_notes)
+
+    os.system("cp info/ReleaseNotes info/ReleaseNotes.txt")
+
+
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-branches
 def main():
-    parser = createParser()
+    """
+    builds the requested executable
+    """
+    parser = create_parser()
     args = parser.parse_args()
 
-    if sum([args.tv, args.led, args.breaktimer, args.hwclock]) != 1:
-        print("must specify one of --tv --led --breaktimer --hwclock")
+    label = "rc"
+    if sum([x != None for x in [args.label, args.release, args.release_candidate]]) <= 1:
+        print("must specify only one of --label --release or --release-candidate")
         sys.exit(4)
 
-    if not args.test:
-        if args.no_version_update:
-            if not args.skip_build_increment:
-                print("updating build number")
-                UpdateVersion.updateVersion(fn="info/version.txt", updateMajor=False, updateMinor=False, updateBuild=True)
-        else:
-            UpdateVersion.updateVersion(fn="info/version.txt", updateMajor=False, updateMinor=True)
+    if args.label:
+        label = args.label
+    elif args.release:
+        label = "release"
 
-    if args.no_build_date_update:
-        print("skipping build date update")
-    else:
-        UpdateVersion.writeBuildDate(fn="info/buildDate.txt")
-        os.system("cp info/buildDate.txt info/builddate")
+    if sum([args.tv, args.led, args.breaktimer, args.hwclock]) != 1:
+        print("must specify only one of --tv --led --breaktimer --hwclock")
+        sys.exit(4)
 
-    pyInstallerOptions = []
+    version_str = update_version(fn="info/version.txt",
+                                 update_major=args.major, update_minor=args.minor, label=label)
+
+    build_date = write_build_date(fn="info/build_date.txt")
+    os.system("cp info/build_date.txt info/build_date")
+
+    print(f"processing version={version_str}")
+
+    py_installer_options = []
 
     if args.clean:
-        pyInstallerOptions.append("--clean")
+        py_installer_options.append("--clean")
 
     if not args.confirm:
-        pyInstallerOptions.append("--noconfirm")
+        py_installer_options.append("--noconfirm")
 
-    versionNo = UpdateVersion.getVersion(fn="info/version.txt")
-    buildDate = UpdateVersion.getBuildDate(fn="info/buildDate.txt")
+    with open("version.py", "w", encoding="utf-8") as f:
+        print(f'version="{version_str}"', file=f)
+        print(f'build_date="{build_date}"', file=f)
 
-    with open("Version.py", "w") as f:
-        print(f'versionNo="{versionNo}"', file=f)
-        print(f'buildDate="{buildDate}"', file=f)
-            
-    if args.skip_release_notes:
-        print("skipping release notes generaton")
-    else:
-        addVersionAndBuildDateToReleaseNotes(versionNo, buildDate, test=args.test)
+    add_version_and_build_date_to_release_notes(version_str, build_date)
 
     tar_tgt = None
     tar_src = None
     spec_file = None
     if args.led:
-        spec_file = "CurlingTimer.led.spec"
-        tar_tgt = "CurlingTimer.led{test}.{versionNo}.tgz"
-        sum_tgt = "CurlingTimer.led{test}.{versionNo}.sum.txt"
+        spec_file = "curling_timer.led.spec"
+        tar_tgt = f"CurlingTimer.led.{version_str}.tgz"
+        sum_tgt = f"CurlingTimer.led.{version_str}.sum.txt"
         tar_src = "CurlingTimer.led"
         transform_arg = "--transform 's,^CurlingTimer.led,CurlingTimer,'"
     elif args.tv:
         spec_file = "CurlingTimer.tv.spec"
-        tar_tgt = "CurlingTimer.tv{test}.{versionNo}.tgz"
-        sum_tgt = "CurlingTimer.tv{test}.{versionNo}.sum.txt"
+        tar_tgt = f"CurlingTimer.tv.{version_str}.tgz"
+        sum_tgt = f"CurlingTimer.tv.{version_str}.sum.txt"
         tar_src = "CurlingTimer.tv"
         transform_arg = "--transform 's,^CurlingTimer.tv,CurlingTimer,'"
     elif args.breaktimer:
-        spec_file = "BreakTimer.spec"
-        tar_tgt = "BreakTimer{test}.{versionNo}.tgz"
-        sum_tgt = "BreakTimer{test}.{versionNo}.sum.txt"
+        spec_file = "break_timer.spec"
+        tar_tgt = f"BreakTimer.{version_str}.tgz"
+        sum_tgt = f"BreakTimer.{version_str}.sum.txt"
         tar_src = "BreakTimer"
         transform_arg = ""
     else:
         spec_file = None
-        tar_tgt = "hwclock{test}.{versionNo}.tgz"
-        sum_tgt = "hwclock{test}.{versionNo}.sum.txt"
-        tar_src = "cc_hwclock"        
+        tar_tgt = f"hwclock.{version_str}.tgz"
+        sum_tgt = f"hwclock.{version_str}.sum.txt"
+        tar_src = "cc_hwclock"
         transform_arg = ""
-        
-    if args.skip_build:
-        print("skipping build")
+
+    if spec_file:
+        cmd = f"pyinstaller {' '.join(py_installer_options)} {spec_file}"
     else:
-        if spec_file:
-            cmd = f"pyinstaller {' '.join(pyInstallerOptions)} {spec_file}"
-        else:
-            cmd = "pyinstaller --onefile hwclock.py --name cc_hwclock"
+        cmd = "pyinstaller --onefile hwclock.py --name cc_hwclock"
+
+    print(cmd)
+    if os.system(cmd):
+        print("failed to build python blob")
+        sys.exit(12)
+
+    tgt_path = os.path.join("dist", tar_tgt)
+    sum_path = os.path.join("dist", sum_tgt)
+
+    cmd = f"tar -C dist -czf {tgt_path} {transform_arg} {tar_src}"
+    print(cmd)
+    if os.system(cmd):
+        print("failed to build distributable tar file")
+        os.remove(tgt_path)
+        sys.exit(12)
+
+    if os.system(f"sha512sum '{tgt_path}' | cut -d ' ' -f1 > {sum_path}"):
+        print("failed to build distributable tar file")
+        os.remove(tgt_path)
+        os.remove(sum_path)
+        sys.exit(12)
+
+    print(f"finished processing version={version_str}")
             
-        print(cmd)
-        if os.system(cmd):
-            print("failed to build python blob")
-            sys.exit(12)
-
-    if args.skip_tar:
-        print("skipping tar generation")
-    else:
-        test = ".test" if args.test else ""
-        tgt_path = os.path.join("dist", tar_tgt.format(test=test, versionNo=versionNo))
-        sum_path = os.path.join("dist", sum_tgt.format(test=test, versionNo=versionNo))
-
-        cmd = f"tar -C dist -czf {tgt_path} {transform_arg} {tar_src}"
-        print(cmd)
-        if os.system(cmd):
-            print("failed to build distributable tar file")
-            os.remove(tgt_path)
-            sys.exit(12)
-
-        if os.system(f"sha512sum '{tgt_path}' | cut -d ' ' -f1 > {sum_path}"):
-            print("failed to build distributable tar file")
-            os.remove(tgt_path)
-            os.remove(sum_path)
-            sys.exit(12)
 
 
 if __name__ == "__main__":

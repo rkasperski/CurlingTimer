@@ -1,7 +1,7 @@
 import sys
 
 # First we try for a USB DS3231
-import DS3231
+import ds3231
 
 def help():
     print(f"""{sys.argv[0]} [-r] [--show] [--get] [-s] [--hctosys] 
@@ -19,12 +19,12 @@ def main():
     
     utc = False
     raw = False
-    readTime = False
-    hcToSys = False
-    setToStr = False
-    sysToHc = False
-    dateStr = None
-    delayTime = None
+    read_time = False
+    hc_to_sys = False
+    set_to_str = False
+    sys_to_Hc = False
+    date_str = None
+    delay_time = None
     verbose = False
     adjFile = None
     busid = 1
@@ -34,30 +34,30 @@ def main():
 
         if a in ["-u", "--utc"]:
             utc = True
-            readTime = True
+            read_time = True
         elif a in ["-l", "--localtime"]:
             utc = False
-            readTime = True
+            read_time = True
         elif a in ["-s" , "--hctosys"]:
-            hcToSys = True
+            hc_to_sys = True
         elif a in ["-w" , "--systohc"]:
-            sysToHc = True
+            sys_to_Hc = True
         elif a == "--set":
-            setToStr = True
+            set_to_str = True
         elif a.startswith("--adjfile="):
             adjFile = a.split("=", 1)[-1]
         elif a == "--adjfile":
             adjFile = args.pop(0)
         elif a.startswith("--date="):
-            dateStr = a.split("=", 1)[-1]
+            date_str = a.split("=", 1)[-1]
         elif a == "--date":
-            dateStr = args.pop(0)
+            date_str = args.pop(0)
         elif a.startswith("--delay="):
-            delayTime = a.split("=", 1)[-1]
+            delay_time = a.split("=", 1)[-1]
         elif a == "--delay":
-            delayTime = args.pop(0)
+            delay_time = args.pop(0)
         elif a in [ "-r", "--show", "--get"]:
-            readTime = True
+            read_time = True
         elif a == "--raw":
             raw = True
         elif a in ["-V", "--version"]:
@@ -96,21 +96,21 @@ def main():
     except Exception as e:
         sys.exit(4)
 
-    if readTime:
-        print(ds.getDateStr(utc=utc))
+    if read_time:
+        print(ds.get_date_str(utc=utc))
 
-    if setToStr:
-        if not dateStr:
+    if set_to_str:
+        if not date_str:
             print("must give -date <date and time>")
             sys.exit(4)
             
-        ds.setDateStr(dateStr)
+        ds.set_date_str(date_str)
 
-    if hcToSys:
-        ds.setSystemTime()
+    if hc_to_sys:
+        ds.set_system_time()
 
-    if sysToHc:
-        ds.setToSystemTime()
+    if sys_to_Hc:
+        ds.set_to_system_time()
         
 if __name__ == '__main__':
     main()

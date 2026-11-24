@@ -17,12 +17,10 @@
 <script>
  function adminShowVersions_refresh() {
     $('#adminShowVersions-display').empty();
-    jsonCall("adminShowVersions",
-             "{{scheme}}://{{ip}}:{{port}}/adminversion",
-             {},
-             {method:"GET",
-              animation:"spinner",
-              animationTarget:"#adminShowVersions"})
+    json_call("{{scheme}}://{{ip}}:{{port}}/adminversion", "GET", 
+               {},
+               {animation:"spinner",
+                animation_target:"#adminShowVersions"})
        .done(function(response) {
           let idx = 0;
           for (let i = 0; i < response.sheets.length; i++) {

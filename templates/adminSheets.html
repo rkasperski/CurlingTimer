@@ -114,8 +114,8 @@ ${i != 0 ? '<hr>' : ''}
    </div>
    ${hwclock}
 </div>`);
-   adminSheets_addRockSelector(`#adminSheets-top-holder${i}`, `adminSheets-top${i}`, s.topColour);
-   adminSheets_addRockSelector(`#adminSheets-bottom-holder${i}`, `adminSheets-bottom${i}`, s.bottomColour);
+   adminSheets_addRockSelector(`#adminSheets-top-holder${i}`, `adminSheets-top${i}`, s.top_colour);
+   adminSheets_addRockSelector(`#adminSheets-bottom-holder${i}`, `adminSheets-bottom${i}`, s.bottom_colour);
    adminSheets_appendPeers(`#adminSheets-peer${i}`, peers, s.ip);
 }
 
@@ -157,12 +157,12 @@ function adminSheets_populateData() {
          break;
       }
       let sip =  $(`#adminSheets-peer${i}`).val();
-      let topColour =  $(`#adminSheets-top${i}`).val();
-      let bottomColour =  $(`#adminSheets-bottom${i}`).val();
+      let top_colour =  $(`#adminSheets-top${i}`).val();
+      let bottom_colour =  $(`#adminSheets-bottom${i}`).val();
 
       sheets[i] = {name: name,
-                   top: topColour,
-                   bottom: bottomColour,
+                   top: top_colour,
+                   bottom: bottom_colour,
                    ip: sip}
    }
     setSheets(clubName, nSheets, sheets, clockServer, drawServer)

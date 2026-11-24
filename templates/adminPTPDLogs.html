@@ -16,12 +16,10 @@
 <script>
  function adminPTPDLogs_refresh() {
     $("#adminPTPDLogs-display").empty();
-    jsonCall("adminPTPDLogs",
-             "{{scheme}}://{{ip}}:{{port}}/adminptpdlogs",
-             {},
-             {method:"GET",
-              animation:"spinner",
-              animationTarget:"#adminPTPDLogs"})
+    json_call("{{scheme}}://{{ip}}:{{port}}/adminptpdlogs", "GET", 
+               {},
+               {animation:"spinner",
+                animation_target:"#adminPTPDLogs"})
        .done(function(response) {	     
           for (let i = 0; i < response.data.length; i++) {
              let data = response.data[i];

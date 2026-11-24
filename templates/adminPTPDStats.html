@@ -41,12 +41,10 @@
  
  function adminPTPDStats_refresh() {
     $("#adminPTPDStats-display").empty();
-    jsonCall("adminPTPDStats",
-             "{{scheme}}://{{ip}}:{{port}}/adminptpdstats",
-             {},
-             {method:"GET",
-              animation:"spinner",
-              animationTarget:"#adminPTPDStats"})
+    json_call("{{scheme}}://{{ip}}:{{port}}/adminptpdstats", "GET",
+               {},
+               {animation:"spinner",
+                animation_target:"#adminPTPDStats"})
        .done(function(response) {
           for (let i = 0; i < response.data.length; i++) {
              let data = response.data[i];

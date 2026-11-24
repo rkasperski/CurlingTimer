@@ -1,0 +1,90 @@
+name=League 2026 - 27 date=2026-10-16 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+    1    O'Connor             Plante              
+    2    Haberstock           Fahselt             
+    3    Easton               Gross               
+    4    Pavlis               Jenson              
+    5    Miller               Czar                
+name=League 2026 - 27 date=2026-10-16 time=13:00 colour=white show=15 autoDelete=2880 atStart=yes
+    5    Women                Wilson              
+    6    Jones                Ralston             
+name=League 2026 - 27 date=2026-10-23 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+    1    Ralston              Miller              
+    2    Wilson               Pavlis              
+    3    Jones                Women               
+    4    Czar                 Easton              
+    6    Fahselt              O'Connor            
+name=League 2026 - 27 date=2026-10-23 time=13:00 colour=white show=15 autoDelete=2880 atStart=yes
+    5    Plante               Gross               
+    6    Jenson               Haberstock          
+name=League 2026 - 27 date=2026-10-30 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+    1    Haberstock           Wilson              
+    2    O'Connor             Gross               
+    3    Jenson               Fahselt             
+    5    Pavlis               Jones               
+    6    Czar                 Plante              
+name=League 2026 - 27 date=2026-10-30 time=13:00 colour=white show=15 autoDelete=2880 atStart=yes
+    5    Easton               Ralston             
+    6    Miller               Women               
+name=League 2026 - 27 date=2026-11-06 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+    1    Easton               Women               
+    2    Ralston              Plante              
+    3    Pavlis               Miller              
+    4    Haberstock           Jones               
+    6    Wilson               Fahselt             
+name=League 2026 - 27 date=2026-11-06 time=13:00 colour=white show=15 autoDelete=2880 atStart=yes
+    4    Jenson               O'Connor            
+    5    Czar                 Gross               
+name=League 2026 - 27 date=2026-11-13 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+    1    Fahselt              Jones               
+    2    Jenson               Wilson              
+    3    O'Connor             Czar                
+    4    Gross                Ralston             
+    5    Plante               Women               
+name=League 2026 - 27 date=2026-11-13 time=13:00 colour=white show=15 autoDelete=2880 atStart=yes
+    5    Miller               Haberstock          
+    6    Pavlis               Easton              
+name=League 2026 - 27 date=2026-11-20 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+    1    Ralston              Czar                
+    2    Miller               Fahselt             
+    3    Haberstock           Easton              
+    4    Pavlis               Plante              
+    6    Women                Gross               
+name=League 2026 - 27 date=2026-11-20 time=13:00 colour=white show=15 autoDelete=2880 atStart=yes
+    5    Wilson               O'Connor            
+    6    Jones                Jenson              
+name=League 2026 - 27 date=2026-11-27 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+    1    Gross                Pavlis              
+    2    Czar                 Women               
+    3    Jenson               Miller              
+    4    Wilson               Jones               
+    6    O'Connor             Ralston             
+name=League 2026 - 27 date=2026-11-27 time=13:00 colour=white show=15 autoDelete=2880 atStart=yes
+    5    Fahselt              Easton              
+    6    Plante               Haberstock          
+name=League 2026 - 27 date=2026-12-04 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+    1    Miller               Wilson              
+    2    Haberstock           Gross               
+    3    Fahselt              Plante              
+    4    Easton               Jenson              
+    6    Pavlis               Czar                
+name=League 2026 - 27 date=2026-12-04 time=13:00 colour=white show=15 autoDelete=2880 atStart=yes
+    4    Women                Ralston             
+    5    Jones                O'Connor            
+name=League 2026 - 27 date=2026-12-11 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+    1    Plante               Jenson              
+    2    Jones                Miller              
+    3    O'Connor             Women               
+    5    Ralston              Pavlis              
+    6    Wilson               Easton              
+name=League 2026 - 27 date=2026-12-11 time=13:00 colour=white show=15 autoDelete=2880 atStart=yes
+    4    Fahselt              Gross               
+    5    Czar                 Haberstock          
+name=League 2026 - 27 date=2026-12-18 time=10:00 colour=white show=15 autoDelete=2880 atStart=yes
+    1    Czar                 Fahselt             
+    2    Wilson               Plante              
+    3    Haberstock           Ralston             
+    5    Easton               Jones               
+    6    Jenson               Gross               
+name=League 2026 - 27 date=2026-12-18 time=13:00 colour=white show=15 autoDelete=2880 atStart=yes
+    4    Pavlis               Women               
+    5    Miller               O'Connor            

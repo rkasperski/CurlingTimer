@@ -103,19 +103,6 @@
     $(`#sheetCompetitionTimer-team${teamNo}-time`).text(t)
  }
  
- function sheetCompetitionTimer_showFromOverlay(data) {
-    if (!data) {
-       return;
-    }
-
-    if (data.key == "adjust") {
-       CompetitionSetTime(sheetCompetitionTimerIP, `team${data.teamNo}`, data.time)
-          .done(function () {
-             sheetCompetitionTimer_setNewTime(data.teamNo, data.time)
-          })
-    }
- }
-
  function sheetCompetitionTimer_timerTeam1Running(active, time, r) {
       sheetCompetitionTimer_team1Timeouts = r.remainingTimeouts;
       $("#sheetCompetitionTimer-btn-team1-timeout").text("TO-" + r.remainingTimeouts)
@@ -162,34 +149,36 @@
  function sheetCompetitionTimer_startTimeoutTeam1() {
     if (sheetCompetitionTimer_team1Timeouts > 0) {
        startCompetitionTimeout(sheetCompetitionTimerIP, "team1")
-	  .done(function (r) {
+	       .done(function (r) {
              overlayShow("sheetCompetitionTimerUtility",
                          {type: "team",
                           title: `Timeout for ${sheetCompetitionTimer_colourTeam1}`,
                           time: r.seconds,
+                          who: "team1",
                           ip: sheetCompetitionTimerIP,
                           timerStatusUrl: "timeout/status",
                           colour: sheetCompetitionTimer_colourTeam1,
                           rockSvg: sheetCompetitionTimer_rockSrcTeam1},
                          "team");
-	  });
+	       });
     }
  }
  
  function sheetCompetitionTimer_startTimeoutTeam2() {
     if (sheetCompetitionTimer_team2Timeouts > 0) {
        startCompetitionTimeout(sheetCompetitionTimerIP, "team2")
-	  .done(function (r) {
+	       .done(function (r) {
              overlayShow("sheetCompetitionTimerUtility",
                          {type: "team",
                           title: `Timeout for ${sheetCompetitionTimer_colourTeam2}`,
                           ip: sheetCompetitionTimerIP,
                           time: r.seconds,
                           timerStatusUrl: "timeout/status",
+                          who: "team2",
                           colour: sheetCompetitionTimer_colourTeam1,
                           rockSvg: sheetCompetitionTimer_rockSrcTeam2},
                          "team");
-	  });
+	       });
     }
  }
 
@@ -208,8 +197,8 @@
     
     CompetitionPause(sheetCompetitionTimerIP);
 
-    jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/intermission/start`, 
-             {intermissionLength: betweenEndTime}, {})
+    json_call(`${scheme}://${sheetCompetitionTimerIP}:${port}/competition/intermission/start`, "POST", 
+               {intermissionLength: betweenEndTime})
        .done(function(res) {
           overlayShow("sheetCompetitionTimerUtility",
                       {type: "between",
@@ -226,8 +215,8 @@
     
     CompetitionPause(sheetCompetitionTimerIP);
 
-    jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/intermission/start`, 
-             {intermissionLength: intermissionTime}, {})
+    json_call(`${scheme}://${sheetCompetitionTimerIP}:${port}/competition/intermission/start`, "POST",  
+               {intermissionLength: intermissionTime})
        .done(function(res) {
           overlayShow("sheetCompetitionTimerUtility",
                       {type: "intermission",
@@ -261,10 +250,10 @@
 	       $("#sheetCompetitionTimer-team1-name").text(sheetCompetitionTimer_normName(response.team1, "top"));
 	       $("#sheetCompetitionTimer-team2-name").text(sheetCompetitionTimer_normName(response.team2, "bottom"));
 
-	       sheetCompetitionTimer_colourTeam1 = response.topColour;
-	       sheetCompetitionTimer_colourTeam2 = response.bottomColour;
-	       sheetCompetitionTimer_rockSrcTeam1 = `/static/images/Curling-Rock-${response.topColour}-sm.png`;
-          sheetCompetitionTimer_rockSrcTeam2 = `/static/images/Curling-Rock-${response.bottomColour}-sm.png`;
+	       sheetCompetitionTimer_colourTeam1 = response.top_colour;
+	       sheetCompetitionTimer_colourTeam2 = response.bottom_colour;
+	       sheetCompetitionTimer_rockSrcTeam1 = `/static/images/Curling-Rock-${response.top_colour}-sm.png`;
+          sheetCompetitionTimer_rockSrcTeam2 = `/static/images/Curling-Rock-${response.bottom_colour}-sm.png`;
 
           $("#sheetCompetitionTimer-modalAdjustTime1-rock").attr("src", sheetCompetitionTimer_rockSrcTeam1);
           $("#sheetCompetitionTimer-modalAdjustTime2-rock").attr("src", sheetCompetitionTimer_rockSrcTeam2);
@@ -299,37 +288,54 @@
  function sheetCompetitionTimer_showFromOverlay(data) {
     if (data.key == "team") {
        if (data.complete == "yes") {
-          jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/timeout/done`, {}, {});
+          json_call(`${scheme}://${sheetCompetitionTimerIP}:${port}/competition/timeout/done`, "POST")
+             .done(function(r) {
+                if (data.who == "team1") {
+                   $("#sheetCompetitionTimer-btn-team1-timeout").text("TO-" + r.remainingTimeouts);
+                } else {
+                   $("#sheetCompetitionTimer-btn-team2-timeout").text("TO-" + r.remainingTimeouts);
+                }
+             });
+       } else if (data.complete == "expired") {
+          json_call(`${scheme}://${sheetCompetitionTimerIP}:${port}/competition/status`, "POST")
+             .done(function(r) {
+                $("#sheetCompetitionTimer-btn-team1-timeout").text("TO-" + r.team1.remainingTimeouts);
+                $("#sheetCompetitionTimer-btn-team2-timeout").text("TO-" + r.team2.remainingTimeouts);
+             });
        } else if (data.complete == "cancelled") {
-          jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/timeout/cancel`, {}, {});
+          json_call(`${scheme}://${sheetCompetitionTimerIP}:${port}/competition/timeout/cancel`, "POST");
        }
     } else if (data.key == "adjust") {
        if (data.teamNo) {
-          jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/settime`,
-                   {team: `team${data.teamNo}`,
-                    time: data.time},
-                   {});
-          }
+          json_call(`${scheme}://${sheetCompetitionTimerIP}:${port}/competition/settime`, "POST", 
+                     {team: `team${data.teamNo}`,
+                      time: data.time});
+       }
     } else {
-       jsonCall('', `${scheme}://${sheetCompetitionTimerIP}:${port}/competition/intermission/cancel`, {}, {});
+       json_call(`${scheme}://${sheetCompetitionTimerIP}:${port}/competition/intermission/cancel`, "POST");
     }
+   }
+   
+   {% for s in sheets %}
+   function sheetCompetitionTimer{{loop.index0}}_enter() {
+      sheetCompetitionTimer_idx = {{loop.index0}};
+      sheetCompetitionTimerIP = "{{s.ip}}"    
+      updateNavPanel(sheetCompetitionTimerHandle, "sheetCompetitionTimer{{loop.index0}}", "{{s.name}} - Competition")
+      sheetCompetitionTimer_setup()
  }
  
- {% for s in sheets %}
- function sheetCompetitionTimer{{loop.index0}}_enter() {
-    sheetCompetitionTimer_idx = {{loop.index0}};
-    sheetCompetitionTimerIP = "{{s.ip}}"    
-    updateNavPanel(sheetCompetitionTimerHandle, "sheetCompetitionTimer{{loop.index0}}", "{{s.name}} - Competition")
-    sheetCompetitionTimer_setup()
- }
- 
- function sheetCompetitionTimer{{loop.index0}}_exit() {
-    sheetCompetitionTimer_teardown();
- }
+   function sheetCompetitionTimer{{loop.index0}}_exit() {
+      sheetCompetitionTimer_teardown();
+   }
 
- function sheetCompetitionTimer{{loop.index0}}_showFromOverlay(data) {
-    sheetCompetitionTimer_showFromOverlay(data);
- }
+   function sheetCompetitionTimer{{loop.index}}_showFromOverlay(data) {
+      sheetCompetitionTimer_showFromOverlay()
+   }
+   
+
+   function sheetCompetitionTimer{{loop.index0}}_showFromOverlay(data) {
+         sheetCompetitionTimer_showFromOverlay(data);
+   }
  
  {% endfor %}
 </script>

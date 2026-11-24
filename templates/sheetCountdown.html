@@ -3,49 +3,55 @@
 
    <div class="row mb-3 justify-content-center">
       <div class="col-auto">
-	 <label for="sheetCountdown-finishedMessage">Finished Message:</label>
-	 <input type="text" class="form-control" id="sheetCountdown-finishedMessage" value="{{finishedMessage}}">
+	      <label for="sheetCountdown-finishedMessage">Finished Message:</label>
+	      <input type="text" class="form-control" id="sheetCountdown-finishedMessage" value="{{finishedMessage}}">
       </div>
       <div class="col-auto">
-	 <label for="finishMessageColour">&nbsp;</label>
-	 {{macros.colorSelector(colours, "sheetCountdown-finishedMessageColour", "sheetCountdown-finishedMessageColour", default=finishedMessageColour)}}
+	      <label for="finishMessageColour">&nbsp;</label>
+	      {{macros.colorSelector(colours, "sheetCountdown-finishedMessageColour", "sheetCountdown-finishedMessageColour", default=finishedMessageColour)}}
       </div>
    </div>
    <div class="row mb-3 justify-content-center">
       <div class="col-auto justify-content-center">
-	 <label for="sheetCountdown-lastEndMessage">Last End Message:</label>
-	 <input type="text" class="form-control" id="sheetCountdown-lastEndMessage" value="">
+	      <label for="sheetCountdown-lastEndMessage">Last End Message:</label>
+	      <input type="text" class="form-control" id="sheetCountdown-lastEndMessage" value="">
       </div>
       <div class="col-auto" >
-	 <label for="lastEndMessageColour">&nbsp;</label>
-	 {{macros.colorSelector(colours, "sheetCountdown-lastEndMessageColour", "sheetCountdown-lastEndMessageColour", default=lastEndMessageColour)}}
+	      <label for="lastEndMessageColour">&nbsp;</label>
+	      {{macros.colorSelector(colours, "sheetCountdown-lastEndMessageColour", "sheetCountdown-lastEndMessageColour", default=lastEndMessageColour)}}
       </div>
    </div>
    <div class="row mb-3 justify-content-center">
       <div class="col-auto" >
-	 <label for="sheetCountdown-teamColour">Team Colour:</label>
-	 {{macros.colorSelector(colours, "sheetCountdown-team-colour", "sheetCountdown-team-colour", extra="board", default="white")}}
+	      <label for="sheetCountdown-new-game">&nbsp;</label>
+	      <button type="submit" id="sheetCountdown-new-game"
+            class="btn btn-outline-dark sheetCountdown-submit-target form-control"
+            onclick="sheetCountdown_new_game()">New Game</button>
+      </div>
+      <div class="col-auto" >
+	      <label for="sheetCountdown-teamColour">Team Colour:</label>
+	      {{macros.colorSelector(colours, "sheetCountdown-team-colour", "sheetCountdown-team-colour", extra="board", default="white")}}
       </div>
    </div>
    <div class="row timeDisplay justify-content-center">
       <div class="col-auto timeDisplay">
-	 <span id="sheetCountdown-timer" class="timeDisplay">{{time}}</span>
+	      <span id="sheetCountdown-timer" class="timeDisplay">{{time}}&nbsp;</span>
       </div>
    </div>
    <div class="row mt-2 justify-content-center">
       <div class="col-auto">
-	 <button type="button" class="btn btn-outline-dark btn btn-lg icon-button-lg sheetCountdown-submit-target" onclick="sheetCountdown_showSetTime()">
-	  {{icon("plus-slash-minus")}} 
-	 </button>	      
+	      <button type="button" class="btn btn-outline-dark btn btn-lg icon-button-lg sheetCountdown-submit-target" onclick="sheetCountdown_showSetTime()">
+	         {{icon("plus-slash-minus")}} 
+	      </button>	      
       </div>
       <div class="col-auto">
-	 <button type="button" id="sheetCountdown-start" class="btn btn-lg icon-button-lg btn-outline-dark" onclick="sheetCountdown_start()">{{icon("play-fill")}}</button>
+	      <button type="button" id="sheetCountdown-start" class="btn btn-lg icon-button-lg btn-outline-dark" onclick="sheetCountdown_start()">{{icon("play-fill")}}</button>
       </div>
       <div class="col-auto">
-	 <button type="button" id="sheetCountdown-pause" class="btn btn-lg icon-button-lg btn-outline-dark" onclick="sheetCountdown_pause()">{{icon("pause-fill")}}</button>
+	      <button type="button" id="sheetCountdown-pause" class="btn btn-lg icon-button-lg btn-outline-dark" onclick="sheetCountdown_pause()">{{icon("pause-fill")}}</button>
       </div>
       <div class="col-auto">
-	 <button type="button" id="sheetCountdown-lastEnd" class="btn btn-lg icon-button-lg btn-outline-dark" onclick="sheetCountdown_lastEnd()">LE</button>
+	      <button type="button" id="sheetCountdown-lastEnd" class="btn btn-lg icon-button-lg btn-outline-dark" onclick="sheetCountdown_lastEnd()">LE</button>
       </div>
    </div>
    
@@ -54,131 +60,154 @@
          <img class="rock-img" id="sheetCountdown-top-rock" src="/static/images/Curling-Rock-red-sm.png">
       </div>
       <div class="col-7 col-md-3 ml-3 my-auto">
-	 <div class="input-group">
-	    <input type="text" class="form-control border-right-0 border" id="sheetCountdown-team1" placeholder="top team ...">
+	      <div class="input-group">
+	         <input type="text" class="form-control border-right-0 border" id="sheetCountdown-team1" placeholder="top team ...">
             <span class="input-group-text" onclick='$("#sheetCountdown-team1").val("")'>
                {{icon("x")}}
             </span>
          </div>
       </div>
       <div class="col-auto ml-1 my-auto ">
-	 <button type="button" class="btn icon-button-lg btn-lg btn-outline-dark sheetCountdown-submit-target" onclick='flip("sheetCountdown-team1","sheetCountdown-team2");'>{{icon("shuffle")}}</button>
+	      <button type="button" class="btn icon-button-lg btn-lg btn-outline-dark sheetCountdown-submit-target" onclick='flip("sheetCountdown-team1","sheetCountdown-team2");'>{{icon("shuffle")}}</button>
       </div>			    
    </div>
    <div class="row mt-2 justify-content-center">
-      <div class="col-auto my-auto ps-2"><img class="rock-img" id="sheetCountdown-bottom-rock" src="/static/images/Curling-Rock-yellow-sm.png">
+      <div class="col-auto my-auto ps-2">
+         <img class="rock-img" id="sheetCountdown-bottom-rock" src="/static/images/Curling-Rock-yellow-sm.png">
       </div>
       <div class="col-7 col-md-3 ml-3 my-auto">
-	 <div class="input-group">
-	    <input type="text" class="form-control border-right-0 border" id="sheetCountdown-team2" placeholder="bottom team ...">
+	      <div class="input-group">
+	         <input type="text" class="form-control border-right-0 border" id="sheetCountdown-team2" placeholder="bottom team ...">
             <span class="input-group-text" onclick='$("#sheetCountdown-team2").val("")'>
                {{icon("x")}}
             </span>
          </div>
       </div>
       <div class="col-auto ml-1 my-auto ">
-	 <button type="button" class="btn icon-button-lg btn-lg btn-outline-dark sheetCountdown-submit-target" id="sheetCountdown_set" onclick="sheetCountdown_setTeamNames()">{{icon("box-arrow-up-right")}}</button>			
+	      <button type="button" class="btn icon-button-lg btn-lg btn-outline-dark sheetCountdown-submit-target" id="sheetCountdown_set" onclick="sheetCountdown_setTeamNames()">{{icon("box-arrow-up-right")}}</button>			
       </div>
    </div>
 </div>
 <script>
- var sheetCountdownIP = ""
- var sheetCountdownHandle = $('#sheetCountdown');
- var sheetCountdown_timer = 0;
+   var sheetCountdownIP = ""
+   var sheetCountdownHandle = $('#sheetCountdown');
+   var sheetCountdown_timer = 0;
+   var sheetCountdown_game_time = "1:40:00"
 
- function sheetCountdown_showSetTime() {
-    overlayShow("sheetCountdownSetTime", {time: $("#sheetCountdown-timer").text()})
- }
+   function sheetCountdown_showSetTime() {
+      overlayShow("sheetCountdownSetTime", {time: $("#sheetCountdown-timer").text()})
+   }
 
- function sheetCountdown_setTeamNames() {
-    let colour = $('#sheetCountdown_teamColour').val();
-
-    if (colour == "board") {
-       colour = "default";
-    }
+   function sheetCountdown_setTeamNames() {
+      let colour = $('#sheetCountdown_teamColour').val();
+      
+      if (colour == "board") {
+         colour = "default";
+      }
     
-    TeamNamesSet(sheetCountdownIP,
-                 $('#sheetCountdown-team1').val(),
-                 $('#sheetCountdown-team2').val(),
-                 $('#sheetCountdown-team-colour').val());
-    TeamNamesShow(sheetCountdownIP);
- }
+      TeamNamesSet(sheetCountdownIP,
+                   $('#sheetCountdown-team1').val(),
+                   $('#sheetCountdown-team2').val(),
+                   $('#sheetCountdown-team-colour').val());
+      TeamNamesShow(sheetCountdownIP, "countdown");
+   }
 
- function sheetCountdown_timerRunning(active) {
-    enableField(!active, ".sheetCountdown-submit-target");
-    enableField(!active, "#sheetCountdown-start");
-    enableField(active, "#sheetCountdown-pause");
-    enableField(true, "#sheetCountdown-lastEnd");
- }
+   function sheetCountdown_timerRunning(active) {
+      enableField(!active, ".sheetCountdown-submit-target");
+      enableField(!active, "#sheetCountdown-start");
+      enableField(!active, "#sheetCountdown-new-game");
+      enableField(active, "#sheetCountdown-pause");
+      enableField(true, "#sheetCountdown-lastEnd");
+   }
  
- function sheetCountdown_start() {
-    CountDownResume(sheetCountdownIP);
-    sheetCountdown_timerRunning(true);   
- }
+   function sheetCountdown_start() {
+      CountDownResume(sheetCountdownIP);
+      sheetCountdown_timerRunning(true);   
+   }
  
- function sheetCountdown_pause() {
-    CountDownPause(sheetCountdownIP);
-    sheetCountdown_timerRunning(false);   
- }
+   function sheetCountdown_pause() {
+      CountDownPause(sheetCountdownIP);
+      sheetCountdown_timerRunning(false);   
+   }
 
- function sheetCountdown_lastEnd() {
-    CountDownPause(sheetCountdownIP);
-    CountDownLastEnd(sheetCountdownIP);
-    sheetCountdown_timerRunning(false);
- }
+   function sheetCountdown_lastEnd() {
+      CountDownPause(sheetCountdownIP);
+      CountDownLastEnd(sheetCountdownIP);
+      sheetCountdown_timerRunning(false);
+   }
 
- function sheetCountdown_showFromOverlay(data) {
-    if (!data) {
-       return;
-    }
+   function sheetCountdown_new_game() {
+      CountDownSetTime(sheetCountdownIP, sheetCountdown_game_time,
+                       $("#sheetCountdown-finishedMessage").val(),
+                       $("#sheetCountdown-finishedMessageColour").val(),
+                       $("#sheetCountdown-lastEndMessage").val(),
+                       $("#sheetCountdown-lastEndMessageColour").val())      
+   }   
 
-    $("#sheetCountdown-timer").html(data.time);
-    CountDownSetTime(sheetCountdownIP, data.time,
-                     $("#sheetCountdown-finishedMessage").val(),
-                     $("#sheetCountdown-finishedMessageColour").val(),
-                     $("#sheetCountdown-lastEndMessage").val(),
-                     $("#sheetCountdown-lastEndMessageColour").val())
+   function sheetCountdown_showFromOverlay(data) {
+      if (!data) {
+         return;
+      }
+
+      $("#sheetCountdown-timer").text(data.time);
+      CountDownSetTime(sheetCountdownIP, data.time,
+                       $("#sheetCountdown-finishedMessage").val(),
+                       $("#sheetCountdown-finishedMessageColour").val(),
+                       $("#sheetCountdown-lastEndMessage").val(),
+                       $("#sheetCountdown-lastEndMessageColour").val())
     
-    CountDownPause(sheetCountdownIP);
-    sheetCountdown_timerRunning(false);
- }
+      CountDownPause(sheetCountdownIP);
+      sheetCountdown_timerRunning(false);
+   }
  
- function setupSheetCountDown(ip, ordinal, name) {
-    sheetCountdownIP = ip;
-    updateNavPanel(sheetCountdownHandle, `sheetCountdown${ordinal}`, `${name} - Countdown`, `sheet${ordinal}`)
+   function setupSheetCountDown(ip, ordinal, name) {
+      sheetCountdownIP = ip;
+      updateNavPanel(sheetCountdownHandle, `sheetCountdown${ordinal}`, `${name} - Countdown`, `sheet${ordinal}`)
+      
+      $("#sheetCountdown-timer").html("&nbsp");
+      
+      getDefaultsAjax(ip, false)
+         .done(function(response) {
+            loadSettings("sheetCountdown", response);
+            sheetCountdown_game_time = response.gameTime;
+
+            CountDownStatus(ip, false)
+               .done(function (status){
+                  if (!status.active) {
+                     sheetCountdown_new_game();
+                  }
+               });
+         })
+
+      getTeamNames(ip, false)
+         .done(function(response) {
+	         $("#sheetCountdown-team1").val(response.team1);
+	         $("#sheetCountdown-team2").val(response.team2);
+
+            $("#sheetCountdown-top-rock").attr("src", `/static/images/Curling-Rock-${response.top_colour}-sm.png`);
+            $("#sheetCountdown-bottom-rock").attr("src", `/static/images/Curling-Rock-${response.bottom_colour}-sm.png`);
+         })
     
-    getDefaultsAjax(ip, false)
-       .done(function(response) {
-          loadSettings("sheetCountdown", response);
-          
-       })
 
-    getTeamNames(ip, false)
-       .done(function(response) {
-	  $("#sheetCountdown-team1").val(response.team1);
-	  $("#sheetCountdown-team2").val(response.team2);
-       })
-    
+      sheetCountdown_timer = timer_tracker(sheetCountdownIP, "#sheetCountdown-timer", "countdown/status", sheetCountdown_timerRunning)
+   }
+ 
+   function endSheetCountdown() {
+      timer_cancel(sheetCountdown_timer)
+   }
+ 
+   {% for s in sheets %}
+   function sheetCountdown{{loop.index0}}_enter() {
+      setupSheetCountDown( "{{s.ip}}" , {{loop.index0}}, "{{s.name}}");
+   }
+ 
+   function sheetCountdown{{loop.index0}}_exit() {
+      endSheetCountdown()
+   }
 
-    sheetCountdown_timer = timer_tracker(sheetCountdownIP, "#sheetCountdown-timer", "countdown/status", sheetCountdown_timerRunning)
- }
+   function sheetCountdown{{loop.index0}}_showFromOverlay(data) {
+      sheetCountdown_showFromOverlay(data);
+   }
  
- function endSheetCountdown() {
-    timer_cancel(sheetCountdown_timer)
- }
- 
- {% for s in sheets %}
- function sheetCountdown{{loop.index0}}_enter() {
-    setupSheetCountDown( "{{s.ip}}" , {{loop.index0}}, "{{s.name}}");
- }
- 
- function sheetCountdown{{loop.index0}}_exit() {
-    endSheetCountdown()
- }
-
- function sheetCountdown{{loop.index0}}_showFromOverlay(data) {
-    sheetCountdown_showFromOverlay(data);
- }
- 
- {% endfor %}
+   {% endfor %}
 </script>

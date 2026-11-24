@@ -16,12 +16,12 @@
 <script>
  function adminMemoryDisplay_refresh(ip, ) {
     emptyTable("adminMemoryDisplay-table")
-    jsonCall('adminMemory', `{{scheme}}://${ip}:{{port}}/adminmemory`, {}, {method:"GET"})
+    json_call(`{{scheme}}://${ip}:{{port}}/adminmemory`, "GET")
        .done(function(response) {	     
           renderTableData("adminMemoryDisplay-table", response.headers, response.data);
        })
- }
- 
+   }
+   
  function adminMemoryDisplay_enter(iconBtn) {
     let ip = iconBtn.dataset.icondataip
     let name = iconBtn.dataset.icondataname

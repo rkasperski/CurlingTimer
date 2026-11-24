@@ -1,3 +1,36 @@
+5.27.1013.rc12 - Tue Nov 24 14:24:54 2026
+- adjust position of two line times when displayed on a tv
+- make sure time on countdown timer is set appropriately before the page s
+  displayed.
+- add new game button to count down timer
+- fix incorrect assignment of timeouts to the wrong team
+- fix handling of user and passwords
+- regularize the finding of the info directory on an update
+- fix type in empty or format matching field
+- fix problem with display of login screen when authorization fails
+- fix problem when using a pin reading of defaults was unauthorized return.
+- small fixes to competition timers
+- not visible but important. now using snake case.
+- much cleaner pylint
+- cleanup logging of server requests
+5.26.6 - Thu Oct 22 09:47:24 2026
+- fix display of teamnames at start of a draw.
+5.26.5 - Mon Oct 19 20:27:58 2026
+- fix handling of refreshes of data
+- fix handling of comments between throw and timer display
+5.26.4 - Mon Oct 19 16:45:06 2026
+- add search to draws tab
+- make display of training times as large as competition timer
+- change language in training setup from"go to" to "start timing ..."
+- fix display of countdown timer when there are no team names set
+- fix colour of rocks in sheet countdown timers
+5.26.3 - Sat Oct 17 13:28:47 2026
+save uv project
+5.26.2 - Fri Oct 16 17:30:49 2026
+5.26.1 - Fri Oct 16 16:29:08 2026
+5.26 - Fri Oct 16 00:04:49 2026
+- fixes to improve rock time detection
+- parsing fixed for multiple draws in a league
 5.25.1 - Tue Jan 27 16:26:47 2026
 - automatically scan for new devices during training setup
 5.25 - Wed Jan 21 16:35:03 2026

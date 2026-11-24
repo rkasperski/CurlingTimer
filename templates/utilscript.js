@@ -98,28 +98,31 @@ function standardFailLogger(jqXHR, textStatus, errorThrown) {
    return false
 }
 
+json_call_defaults = {content_type: "application/json",
+                      data_type: "json",
+                      animation: null,
+                      timeout: ajaxTimeout,
+                      retries: 1,
+                      async: true,
+                      fail_logger: standardFailLogger,
+                      animation_target: "#allOfIt" };
+
 // good simple animation is "spinner".
 // add a target with of allOfIt or
 // set "ajaxAnimationTarget = <name, class, some jQuery selector. default is #allOfIt>" and then
 // set of the selection element.
-function jsonCall(funcName,
-                  url=null,
-                  data=null,
-                  {method="POST",
-                   contentType="application/json",
-                   dataType="json",
-                   animation=null,
-                   timeout=ajaxTimeout,
-                   retries=1,
-                   async=true,
-                   failLogger=standardFailLogger,
-                   animationTarget="#allOfIt" }) {
+function json_call(url=null,
+                   method="POST",
+                   data=null,
+                   options={}) {
+                 
    request = { type          : method,
-               contentType   : contentType + "; charset=utf-8",
-               timeout       : timeout,
-               retries       : retries,
-               retryInterval : timeout,
-               async         : async === null ? false : async,
+               contentType   : ((options.contentType === undefined) ?
+                                json_call_defaults.contentType : options.contentType) + "; charset=utf-8",
+               timeout       : (options.timeout  === undefined) ? json_call_defaults.timeout : options.timeout,
+               retries       : (options.retries  === undefined) ? json_call_defaults.retries : options.retries,
+               retryInterval : (options.timeout === undefined) ? json_call_defaults.timeout : options.timeout,
+               async         : (options.async == undefined) ? json_call_defaults.async : options.async,
              };
 
    if (method == "GET") {
@@ -130,20 +133,21 @@ function jsonCall(funcName,
       if (!data) {
          data = {};
       }
-      request.data = (dataType == "json") ? JSON.stringify(data) : data;
-      request.dataType = dataType
+      request.dataType = (options.data_type  === undefined) ? json_call_defaults.data_type : options.data_type;
+      request.data = (request.dataType == "json") ? JSON.stringify(data) : data;
    }
 
    request.url = url;
-   request.funcName = funcName;
+   request.funcName = "deprecated";
 
-   if (animation) {
-      request.animation = animation;
-      request.animationTarget = animationTarget;
+   request.animation = (options.animation === undefined) ? json_call_defaults.animation : options.animation
+   if (request.animation) {
+      request.animation_target = (options.animation_target === undefined) ? json_call_defaults.animation_target : options.animation_target;
    }
 
+   fail_logger = (options.failL_logger === undefined) ? json_call_defaults.fail_logger : options.fail_logger
    return $.ajax(request)
-      	  .fail(standardFailLogger);
+      	  .fail(fail_logger);
 }
 
 function peerList() {
@@ -292,9 +296,9 @@ function verify_unique_field(input, allowEmpty) {
    let uniqueFieldList = $(inputSelector);
 
    // not efficient but not much used either
-   $(unqiueFieldList).each(function(index) {
+   $(uniqueFieldList).each(function(index) {
 	   let outer = this;
-	   $(unqiueFieldList).each(function(index) {
+	   $(uqniueFieldList).each(function(index) {
 	      if (outer != this && outer.value && this.value && outer.value == this.value) {
 		      return false;
 	      }
@@ -427,7 +431,7 @@ $(document).ready(function(){
    });
 });
 
-ajaxAnimationSpinner = {
+ajax_animation_spinner = {
    //none, rotateplane, stretch, orbit, roundBounce, win8,
    //win8_linear, ios, facebook, rotation, timer, pulse,
    //progressBar, bouncePulse or img
@@ -446,11 +450,11 @@ ajaxAnimationSpinner = {
 
 (function($) {
    $.ajaxPrefilter(function( options, _, jqXHR ) {
-      if (options.animation && options.animationTarget) {
+      if (options.animation && options.animation_target) {
          function stopAnimation() {
-            $(options.animationTarget).waitMe('hide');
+            $(options.animation_target).waitMe('hide');
          }
-         $(options.animationTarget).waitMe(ajaxAnimationSpinner);
+         $(options.animation_target).waitMe(ajax_animation_spinner);
          jqXHR.then(stopAnimation, stopAnimation);
       }
    });

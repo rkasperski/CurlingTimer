@@ -57,14 +57,12 @@
 <script>
  
  function getSensorStatus(id, async) {
-    return jsonCall("getSensorState",
-                    `${scheme}://${ip}:${port}/status`,
-                    {id:id},
-                    {method: "POST",
-                     async: async});
- }
- 
- function verifyLoggedIn() {
+    return json_call(`${scheme}://${ip}:${port}/status`, "POST", 
+                      {id:id},
+                      {async: async});
+   }
+   
+   function verifyLoggedIn() {
     let result = null;
     getSensorStatus(null, false)
        .fail(function () {

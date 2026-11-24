@@ -117,13 +117,16 @@ class RockTimingEvents {
             this.timePatterns = this.timing_patterns;
         }
 
-        this.first_time = 0;
+        this.prev_time = 0;
         this.throws = new Map();
+        if (! circumferenceInM) {
+           circumferenceInM = 0.910;
+        }
         this.diameter = circumferenceInM / Math.PI;
     }
 
     clear() {
-        this.first_time = 0;
+        this.prev_time = 0;
         this.times = []
         this.throws = new Map()
     }
@@ -186,12 +189,13 @@ class RockTimingEvents {
     }
 
     checkForEvent(tm) {
-        let tdiff = tm[0] - this.first_time;
+        let tdiff = tm[0] - this.prev_time;
         
-        if (tdiff > 20) {
+        if (tdiff > 22) {
             this.times = [];
-            this.first_time = tm[0];
         }
+       
+        this.prev_time = tm[0];
         
         this.times.unshift([this.sensorToPlacementMap.get(tm[3], tm[3]), tm[0], tm[1], tm[2]]);
         let timePatternMatch = null;

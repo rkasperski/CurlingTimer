@@ -111,7 +111,7 @@ class WSSocket {
         }
     }
 
-    close() {
+    close(msg) {
         dbg_print(`ws socket: closing ${this.url}`)
         dbg_print(new Error())
         this.killPingPongTimers();

@@ -60,7 +60,7 @@
  var sheetTraining_timeOrder = [];
  var sheetTraining_timeToID = new Map();
  var sheetTraining_commentMap = new Map();
- var sheetTraining_activeSensors = null;
+ var sheetTraining_activeSensors = [];
  var sheetTraining_ws = null;
  var sheetTraining_position = null;
  var sheetTraining_hasDisplay = false;
@@ -89,7 +89,8 @@
  }
 
  function sheetTraining_insertTimeRow(rowId, snsrDescr, time, prevRowId) {
-    let comment = sheetTraining_commentMap.get(sheetTraining_rowId);
+    let tm = new Date(time[0] * 1000).toLocaleTimeString();
+    let comment = sheetTraining_commentMap.get(tm);
     if (!comment) {
        comment = "";
     }
@@ -108,7 +109,11 @@
   </td>
   <td data-title="Comment">
     <div class="col-auto">
-      <input type="text" class="w-100" value="${htmlToText(comment)}" onchange="sheetTraining_textChange(this, '${sheetTraining_rowId}')" onkeyup="sheetTraining_textChange(this, '${sheetTraining_rowId}')" placeholder="add comment ...">
+      <input type="text" class="w-100 sheetTraining-comment" value="${htmlToText(comment)}" 
+             onchange="sheetTraining_textChange(this, '${tm}')" 
+             onkeyup="sheetTraining_textChange(this, '${tm}')" 
+             data-time="${tm}"
+             placeholder="add comment ...">
     </div>
   </td>
 </tr>`;
@@ -154,8 +159,8 @@
     let prevTime = sheetTraining_rebaseTime;
     for(let i = sheetTraining_timeOrder.length - 1; i >= 0; i--) {
        let r = sheetTraining_timeOrder[i];
-       let comment = sheetTraining_commentMap.get(r.id.toString());
        let tm = new Date(r.time[0] * 1000).toLocaleTimeString();
+       let comment = sheetTraining_commentMap.get(tm);
 
        comment = comment ? comment : "";
 
@@ -171,10 +176,10 @@
  }
  
  function sheetTraining_resetBreakTimes() {
+    sheetTraining_commentMap.clear();
     sheetTraining_rebaseTime = 0;
     $('#sheetTraining-breakTimeTable').empty();
     $('#sheetTraining-event').empty();
-    sheetTraining_commentMap.clear();
     sheetTraining_timeOrder = [];
     sheetTraining_timeToID.clear();
     sheetTraining_activeSensors.forEach(snsr => snsr.reset(5));
@@ -183,8 +188,12 @@
     } 
  }
  
- function sheetTraining_textChange(inField, id) {
-    sheetTraining_commentMap.set(id, inField.value);
+ function sheetTraining_textChange(inField, tm) {
+    let value = inField.value;
+    
+    sheetTraining_commentMap.set(tm, value);
+
+    $(`.sheetTraining-comment[data-time="${tm}"]`).val(value);    
  }
 
  function sheetTraining_updateDisplay() {
@@ -252,7 +261,11 @@
        });
 
        myDiv.append(`<div class="offset-1 col-10">
-      <input type="text" class="w-100" value="${htmlToText(comment)}" onchange="sheetTraining_textChange(this, '${tm}')" onkeyup="sheetTraining_textChange(this, '${tm}')" placeholder="add comment ...">
+      <input type="text" class="sheetTraining-comment w-100" value="${htmlToText(comment)}" 
+             onchange="sheetTraining_textChange(this, '${tm}')" 
+             onkeyup="sheetTraining_textChange(this, '${tm}')" 
+             data-time="${tm}"
+             placeholder="add comment ...">
 </div>`);
 
        $('#sheetTraining-event').prepend(myDiv);
@@ -306,7 +319,7 @@
     }
  }
 
-// what to do when endsessio msg arrives
+// what to do when end session msg arrives
  function connectToBreakTimerDisplay(ip, sensors) {
     let ws = new WSBreakTimerDisplay();
     ws.connect(`ws://${ip}:80/ws/breaktimerdisplay`, sensors, true);
@@ -364,8 +377,13 @@
 
  function sheetTraining_refreshTimes() {
     $('#sheetTraining-breakTimeTable').empty();
+    $('#sheetTraining-event').empty();
     sheetTraining_lastInteractionTime = Date.now();
     sheetTraining_clearSensors();
+    sheetTraining_timeOrder = [];
+    sheetTraining_timeToID.clear()
+    sheetTraining_activeSensors = [];
+    
     setTimeout(function(){
        if (sheetTraining_displayInfo.hasDisplay) {
           sheetTraining_ws = connectToBreakTimerDisplay(sheetTraining_displayInfo.ip, sheetTraining_displayInfo.sensors);
@@ -394,6 +412,7 @@ function sheetTraining_enter(displayInfo) {
     let sensorToPlacementMap = new Map();
     let placementToColourMap = new Map();
 
+    // sheetTraining_commentMap.clear();
     sheetTraining_eventSourceCounter = displayInfo.sensors.length;
     sheetTraining_activeSensorCount = displayInfo.sensors.length + (displayInfo.hasDisplay ? 1 : 0);
 
@@ -416,9 +435,6 @@ function sheetTraining_enter(displayInfo) {
     $('#sheetTraining-breakTimeTable').empty();
     
     sheetTrainingIP = displayInfo.ip;
-    
-    sheetTraining_timeOrder = [];
-    sheetTraining_activeSensors = [];
     
     global_timingStyle = displayInfo.style;
     sheetTraining_displayInfo = displayInfo;

@@ -53,11 +53,10 @@
 	green >= 0 && green <= 255 &&
 	blue >= 0 && blue <= 255 ) {
 
-       jsonCall("showColour", "{{scheme}}://{{ip}}/colours/show",
-		{red: red,
-		 green: green,
-		 blue: blue},
-                {});
+       json_call("{{scheme}}://{{ip}}/colours/show", "POST",
+		            {red: red,
+		             green: green,
+		             blue: blue});
        return true;
     }
 

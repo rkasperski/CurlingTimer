@@ -1,4 +1,4 @@
-<div class="display-view d-none" id="clubElapsed">
+<Div class="display-view d-none" id="clubElapsed">
    {{ navPanel("clubElapsed", "club" , "Club - Elapsed Timer") }}
 
    <div class="container mb-3 mt-3">
@@ -90,26 +90,26 @@
 </div>
 <script>
 
- function  clubElapsed_activeCallback(clubStatus, i, sheetStatus) {
-    enableField(!sheetStatus.active, `#clubElapsed-btn-set${i}`);
-    enableField(clubStatus.active == -1, "#clubElapsed-set-all-btn");             
- }
+   function  clubElapsed_activeCallback(clubStatus, i, sheetStatus) {
+      enableField(!sheetStatus.active, `#clubElapsed-btn-set${i}`);
+      enableField(clubStatus.active == -1, "#clubElapsed-set-all-btn");             
+   }
 
- function clubElapsed_setOneTimer(ip, time) {
-    ElapsedSet(ip, time);
- }
+   function clubElapsed_setOneTimer(ip, time) {
+      ElapsedSet(ip, time);
+   }
  
- function clubElapsed_enter() {
-     startActivityCheckTimer(clubElapsed_activeCallback)
+   function clubElapsed_enter() {
+      startActivityCheckTimer(clubElapsed_activeCallback)
 
-     for (let i = 0; i < peers.length; i++) {
+      for (let i = 0; i < peers.length; i++) {
          enableFieldChecking(`#clubSettings-startTime${i}`, `#clubElapsed-btn-set${i}`)
-     }
+      }
 
-     enableFieldChecking(".clubElapsed-check-time", "#clubElapsed-set-all-btn")
- }
+      enableFieldChecking(".clubElapsed-check-time", "#clubElapsed-set-all-btn")
+   }
 
- function clubElapsed_exit() {
-    stopActivityCheckTimer();
- }
+   function clubElapsed_exit() {
+      stopActivityCheckTimer();
+   }
 </script>

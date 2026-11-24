@@ -181,12 +181,16 @@
     
     setupClickHack();
   });
-  
-  unauthorizedCallback = function(jqXHR, status, errorThrown) {
-    logoutRecord();
-    security_enableAdminPages();
-    panelNavigate("clubLogin");
-  }
+
+   if (setupStage == 0) {
+      unauthorizedCallback = null;
+   } else {
+      unauthorizedCallback = function(jqXHR, status, errorThrown) {
+         logoutRecord();
+         security_enableAdminPages();
+         panelNavigate("clubLogin");
+      }
+   }
 
 </script>
 </html>

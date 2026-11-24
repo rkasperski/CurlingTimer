@@ -11,10 +11,8 @@
    function clubCalendar_eventClick(info) {
       let drawId = info.event.extendedProps.id;
       dataValid = false;
-      jsonCall('GetDraw',
-               '{{scheme}}://{{drawServer}}:{{port}}/draw/get',
-               {id: drawId},
-               {})
+      json_call('{{scheme}}://{{drawServer}}:{{port}}/draw/get', "POST", 
+                 {id: drawId})
          .done(function(response) {
             response.draw.type = "edit";
             response.draw.id = drawId;
@@ -35,13 +33,12 @@
       let draw = info.event.extendedProps;
       draw.date = toDateInputValue(info.event.start);
       draw.time = toTimeInputValue(info.event.start);
-      jsonCall('SetDraw',
-               '{{scheme}}://{{drawServer}}:{{port}}/draw/set',
-               {id: draw.id,
-                draw: draw},
-               {async: false})
+      json_call('{{scheme}}://{{drawServer}}:{{port}}/draw/set', "POST",
+                 {id: draw.id,
+                  draw: draw},
+                 {async: false})
    }
-  
+   
    function clubCalendar_eventMouseEnter(info) {
       console.log(`eventMouseEnter ${info.event.extendedProps.id}`);
    }
@@ -133,18 +130,17 @@
           clubCalendar_ec.removeEventById(id);          
       }
       
-      jsonCall('GetDrawList',
-               '{{scheme}}://{{drawServer}}:{{port}}/draw/list',
-               {},
-               {timeout:5000})
-          .done(function(response) {
-              dbHash = response.hash;
-              for (const draw of response.draws) {
-                  clubCalendar_ec.addEvent(clubCalendar_toEvent(draw.id, draw))             
+      json_call('{{scheme}}://{{drawServer}}:{{port}}/draw/list', "GET", 
+                 {},
+                 {timeout:5000})
+         .done(function(response) {
+            dbHash = response.hash;
+            for (const draw of response.draws) {
+               clubCalendar_ec.addEvent(clubCalendar_toEvent(draw.id, draw))             
               }
           });
   }
-
+   
 function clubCalendar_updateEvent(response) {
     clubCalendar_ec.updateEvent(clubCalendar_toEvent(response.id, response.draw));
 }
@@ -156,19 +152,17 @@ function clubCalendar_addEvent(response) {
 function clubCalendar_showFromOverlay_clubDrawsAdd(data) {
     if (data) {
        if (data.type == "edit") {
-          jsonCall('SetDraw',
-	           '{{scheme}}://{{drawServer}}:{{port}}/draw/set',
-	           {id: data.id,
-	            draw: data.draw},
-                   {async: false})
-           .done(clubCalendar_updateEvent);
+          json_call('{{scheme}}://{{drawServer}}:{{port}}/draw/set', "POST", 
+	                  {id: data.id,
+	                   draw: data.draw},
+                     {async: false})
+             .done(clubCalendar_updateEvent);
        } else if (data.type == "delete") {
           clubCalendar_ec.removeEventById(data.id);          
        } else {
-          jsonCall('AddDraw',
-	           '{{scheme}}://{{drawServer}}:{{port}}/draw/add',
-                   data.draw,
-                   {async: false})
+          json_call('{{scheme}}://{{drawServer}}:{{port}}/draw/add', "POST", 
+                     data.draw,
+                     {async: false})
              .done(clubCalendar_addEvent);	     
        }
     }

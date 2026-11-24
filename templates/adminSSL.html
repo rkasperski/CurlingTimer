@@ -92,18 +92,19 @@
     xhr.send(formData);
  }
 
+   //EYE
  function adminSSL_infoSSLConfig() {
-    return jsonCall('GenerateSSL','{{scheme}}://{{ip}}:{{port}}/sslconfig/info', {}, {}, "POST", "application/json", "json", {}, 30000)
+    return json_call('{{scheme}}://{{ip}}:{{port}}/sslconfig/info', "POST", {}, {timeout: 30000})
        .done(function(response) {
           adminSSL_populateCertDetails(response.type, response.info);
        })
        .fail(function(response) {
-	      alert("generation of local SSL configuration failed; Retry");
+	       alert("generation of local SSL configuration failed; Retry");
        });
  }
  
  function adminSSL_generateSSLConfig() {
-    return jsonCall('GenerateSSL','{{scheme}}://{{ip}}:{{port}}/sslconfig/generate', {}, {}, "POST", "application/json", "json", {}, 30000)
+    return json_call('{{scheme}}://{{ip}}:{{port}}/sslconfig/generate', "POST", {}, {timeout: 30000})
        .done(function(response) {
           adminSSL_populateCertDetails(response.type, response.info);
        })

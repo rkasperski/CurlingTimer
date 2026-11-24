@@ -23,12 +23,10 @@
 <script>
  function clubClockStatus_refresh() {
     emptyTable("clubClockStatus-table")
-    jsonCall('ClubClockStatus',
-             '{{scheme}}://{{ip}}:{{port}}/ajax/clock/state',
-             {},
-             {method:"GET",
-              animation:"spinner",
-              animationTarget:"#clubClockStatus"})
+    json_call('{{scheme}}://{{ip}}:{{port}}/ajax/clock/state', "GET", 
+               {},
+               {animation:"spinner",
+                animation_target:"#clubClockStatus"})
        .done(function(response) {	     
           renderTableData("clubClockStatus-table", response.headers, response.data);
        })

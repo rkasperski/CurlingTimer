@@ -17,12 +17,10 @@
 
  function adminPTPDStatus_refresh() {
     $("#adminPTPDStatus-display").empty();
-    jsonCall("adminPTPDStatus",
-             "{{scheme}}://{{ip}}:{{port}}/adminptpdstatus",
-             {},
-             {method:"GET",
-              animation:"spinner",
-              animationTarget:"#adminPTPDStatus"})
+    json_call("{{scheme}}://{{ip}}:{{port}}/adminptpdstatus", "GET",
+               {},
+               {animation:"spinner",
+                animation_target:"#adminPTPDStatus"})
        .done(function(response) {	     
           for (let i = 0; i < response.data.length; i++) {
              let data = response.data[i];

@@ -1,542 +1,453 @@
 function Status(prmIp, url, data, async) {
-    if (async !== false) {
-        async = true;
-    }
-    statusStartTime = new Date().getTime();
-    return jsonCall('Status', `${scheme}://${prmIp}:${port}/${url}`, data, {timeout:500, async: async})
-	    .done(function(response) {
-            timeSkew = (new Date().getTime() - statusStartTime) / 1000.0;
-	    });
+   if (async !== false) {
+      async = true;
+   }
+   statusStartTime = new Date().getTime();
+   return json_call(`${scheme}://${prmIp}:${port}/${url}`, "POST", data, {timeout:500, async: async})
+	   .done(function(response) {
+         timeSkew = (new Date().getTime() - statusStartTime) / 1000.0;
+	   });
 }
 
 function getSheets() {
-    return jsonCall('getSheets', 
-                    `{{scheme}}://${ip}:{{port}}/ajax/sheets`,
-                    {},
-                    {method: "GET"});
+   return json_call(`{{scheme}}://${ip}:{{port}}/ajax/sheets`, "GET");
 }
 
 function setSheets(clubName, nSheets, sheets, clockServer , drawServer) {
-    return jsonCall('setSheets', 
-                    `{{scheme}}://${ip}:{{port}}/ajax/sheets`,
+   return json_call(`{{scheme}}://${ip}:{{port}}/ajax/sheets`, "POST",
                     {clubName: clubName,
                      nSheets: nSheets,
                      sheets: sheets,
                      clockServer: clockServer,
-                     drawServer: drawServer},
-                    {method: "POST"});
+                     drawServer: drawServer});
 }
 
 function breakTimerSelect(ip, sensors, checkSensor) {
-    return jsonCall('breakTimerSelect', 
-                    `{{scheme}}://${ip}:{{port}}/breaktimer/select`,
+   return json_call(`{{scheme}}://${ip}:{{port}}/breaktimer/select`, "POST", 
                     {sensors: sensors,
-                     checksensor: checkSensor},
-                    {method: "POST"});
+                     checksensor: checkSensor})
 }
 
 function getActiveBreakTimers(ip) {
-    return jsonCall("getActiveBreakTimers",
-                    `{{scheme}}://${ip}:{{port}}/ajax/breaktimer/active`,
-                    {},
-                    {method: "GET"});
+   return json_call(`{{scheme}}://${ip}:{{port}}/ajax/breaktimer/active`, "GET");
 }
 
 function getDefaultsAjax(ip, async) {
-    return jsonCall("getDefaultsAjax",
-                    `{{scheme}}://{{ip}}:{{port}}/ajax/defaults`,
+   return json_call(`{{scheme}}://{{ip}}:{{port}}/ajax/defaults`, "GET", 
                     {},
-                    {method: "GET",
-                     async: async});
+                    {async: async});
 }
 
 function getOrganization() {
-    return jsonCall("getOrganization",
-                    `{{scheme}}://{{ip}}:{{port}}/ajax/organization`,
-                    {},
-                    {method: "GET"});
+   return json_call(`{{scheme}}://{{ip}}:{{port}}/ajax/organization`, "GET");
 }
 
 function setOrganization(settings) {
-    return jsonCall("getOrganization",
-                    `{{scheme}}://{{ip}}:{{port}}/ajax/organization`,
-                    {data: settings},
-                    {method: "POST"});
+   return json_call(`{{scheme}}://{{ip}}:{{port}}/ajax/organization`, "POST", 
+                    {data: settings});
 }
 
 function getDevicesAjax() {
-    return jsonCall("getDevicesAjax",
-                    "{{scheme}}://{{ip}}:{{port}}/ajax/devices",
-                    {},
-                    {method: "GET"});
+   return json_call("{{scheme}}://{{ip}}:{{port}}/ajax/devices", "GET");
 }
 
 function loginUser(user, password) {
-    return jsonCall("loginUser",
-                    "{{scheme}}://{{ip}}:{{port}}/ajax/login",
+   return json_call("{{scheme}}://{{ip}}:{{port}}/ajax/login", "POST", 
                     {user:user,
-                     password:password},
-                    {method: "POST"});
+                     password:password})
 }
 
 function getTime(ip) {
-    return jsonCall("getTime",
-                    `{{scheme}}://${ip}:{{port}}/ajax/time`,
-                    {},
-                    {method: "GET"});
+   return json_call(`{{scheme}}://${ip}:{{port}}/ajax/time`, "GET");
 }
 
-function loginWithPIN(pin) {
-    return jsonCall("loginUser",
-                    "{{scheme}}://{{ip}}:{{port}}/ajax/login/pin",
-                    {pin:pin},
-                    {method: "POST"});
+function loginWithPIN(ip, pin) {
+   return json_call(`{{scheme}}://${ip}:{{port}}/ajax/login/pin`, "POST", 
+                    {pin:pin})
 }
 
 function getUsers() {
-    return jsonCall("getUsers",
-                    "{{scheme}}://{{ip}}:{{port}}/ajax/users",
-                    {},
-                    {method: "GET"});
+   return json_call("{{scheme}}://{{ip}}:{{port}}/ajax/users", "GET");
 }
 
 function updateUsers(data) {
-    return jsonCall("updateUsers",
-                    "{{scheme}}://{{ip}}:{{port}}/ajax/users",
-                    {data: data},
-                    {method: "POST"});
+    return json_call("{{scheme}}://{{ip}}:{{port}}/ajax/users", "POST",
+                     {data: data});
 }
 
 function getUser() {
-    return jsonCall("getUser",
-                    "{{scheme}}://{{ip}}:{{port}}/ajax/user",
-                    {},
-                    {method: "GET"});
+   return json_call("{{scheme}}://{{ip}}:{{port}}/ajax/user", "GET");
 }
 
 function getColours() {
-    return jsonCall("getColours",
-                    "{{scheme}}://{{ip}}:{{port}}/ajax/colours",
-                    {},
-                    {method: "GET"});
+   return json_call("{{scheme}}://{{ip}}:{{port}}/ajax/colours", "GET");
 }
 
 function saveColours(colours) {
-    return jsonCall("saveColours",
-                    "{{scheme}}://{{ip}}:{{port}}/ajax/colours",
-                    {colours: colours},
-                    {method: "POST"});
+   return json_call("{{scheme}}://{{ip}}:{{port}}/ajax/colours", "POST",
+                    {colours: colours});
 }
 
 function setDefaultsAjax(values) {
-    return jsonCall("setDefaultsAjax",
-                    "{{scheme}}://{{ip}}:{{port}}/ajax/defaults",
-                    {values},
-                    {method: "POST"});
+    return json_call("{{scheme}}://{{ip}}:{{port}}/ajax/defaults", "POST",
+                     {values});
 }
 
 function getHardwareSettingsAjax(ip) {
-    return jsonCall("getHardwareSettingsAjax",
-                    `{{scheme}}://${ip}:{{port}}/ajax/hardware`,
-                    {},
-                    {method: "GET"});
+   return json_call(`{{scheme}}://${ip}:{{port}}/ajax/hardware`, "GET");
 }
 
 function setPassword(user, password) {
-    return jsonCall("setPassword",
-                    `{{scheme}}://${ip}:{{port}}/ajax/password`,
+   return json_call(`{{scheme}}://${ip}:{{port}}/ajax/password`, "POST",
                     {user: user,
-                     password: password},
-                    {method: "POST"});
+                     password: password});
 }
 
 function setSecretKey(ip, secretKey) {
-    return jsonCall("setPassword",
-                    `{{scheme}}://${ip}:{{port}}/ajax/secret/set`,
+   return json_call(`{{scheme}}://${ip}:{{port}}/ajax/secret/set`, "POST",
                     {secret: secretKey},
-                    {method: "POST",
-                     timeout: 20000});
+                    {timeout: 20000});
 }
 
 function getTeamNames(prmIp, async) {
-    return jsonCall('TeamNamesGet',`${scheme}://${prmIp}:${port}/teamnames/get`, {}, {async:async});
+    return json_call(`${scheme}://${prmIp}:${port}/teamnames/get`, "POST", {}, {async:async});
 }
 
 function startCompetitionTimeout(prmIp, team) {
-    return jsonCall('CompetitionTimeoutStart',
-                    `${scheme}://${prmIp}:${port}/competition/timeout/start`,
+   return json_call(`${scheme}://${prmIp}:${port}/competition/timeout/start`, "POST", 
                     {team: team},
                     {retries: 3, timeout: 500});
 }
 
 function WhoAreYou(prmIp) {
-    return jsonCall('whoareyou',`${scheme}://${prmIp}:${port}/whoareyou`, {}, {method:"GET"});
+    return json_call(`${scheme}://${prmIp}:${port}/whoareyou`, "GET");
 }
 
 function Message(prmIp, msg, colour) {
-    if ( !colour) {
-	colour = 'white';
-    }
+   if ( !colour) {
+	   colour = 'white';
+   }
 
-    return jsonCall('Message',
-		            `${scheme}://${prmIp}:${port}/text`,
-		            { text: msg,
-		              colour: colour
-		            },
+   return json_call(`${scheme}://${prmIp}:${port}/text`, "POST", 
+		              { text: msg,
+		                colour: colour
+		              },
                     {retries: 3, timeout: 500});
 }
 
 function MessageAll(msg, colour) {
-    peerList().forEach(peer => Message(peer, msg, colour));
+   peerList().forEach(peer => Message(peer, msg, colour));
 }
 
 function Shutdown(prmIp) {
-    return jsonCall('Shutdown', `${scheme}://${prmIp}:${port}/shutdown`, {}, {})
+   return json_call(`${scheme}://${prmIp}:${port}/shutdown`, "POST")
 }
 
 function ShutdownAll(msg) {
-    peerList().forEach(peer => Shutdown(peer));
+   peerList().forEach(peer => Shutdown(peer));
 }
 
 function Restart(prmIp) {
-    return jsonCall('Restart',  `${scheme}://${prmIp}:${port}/restart`, {}, {})
+   return json_call(`${scheme}://${prmIp}:${port}/restart`, "POST")
 }
 
 function RestartAll(msg, colour) {
-    peerList().forEach(peer => Restart(peer));
+   peerList().forEach(peer => Restart(peer));
 }
 
 function Reboot(prmIp) {
-    return jsonCall('Restart',  `${scheme}://${prmIp}:${port}/reboot`, {}, {timeout:300000})
+   return json_call(`${scheme}://${prmIp}:${port}/reboot`, "POST", {}, {timeout:300000})
 }
 
 function RebootAll(msg, colour) {
-    peerList().forEach(peer => Reboot(peer));
+   peerList().forEach(peer => Reboot(peer));
 }
 
 function DisplayBlank(prmIp, blank) {
-    if (blank === null) {
-        blank = true;
-    }
+   if (blank === null) {
+      blank = true;
+   }
 
-    return jsonCall('DisplayBlank',  `${scheme}://${prmIp}:${port}/blank`, {blank: blank}, {});
+   return json_call(`${scheme}://${prmIp}:${port}/blank`, "POST", {blank: blank});
 }
 
 function DisplayBlankAll(blank) {
-    peerList().forEach(peer => DisplayBlank(peer, blank));
+   peerList().forEach(peer => DisplayBlank(peer, blank));
 }
 
 function ClockShow(prmIp) {
-    return jsonCall('ClockShow',  `${scheme}://${prmIp}:${port}/clock/show`, {}, {});
+   return json_call(`${scheme}://${prmIp}:${port}/clock/show`, "POST");
 }
 
 function ClockShowAll() {
-    peerList().forEach(peer => ClockShow(peer));
+   peerList().forEach(peer => ClockShow(peer));
 }
 
 function ElapsedShow(prmIp) {
-    return jsonCall('ElapsedShow',  `${scheme}://${prmIp}:${port}/elapsed/show`, {}, {});
+   return json_call(`${scheme}://${prmIp}:${port}/elapsed/show`, "POST");
 }
 
 function ElapsedShowAll() {
-    peerList().forEach(peer => ElapsedShow(peer));
+   peerList().forEach(peer => ElapsedShow(peer));
 }
 
 function ElapsedStart(prmIp) {
-    return jsonCall('ElapsedStart', `${scheme}://${prmIp}:${port}/elapsed/start`, {}, {retries: 3, timeout: 500})
+   return json_call(`${scheme}://${prmIp}:${port}/elapsed/start`, "POST", {}, {retries: 3, timeout: 500})
 }
 
 function ElapsedStartAll() {
-    peerList().forEach(peer => ElapsedStart(peer));
+   peerList().forEach(peer => ElapsedStart(peer));
 }
 
-
 function ElapsedResume(prmIp) {
-    return jsonCall('ElapsedResume',  `${scheme}://${prmIp}:${port}/elapsed/resume`, {}, {retries: 3, timeout: 500});
+   return json_call(`${scheme}://${prmIp}:${port}/elapsed/resume`, "POST", {}, {retries: 3, timeout: 500});
  }
 
 function ElapsedResumeAll() {
-    peerList().forEach(peer => ElapsedResume(peer));
+   peerList().forEach(peer => ElapsedResume(peer));
 }
 
 function ElapsedPause(prmIp) {
-    return jsonCall('ElapsedPause', `${scheme}://${prmIp}:${port}/elapsed/pause`, {} , {retries: 3, timeout: 500});
+   return json_call(`${scheme}://${prmIp}:${port}/elapsed/pause`, "POST", {} , {retries: 3, timeout: 500});
  }
 
-function ElapsedPauseAll() {
+   function ElapsedPauseAll() {
     peerList().forEach(peer => ElapsedPause(peer));
 }
 
 function ElapsedSet(prmIp, startTime) {
-    if (! startTime) {
-	    startTime = 0;
-    }
+   if (! startTime) {
+	   startTime = 0;
+   }
 
-    return jsonCall('ElapsedSet', `${scheme}://${prmIp}:${port}/elapsed/set`, {time: startTime }, {});
+   return json_call(`${scheme}://${prmIp}:${port}/elapsed/set`, "POST", {time: startTime});
 }
 
 function ElapsedSetAll(startTime) {
-    peerList().forEach(peer => ElapsedSet(peer, startTime));
+   peerList().forEach(peer => ElapsedSet(peer, startTime));
+}
+
+function CountDownStatus(prmIp, run_async) {
+   run_async = (run_async !== false);
+   return json_call(`${scheme}://${prmIp}:${port}/countdown/status`, "POST", null, {async: run_async}); 
 }
 
 function CountDownSetTime(prmIp, newTime, finishedMessage, finishedMessageColour, lastEndMessage, lastEndMessageColour) {
-    return jsonCall('SetCountDownTime',
-		            `${scheme}://${prmIp}:${port}/countdown/set`,
-		            { finishedMessage: finishedMessage,
-		              finishedMessageColour: finishedMessageColour,
-		              lastEndMessage: lastEndMessage,
-		              lastEndMessageColour: lastEndMessageColour,
-		              gameTime: newTime},
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/countdown/set`, "POST", 
+		              {finishedMessage: finishedMessage,
+		               finishedMessageColour: finishedMessageColour,
+		               lastEndMessage: lastEndMessage,
+		               lastEndMessageColour: lastEndMessageColour,
+		               gameTime: newTime},
+                    {async: false});
 }
 
 function CountDownResume(prmIp) {
-    return jsonCall('CountDownResume', `${scheme}://${prmIp}:${port}/countdown/resume`, {}, {retries: 3, timeout: 500});
+   return json_call(`${scheme}://${prmIp}:${port}/countdown/resume`, "POST", {}, {retries: 3, timeout: 500});
 }
 
 function CountDownResumeAll(show) {
-    peerList().forEach(peer => CountDownResume(peer));
+   peerList().forEach(peer => CountDownResume(peer));
 }
 function CountDownStart(prmIp) {
-    return jsonCall('CountDownStart', `${scheme}://${prmIp}:${port}/countdown/start`, {}, {retries: 3, timeout: 500});
+   return json_call(`${scheme}://${prmIp}:${port}/countdown/start`, "POST", {}, {retries: 3, timeout: 500});
 }
 
 function CountDownStartAll(show) {
-    peerList().forEach(peer => CountDownStart(peer));
+   peerList().forEach(peer => CountDownStart(peer));
 }
 
 function CountDownPause(prmIp) {
-    return jsonCall('PauseCountDown', `${scheme}://${prmIp}:${port}/countdown/pause`, {}, {});
+   return json_call(`${scheme}://${prmIp}:${port}/countdown/pause`, "POST");
 }
 
 function CountDownPauseAll() {
-    peerList().forEach(peer => CountDownPause(peer));
+   peerList().forEach(peer => CountDownPause(peer));
 }
 
 function CountDownShow(prmIp) {
-    return jsonCall('CountDownShow', `${scheme}://${prmIp}:${port}/countdown/show`, {}, {});
+   return json_call(`${scheme}://${prmIp}:${port}/countdown/show`, "POST");
 }
 
 function CountDownLastEnd(prmIp) {
-    return jsonCall('CountDownLastEnd', `${scheme}://${prmIp}:${port}/countdown/lastend`, {}, {});
+   return json_call(`${scheme}://${prmIp}:${port}/countdown/lastend`, "POST");
 }
 
 function CountDownSetup(prmIp, gameTime, finishedMessage, finishedMessageColour, lastEndMessage, lastEndMessageColour, teamColour, topTeam, bottomTeam) {
-    if (!teamColour) {
-	teamColour = 'default'
-    }
+   if (!teamColour) {
+	   teamColour = 'default'
+   }
 
-    return jsonCall('CountDownSetup',
-		            `${scheme}://${prmIp}:${port}/countdown/set`,
-		            { team1: topTeam,
-		              team2: bottomTeam,
-		              gameTime: gameTime,
-		              finishedMessage: finishedMessage,
-		              finishedMessageColour: finishedMessageColour,
-		              lastEndMessage: lastEndMessage,
-		              lastEndMessageColour: lastEndMessageColour,
-		              teamColour: teamColour},
-                    {})
+   return json_call(`${scheme}://${prmIp}:${port}/countdown/set`, "POST", 
+		              {team1: topTeam,
+		               team2: bottomTeam,
+		               gameTime: gameTime,
+		               finishedMessage: finishedMessage,
+		               finishedMessageColour: finishedMessageColour,
+		               lastEndMessage: lastEndMessage,
+		               lastEndMessageColour: lastEndMessageColour,
+		               teamColour: teamColour});
 }
+   
 function CompetitionSetTime(prmIp, teamName, teamTime) {
-    return jsonCall('CompetitionSetTime',
-		              `${scheme}://${prmIp}:${port}/competition/settime`,
-		              {
-			              team: teamName,
-			              time: teamTime
-		              },
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/competition/settime`, "POST",
+		              {team: teamName,
+			            time: teamTime
+		              });
 }
 
 function CompetitionStartBetweenEndTimer(prmIp, betweenEndTime) {
-    return jsonCall('CompetitionStartBetweenEndTimer',
-		              `${scheme}://${prmIp}:${port}/competition/betweenendtimer`,
-		              {
-			              betweenEndTime: betweenEndTime
-		              },
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/competition/betweenendtimer`, "POST", 
+		              {betweenEndTime: betweenEndTime});
 }
 
 function CompetitionResume(prmIp) {
-    return jsonCall('CompetitionResume',`${scheme}://${prmIp}:${port}/competition/resume`, {}, {retries: 3, timeout: 500});
+   return json_call(`${scheme}://${prmIp}:${port}/competition/resume`, "POST", {}, {retries: 3, timeout: 500});
 }
 
 function CompetitionPause(prmIp) {
-    return jsonCall('CompetitionPause',`${scheme}://${prmIp}:${port}/competition/pause`, {}, {retries: 3, timeout: 500});
+   return json_call(`${scheme}://${prmIp}:${port}/competition/pause`, "POST", {}, {retries: 3, timeout: 500});
 }
 
 function CompetitionShow(prmIp) {
-    return jsonCall('CompetitionShow',`${scheme}://${prmIp}:${port}/competition/show`, {}, {});
+   return json_call(`${scheme}://${prmIp}:${port}/competition/show`, "POST");
 }
 
 function CompetitionTeam1Pause(prmIp) {
-    return jsonCall('CompetitionTeam1Pause',`${scheme}://${prmIp}:${port}/competition/team1/pause`, {}, {retries: 3, timeout: 500});
+   return json_call(`${scheme}://${prmIp}:${port}/competition/team1/pause`, "POST", {}, {retries: 3, timeout: 500});
 }
 
 function CompetitionTeam2Pause(prmIp) {
-    return jsonCall('CompetitionTeam2Pause',`${scheme}://${prmIp}:${port}/competition/team2/pause`, {}, {retries: 3, timeout: 500});
+   return json_call(`${scheme}://${prmIp}:${port}/competition/team2/pause`, "POST", {}, {retries: 3, timeout: 500});
 }
 
 function CompetitionTeamExchange(prmIp) {
-    return jsonCall('CompetitionTeamExchange',`${scheme}://${prmIp}:${port}/competition/team/exchange`, {}, {retries: 3, timeout: 500});
+   return json_call(`${scheme}://${prmIp}:${port}/competition/team/exchange`, "POST", {}, {retries: 3, timeout: 500});
 }
 
 function CompetitionTeam1Resume(prmIp) {
-    return jsonCall('CompetitionTeam2Resume',`${scheme}://${prmIp}:${port}/competition/team1/resume`, {}, {retries: 3, timeout: 500});
+   return json_call(`${scheme}://${prmIp}:${port}/competition/team1/resume`, "POST", {}, {retries: 3, timeout: 500});
 }
 
 function CompetitionTeam2Resume(prmIp) {
-    return jsonCall('CompetitionTeam2Resume',`${scheme}://${prmIp}:${port}/competition/team2/resume`, {}, {retries: 3, timeout: 500});
+   return json_call(`${scheme}://${prmIp}:${port}/competition/team2/resume`, "POST", {}, {retries: 3, timeout: 500});
 }
 
 function CompetitionSetup(prmIp, msg, perTeamTime, intermissionLength, teamColour, topTeam, bottomTeam) {
-    return jsonCall('CompetitionSetup',
-		            `${scheme}://${prmIp}:${port}/competition/setup`,
-		            { welcomeMessage: msg,
-                      teamColour: teamColour,
-		              team1: topTeam,
-		              team2: bottomTeam,
-		              timeLimit: perTeamTime,
-		              intermissionLength: intermissionLength
-		            },
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/competition/setup`, "POST",
+		              {welcomeMessage: msg,
+                     teamColour: teamColour,
+		               team1: topTeam,
+		               team2: bottomTeam,
+		               timeLimit: perTeamTime,
+		               intermissionLength: intermissionLength
+		              });
 }
 
 function CompetitionTimeoutStart(prmIp, team) {
-    return jsonCall('CompetitionTimeoutStart',
-		              `${scheme}:/${prmIp}:${port}/competition/timeout/start`,
-		              { team: team },
+   return json_call(`${scheme}:/${prmIp}:${port}/competition/timeout/start`, "POST",
+		              {team: team },
                     {retries: 3, timeout: 500});
 }
 
-function TeamNamesShow(prmIp) {
-    return jsonCall('TeamNamesShow',`${scheme}://${prmIp}:${port}/teamnames/show`, {}, {});
+function TeamNamesShow(prmIp, clock) {
+   return json_call(`${scheme}://${prmIp}:${port}/teamnames/show/${clock}`, "POST");
 }
 
 function TeamNamesGet(prmIp) {
-    return jsonCall('TeamNamesGet',`${scheme}://${prmIp}:${port}/teamnames/get`, {}, {});
+   return json_call(`${scheme}://${prmIp}:${port}/teamnames/get`, "POST");
 }
 
 function TeamNamesSet(prmIp, team1, team2, colour) {
-    return jsonCall('TeamNamesSet',
-		            `${scheme}://${prmIp}:${port}/teamnames/set`,
-		            {team1: team1,
-		             team2: team2,
+   return json_call(`${scheme}://${prmIp}:${port}/teamnames/set`, "POST",
+		              {team1: team1,
+		               team2: team2,
                      colour: colour
-                    },
-                    {});
+                    });
 }
 
 function Flash(prmIp, colour) {
-    return jsonCall('Flash',
-                    `${scheme}://${prmIp}:${port}/flash`,
-                    {colour: colour},
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/flash`, "POST",
+                    {colour: colour})
 }
 
 function BreakTimerSelect(prmIp, sensors, checkSensor) {
-    return jsonCall('BreakTimerSelect',
-		            `${scheme}://${prmIp}:${port}/breaktimer/select`,
-		            {sensors: sensors,
-		             checksensor: checkSensor},
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/breaktimer/select`, "POST",
+		              {sensors: sensors,
+		               checksensor: checkSensor});
 }
 
 function BreakTimerDisplayStyle(prmIp, style) {
-    return jsonCall('BreakTimerDisplayStyle',
-		            `${scheme}://${prmIp}:${port}/breaktimer/style`,
-		            {style: style},
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/breaktimer/style`, "POST",
+		              {style: style});
 }
 
 function BreakTimerSetFilter(prmIp, filterTime) {
-    return jsonCall("BreakTimerSetFilter",
-		            `${scheme}://${prmIp}:${port}/breaktimer/reset`,
-		            { reset:0,
-		              filterTime: filterTime},
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/breaktimer/reset`, "POST",
+		              {reset:0,
+		               filterTime: filterTime});
 }
 
 function BreakTimerSensorFlash(prmIp, id, flashtime) {
-    return jsonCall('BreakTimerSensorFlash',
-		            `${scheme}://${prmIp}:${port}/sensor/flash`,
-		            {id: id,
-		             flashtime: flashtime},
-                    {}
-                   );
-}
-
-function BreakTimerDisplayTimes(prmIp) {
-    return jsonCall("BreakTimerDisplayTimes",
-                    `${scheme}://${prmIp}:${port}/breaktimer/display`,
-                    {'clear': 1},
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/sensor/flash`, "POST",
+		              {id: id,
+		               flashtime: flashtime});
 }
 
 function BreakTimerResetTimes(prmIp, filterTime) {
-    let data = {}
+   let data = {}
 
-    if (filterTime) {
-	    data = {filterTime: filterTime};
-    }
+   if (filterTime) {
+	   data = {filterTime: filterTime};
+   }
 
-    return jsonCall("BreakTimerResetTimes",
-                    `${scheme}://${prmIp}:${port}/breaktimer/reset`,
-                    data,
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/breaktimer/reset`, "POST", data);
 }
 
 function BreakTimerSetActive(prmIp, sensors, filterTime) {
-    let data = {sensors: sensors};
+   let data = {sensors: sensors};
 
-    if (filterTime) {
-	    data.filterTime = filterTime;
-    }
+   if (filterTime) {
+	   data.filterTime = filterTime;
+   }
 
-    return jsonCall("BreakTimerSetActive",
-                    `${scheme}://${prmIp}:${port}/breaktimer/active`,
-                    data,
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/breaktimer/active`, "POST", data);
 }
 
 function BreakTimerGetTimes(prmIp, index, marker) {
-    return jsonCall("BreakTimerGetTimes",
-		            `${scheme}://${prmIp}:${port}/breaktimer/get`,
-		            {index: index,
-		             marker: marker},
+   return json_call(`${scheme}://${prmIp}:${port}/breaktimer/get`, "POST", 
+		              {index: index,
+		               marker: marker},
                     {timeout: 2000});
 }
 
 function ListUpdates(prmIp) {
-    return jsonCall("ListUpdates", `${scheme}://${prmIp}:${port}/update/list`, {}, {});
+   return json_call(`${scheme}://${prmIp}:${port}/update/list`, "POST");
 }
 
 function RestartPTPD(prmIp) {
-    return jsonCall("RestartPTZPD", `${scheme}://${prmIp}:${port}/ptpd/restart`, {}, {timeout:60000});
+   return json_call(`${scheme}://${prmIp}:${port}/ptpd/restart`, "POST", {}, {timeout:60000});
 }
 
 function CleanUpdates(prmIp, upd) {
-    return jsonCall("CleanUpdates", `${scheme}://${prmIp}:${port}/update/clean`, {file: upd}, {});
+   return json_call(`${scheme}://${prmIp}:${port}/update/clean`, "POST", {file: upd});
 }
 
 function Kapow(prmIp, name) {
-    return jsonCall("Kapow",
-		            `${scheme}://${prmIp}:${port}/kapow`,
-		            {kapow: name},
-                    {});
+   return json_call(`${scheme}://${prmIp}:${port}/kapow`, "POST", {kapow: name});
 }
 
 function KapowAll(name) {
-    peerList().forEach(peer => Kapow(peer, name));
+   peerList().forEach(peer => Kapow(peer, name));
 }
 
 function SetTimeDate(prmIp, time, date, timeZone, permanent) {
-    if (permanent == null) {
-        permanent = true;
-    }
-    return jsonCall("timedate",
-		            `${scheme}://${prmIp}:${port}/timedate`,
-		            {time:time,
+   if (permanent == null) {
+      permanent = true;
+   }
+   
+   return json_call(`${scheme}://${prmIp}:${port}/timedate`, "POST", 
+		              {time:time,
                      date:date,
                      timeZone:timeZone,
                      permanent: permanent},
