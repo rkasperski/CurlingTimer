@@ -1,4 +1,4 @@
-5.27.1013.rc12 - Tue Nov 24 14:24:54 2026
+5.27.1014.release - Tue Nov 24 15:32:57 2026
 - adjust position of two line times when displayed on a tv
 - make sure time on countdown timer is set appropriately before the page s
   displayed.
